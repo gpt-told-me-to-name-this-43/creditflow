@@ -10,7 +10,7 @@ MVP цифрового кредитного конвейера для малог
 
 ## Целевой стек
 
-Next.js + TypeScript · Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic · PostgreSQL · Ollama + Qwen с открытыми весами · Docker Compose.
+React + TypeScript · Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic · PostgreSQL · Ollama + Qwen с открытыми весами · Docker Compose.
 
 ## PR-шаблоны
 
