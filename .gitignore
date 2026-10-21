@@ -1,0 +1,36 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+
+# Local LLM weights and runtime data (downloaded via `ollama pull`, never committed)
+ollama-data/
+*.gguf
+*.safetensors
+
+# Local database volumes
+pgdata/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
