@@ -21,4 +21,5 @@ class ClientApplicationCreate(BaseModel):
     product_id: str
     purpose_text: str = Field(max_length=2000)
 
-#Ещкерее :)
+
+# Ещкерее :)

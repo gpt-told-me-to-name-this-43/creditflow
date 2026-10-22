@@ -52,17 +52,17 @@ def _split_amount(total_kopecks: int, n_parts: int, rng: random.Random) -> list[
 def generate_company_statements(code: str, inn: str, director_inn: str) -> list[dict]:
     target = TARGETS[code]
     rng = random.Random(f"statements_{code}_v1")
-    
+
     if target["months"] == 0:
         return []
-    
+
     statements = []
     ext_id = 0
     counterparties = COUNTERPARTIES.get(code, [])
-    
+
     end_month = date(APP_AS_OF_DATE.year, APP_AS_OF_DATE.month, 1) - timedelta(days=1)
     start_month = date(end_month.year - 1, end_month.month, 1)
-    
+
     months = []
     cur = start_month
     while cur <= end_month:
@@ -71,37 +71,48 @@ def generate_company_statements(code: str, inn: str, director_inn: str) -> list[
             cur = date(cur.year + 1, 1, 1)
         else:
             cur = date(cur.year, cur.month + 1, 1)
-    
+
     months = months[:target["months"]] if target["months"] <= len(months) else months
-    
+
     if "fixed_net_cashflow" in target:
         fixed = target["fixed_net_cashflow"]
         for i, m in enumerate(months[-6:]):
             net_kopecks = fixed[i]
             revenue_k = int(net_kopecks * 1.5)
             opex_k = revenue_k - net_kopecks
-            
+
             for part in _split_amount(revenue_k, 5, rng):
                 ext_id += 1
+                cp_inn = counterparties[0]["inn"] if counterparties else "7700000000"
+                cp_name = counterparties[0]["name"] if counterparties else "Прочее"
+
                 statements.append({
-                    "company_inn": inn, "external_id": f"stmt_{code}_{ext_id}",
-                    "booked_at": m.isoformat(), "direction": "IN",
+                    "company_inn": inn,
+                    "external_id": f"stmt_{code}_{ext_id}",
+                    "booked_at": m.isoformat(),
+                    "direction": "IN",
                     "amount_kopecks": part,
-                    "counterparty_inn": counterparties[0]["inn"] if counterparties else "7700000000",
-                    "counterparty_name": counterparties[0]["name"] if counterparties else "Прочее",
-                    "is_bank": False, "purpose_text": "Оплата по счёту № 123",
+                    "counterparty_inn": cp_inn,
+                    "counterparty_name": cp_name,
+                    "is_bank": False,
+                    "purpose_text": "Оплата по счёту № 123",
                 })
             for part in _split_amount(opex_k, 3, rng):
                 ext_id += 1
+                cp_inn = counterparties[0]["inn"] if counterparties else "7700000000"
+                cp_name = counterparties[0]["name"] if counterparties else "Прочее"
                 statements.append({
-                    "company_inn": inn, "external_id": f"stmt_{code}_{ext_id}",
-                    "booked_at": m.isoformat(), "direction": "OUT",
+                    "company_inn": inn,
+                    "external_id": f"stmt_{code}_{ext_id}",
+                    "booked_at": m.isoformat(),
+                    "direction": "OUT",
                     "amount_kopecks": part,
-                    "counterparty_inn": counterparties[0]["inn"] if counterparties else "7700000000",
-                    "counterparty_name": counterparties[0]["name"] if counterparties else "Прочее",
-                    "is_bank": False, "purpose_text": "Оплата поставщику",
+                    "counterparty_inn": cp_inn,
+                    "counterparty_name": cp_name,
+                    "is_bank": False,
+                    "purpose_text": "Оплата поставщику",
                 })
-    
+
     if target["debt_svc"] > 0:
         monthly_debt = target["debt_svc"] // len(months)
         for m in months:
@@ -114,7 +125,7 @@ def generate_company_statements(code: str, inn: str, director_inn: str) -> list[
                 "counterparty_name": "АО Альфа-Банк",
                 "is_bank": True, "purpose_text": "Погашение кредита по дог. № 451",
             })
-    
+
     n_unclass = max(1, len(statements) // 30)
     for _ in range(n_unclass):
         ext_id += 1
@@ -127,7 +138,7 @@ def generate_company_statements(code: str, inn: str, director_inn: str) -> list[
             "counterparty_name": "Прочее",
             "is_bank": False, "purpose_text": "Техническая операция",
         })
-    
+
     return sorted(statements, key=lambda x: (x["booked_at"], x["external_id"]))
 
 
@@ -135,24 +146,24 @@ def main():
     import sys
     sys.path.insert(0, str(Path(__file__).parent))
     from gen_registry_ids import DEMO_COMPANIES, build_company
-    
+
     fixtures_dir = Path("ext-sim/fixtures")
     fixtures_dir.mkdir(parents=True, exist_ok=True)
-    
+
     for c in DEMO_COMPANIES:
         if c["code"] in ("C5", "C6", "T1"):
             continue
-        
+
         company = build_company(c)
         inn = company["inn"]
-        
+
         company_dir = fixtures_dir / inn
         company_dir.mkdir(exist_ok=True)
-        
+
         stmts = generate_company_statements(c["code"], inn, company["director_inn"])
         stmts_path = company_dir / "statements.json"
         stmts_path.write_text(json.dumps(stmts, ensure_ascii=False, indent=2))
-        
+
         print(f"[OK] {c['code']} (ИНН {inn}): {len(stmts)} операций → {stmts_path}")
 
 

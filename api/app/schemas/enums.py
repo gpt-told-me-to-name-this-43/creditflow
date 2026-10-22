@@ -12,10 +12,12 @@ class ApplicationStatus(StrEnum):
     SIGNED = "SIGNED"
     ISSUED = "ISSUED"
 
+
 class AiReportStatus(StrEnum):
     PENDING = "PENDING"
     READY = "READY"
     FALLBACK = "FALLBACK"
+
 
 class PurposeCode(StrEnum):
     EQUIPMENT = "EQUIPMENT"
@@ -25,17 +27,20 @@ class PurposeCode(StrEnum):
     SUPPLIERS = "SUPPLIERS"
     WORKING_CAPITAL = "WORKING_CAPITAL"
 
+
 class SuggestedAction(StrEnum):
     BLOCKED_BY_RULE = "BLOCKED_BY_RULE"
     MANUAL_REVIEW = "MANUAL_REVIEW"
     COUNTER_OFFER_CANDIDATE = "COUNTER_OFFER_CANDIDATE"
     ELIGIBLE_FOR_MANAGER_REVIEW = "ELIGIBLE_FOR_MANAGER_REVIEW"
 
+
 class ManagerAction(StrEnum):
     APPROVE = "APPROVE"
     COUNTER_OFFER = "COUNTER_OFFER"
     REQUEST_INFO = "REQUEST_INFO"
     REJECT = "REJECT"
+
 
 class ClientReasonCode(StrEnum):
     COMPANY_STATUS = "COMPANY_STATUS"
@@ -45,11 +50,13 @@ class ClientReasonCode(StrEnum):
     HIGH_DEBT_LOAD = "HIGH_DEBT_LOAD"
     LOW_SCORE = "LOW_SCORE"
 
+
 class RiskLevel(StrEnum):
     LOW = "LOW"
     MODERATE = "MODERATE"
     HIGH = "HIGH"
     VERY_HIGH = "VERY_HIGH"
+
 
 class ReasonCode(StrEnum):
     DSCR_BELOW_ONE = "DSCR_BELOW_ONE"
@@ -65,12 +72,14 @@ class ReasonCode(StrEnum):
     REVENUE_STABLE_OR_GROWING = "REVENUE_STABLE_OR_GROWING"
     ESTABLISHED_BUSINESS = "ESTABLISHED_BUSINESS"
 
+
 class FallbackReason(StrEnum):
     DISABLED = "DISABLED"
     TIMEOUT = "TIMEOUT"
     UNAVAILABLE = "UNAVAILABLE"
     INVALID_OUTPUT = "INVALID_OUTPUT"
     REPLAY_MISS = "REPLAY_MISS"
+
 
 class TermsSource(StrEnum):
     MANUAL = "MANUAL"

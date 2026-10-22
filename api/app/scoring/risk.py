@@ -19,17 +19,13 @@ class RiskEngine:
         A = self.calculate_annuity_factor(n)
         return amount * A
 
-    def calculate_dscr(
-        self, cfads: Decimal, existing_debt: Decimal, payment: Decimal
-    ) -> Decimal:
+    def calculate_dscr(self, cfads: Decimal, existing_debt: Decimal, payment: Decimal) -> Decimal:
         denominator = existing_debt + payment
         if denominator <= 0:
             raise ValueError("Debt service + payment must be > 0")
         return cfads / denominator
 
-    def calculate_limit(
-        self, cfads: Decimal, existing_debt: Decimal, A: Decimal
-    ) -> Decimal | None:
+    def calculate_limit(self, cfads: Decimal, existing_debt: Decimal, A: Decimal) -> Decimal | None:
         p_max = max(Decimal("0"), (cfads / Decimal("1.25")) - existing_debt)
 
         raw_limit = min(p_max / A, self.max_amount)

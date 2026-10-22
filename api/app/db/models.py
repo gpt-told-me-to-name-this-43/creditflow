@@ -8,11 +8,12 @@ from sqlalchemy.orm import DeclarativeBase
 class Base(DeclarativeBase):
     pass
 
+
 class ScoringResult(Base):
-    __tablename__ = 'scoring_results'
+    __tablename__ = "scoring_results"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    application_id = Column(UUID(as_uuid=True), ForeignKey('applications.id'), nullable=False)
+    application_id = Column(UUID(as_uuid=True), ForeignKey("applications.id"), nullable=False)
     kind = Column(String, nullable=False)
 
     monthly_payment_rub = Column(Numeric(15, 2), nullable=False)

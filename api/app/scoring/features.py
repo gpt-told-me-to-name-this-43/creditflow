@@ -29,9 +29,7 @@ class FeatureBuilder:
         transactions: список dict с полями: booked_at (str 'YYYY-MM-DD'),
         direction ('IN'/'OUT'), amount_kopecks (int), category (str).
         """
-        end_month = date(
-            self.as_of_date.year, self.as_of_date.month, 1
-        ) - date.resolution
+        end_month = date(self.as_of_date.year, self.as_of_date.month, 1) - date.resolution
         start_month = date(end_month.year - 1, end_month.month, 1)
 
         monthly_data = defaultdict(
@@ -68,18 +66,14 @@ class FeatureBuilder:
         opexes = [monthly_data[m]["opex"] for m in months]
         debt_svcs = [monthly_data[m]["debt_svc"] for m in months]
 
-        net_cashflows = [
-            revenues[i] - opexes[i] for i in range(len(months))
-        ]
+        net_cashflows = [revenues[i] - opexes[i] for i in range(len(months))]
         last_6_net = net_cashflows[-6:]
         cfads = self._median(last_6_net)
 
         first_3_rev = sum(revenues[:3])
         last_3_rev = sum(revenues[-3:])
         if first_3_rev > 0:
-            revenue_change_pct = (
-                (last_3_rev / first_3_rev) - Decimal("1")
-            ) * Decimal("100")
+            revenue_change_pct = ((last_3_rev / first_3_rev) - Decimal("1")) * Decimal("100")
         else:
             revenue_change_pct = Decimal("0")
 

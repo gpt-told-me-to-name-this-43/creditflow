@@ -34,9 +34,7 @@ def load_fixtures(
     target_dir = fixtures_dir or DEFAULT_FIXTURES_DIR
 
     if not target_dir.exists():
-        raise FileNotFoundError(
-            f"Директория с фикстурами не найдена: {target_dir}"
-        )
+        raise FileNotFoundError(f"Директория с фикстурами не найдена: {target_dir}")
 
     companies = {}
 
@@ -48,8 +46,7 @@ def load_fixtures(
 
         if not (inn.isdigit() and len(inn) in (10, 12)):
             raise ValueError(
-                f"{target_dir}: имя каталога должно быть ИНН "
-                f"(10 или 12 цифр), получено: '{inn}'"
+                f"{target_dir}: имя каталога должно быть ИНН (10 или 12 цифр), получено: '{inn}'"
             )
 
         company_data: dict[str, Any] = {"inn": inn}
@@ -59,9 +56,7 @@ def load_fixtures(
             if is_json and file_path.name != "statements.json":
                 try:
                     key = file_path.stem
-                    company_data[key] = json.loads(
-                        file_path.read_text(encoding="utf-8")
-                    )
+                    company_data[key] = json.loads(file_path.read_text(encoding="utf-8"))
                 except Exception as e:
                     print(f"Warning: Failed to load {file_path}: {e}")
 
@@ -70,9 +65,7 @@ def load_fixtures(
     return companies
 
 
-def load_statements(
-    inn: str, fixtures_dir: Path | None = None
-) -> list[dict[str, Any]]:
+def load_statements(inn: str, fixtures_dir: Path | None = None) -> list[dict[str, Any]]:
     target_dir = fixtures_dir or DEFAULT_FIXTURES_DIR
     stmt_file = target_dir / inn / "statements.json"
     if stmt_file.exists():

@@ -3,13 +3,15 @@ from typing import ClassVar
 
 
 class DecisionPolicy:
-    STOP_FACTORS: ClassVar[frozenset[str]] = frozenset({
-        "COMPANY_INACTIVE",
-        "APPLICANT_NOT_AUTHORIZED",
-        "BANKRUPTCY_PROCEEDING",
-        "ACCOUNT_BLOCKED_BY_FNS",
-        "ACCOUNT_HISTORY_INSUFFICIENT",
-    })
+    STOP_FACTORS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "COMPANY_INACTIVE",
+            "APPLICANT_NOT_AUTHORIZED",
+            "BANKRUPTCY_PROCEEDING",
+            "ACCOUNT_BLOCKED_BY_FNS",
+            "ACCOUNT_HISTORY_INSUFFICIENT",
+        }
+    )
 
     def evaluate(
         self,
@@ -23,11 +25,13 @@ class DecisionPolicy:
         suggested_action = None
 
         is_blocked = len(blocking_codes) > 0
-        rule_trace.append({
-            "rule": "R1",
-            "matched": is_blocked,
-            "detail": blocking_codes if is_blocked else None,
-        })
+        rule_trace.append(
+            {
+                "rule": "R1",
+                "matched": is_blocked,
+                "detail": blocking_codes if is_blocked else None,
+            }
+        )
         if is_blocked:
             suggested_action = "BLOCKED_BY_RULE"
 
@@ -46,11 +50,13 @@ class DecisionPolicy:
         if not suggested_action and is_eligible:
             suggested_action = "ELIGIBLE_FOR_MANAGER_REVIEW"
 
-        rule_trace.append({
-            "rule": "R5",
-            "matched": suggested_action is None,
-            "detail": None,
-        })
+        rule_trace.append(
+            {
+                "rule": "R5",
+                "matched": suggested_action is None,
+                "detail": None,
+            }
+        )
         if not suggested_action:
             suggested_action = "MANUAL_REVIEW"
 

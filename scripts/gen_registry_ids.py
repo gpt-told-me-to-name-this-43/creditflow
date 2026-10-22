@@ -1,7 +1,7 @@
 """Генерация валидных ИНН/ОГРН с корректными контрольными суммами"""
 
 def _checksum(digits: list[int], coefficients: list[int]) -> int:
-    return sum(d * c for d, c in zip(digits, coefficients)) % 11 % 10
+    return sum(d * c for d, c in zip(digits, coefficients, strict=False)) % 11 % 10
 
 
 def gen_inn_ll(base9: str) -> str:
@@ -20,7 +20,7 @@ def gen_inn_ie(base10: str) -> str:
     coefs1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8]
     coefs2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]
     c1 = _checksum(digits, coefs1)
-    c2 = _checksum(digits + [c1], coefs2)
+    c2 = _checksum([*digits, c1], coefs2)
     return base10 + str(c1) + str(c2)
 
 
@@ -86,7 +86,9 @@ DEMO_COMPANIES = [
         "status": "ACTIVE", "bankruptcy": False, "fns_blocks": 0,
         "bki_status": "CLEAN", "monthly_payments_bki": 0,
         "scenario": "investment", "amount": 500000, "term": 24,
-        "expected": {"action": "BLOCKED_BY_RULE", "blocking_codes": ["ACCOUNT_HISTORY_INSUFFICIENT"]},
+        "expected": {
+            "action": "BLOCKED_BY_RULE",
+            "blocking_codes": ["ACCOUNT_HISTORY_INSUFFICIENT"],},
     },
     # C5: Вектор — BLOCKED (LIQUIDATING)
     {
@@ -137,8 +139,9 @@ DEMO_COMPANIES = [
 
 
 def build_company(c: dict) -> dict:
-    """Собирает компанию с вычисленными ИНН/ОГРН."""
-    out = {k: v for k, v in c.items() if k not in ("inn_base9", "inn_base10", "ogrn_base12", "ogrn_base14", "director")}
+    out = {
+    k: v for k, v in c.items()
+    if k not in ("inn_base9", "inn_base10", "ogrn_base12", "ogrn_base14", "director")}
     if c["legal_form"] == "LLC":
         out["inn"] = gen_inn_ll(c["inn_base9"])
         out["ogrn"] = gen_ogrn_ll(c["ogrn_base12"])
@@ -159,18 +162,18 @@ def generate_ext_sim_fixtures():
     """Генерирует полную структуру фикстур для ext-sim."""
     import json
     from pathlib import Path
-    
+
     fixtures_dir = Path("ext-sim/fixtures")
-    
+
     for c in DEMO_COMPANIES:
         if c["code"] == "T1":
             continue
-            
+
         company = build_company(c)
         inn = company["inn"]
         company_dir = fixtures_dir / inn
         company_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # ЕГРЮЛ/ЕГРИП
         if c["legal_form"] == "LLC":
             egrul = {
@@ -202,7 +205,7 @@ def generate_ext_sim_fixtures():
                 }
             }
             (company_dir / "egrip.json").write_text(json.dumps(egrip, ensure_ascii=False, indent=2))
-        
+
         # ФНС
         fns = {
             "inn": inn,
@@ -210,7 +213,7 @@ def generate_ext_sim_fixtures():
             "fns_blocks": c.get("fns_blocks", 0)
         }
         (company_dir / "fns.json").write_text(json.dumps(fns, ensure_ascii=False, indent=2))
-        
+
         # БКИ
         bki = {
             "inn": inn,
@@ -218,7 +221,7 @@ def generate_ext_sim_fixtures():
             "monthly_payments_total_rub": c.get("monthly_payments_bki", 0)
         }
         (company_dir / "bki.json").write_text(json.dumps(bki, ensure_ascii=False, indent=2))
-        
+
         print(f"[OK] {c['code']} (ИНН {inn}): фикстуры ext-sim созданы")
 
 
@@ -226,6 +229,6 @@ if __name__ == "__main__":
     import json
     for c in DEMO_COMPANIES:
         print(json.dumps(build_company(c), ensure_ascii=False, indent=2))
-    
+
     print("\n--- Генерация фикстур ext-sim ---")
     generate_ext_sim_fixtures()
