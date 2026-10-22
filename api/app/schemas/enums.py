@@ -1,6 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
-class ApplicationStatus(str, Enum):
+
+class ApplicationStatus(StrEnum):
     DRAFT = "DRAFT"
     UNDER_REVIEW = "UNDER_REVIEW"
     APPROVED = "APPROVED"
@@ -11,12 +12,12 @@ class ApplicationStatus(str, Enum):
     SIGNED = "SIGNED"
     ISSUED = "ISSUED"
 
-class AiReportStatus(str, Enum):
+class AiReportStatus(StrEnum):
     PENDING = "PENDING"
     READY = "READY"
     FALLBACK = "FALLBACK"
 
-class PurposeCode(str, Enum):
+class PurposeCode(StrEnum):
     EQUIPMENT = "EQUIPMENT"
     RENOVATION = "RENOVATION"
     BUSINESS_EXPANSION = "BUSINESS_EXPANSION"
@@ -24,19 +25,19 @@ class PurposeCode(str, Enum):
     SUPPLIERS = "SUPPLIERS"
     WORKING_CAPITAL = "WORKING_CAPITAL"
 
-class SuggestedAction(str, Enum):
+class SuggestedAction(StrEnum):
     BLOCKED_BY_RULE = "BLOCKED_BY_RULE"
     MANUAL_REVIEW = "MANUAL_REVIEW"
     COUNTER_OFFER_CANDIDATE = "COUNTER_OFFER_CANDIDATE"
     ELIGIBLE_FOR_MANAGER_REVIEW = "ELIGIBLE_FOR_MANAGER_REVIEW"
 
-class ManagerAction(str, Enum):
+class ManagerAction(StrEnum):
     APPROVE = "APPROVE"
     COUNTER_OFFER = "COUNTER_OFFER"
     REQUEST_INFO = "REQUEST_INFO"
     REJECT = "REJECT"
 
-class ClientReasonCode(str, Enum):
+class ClientReasonCode(StrEnum):
     COMPANY_STATUS = "COMPANY_STATUS"
     APPLICANT_NOT_AUTHORIZED = "APPLICANT_NOT_AUTHORIZED"
     TAX_AUTHORITY_RESTRICTIONS = "TAX_AUTHORITY_RESTRICTIONS"
@@ -44,13 +45,13 @@ class ClientReasonCode(str, Enum):
     HIGH_DEBT_LOAD = "HIGH_DEBT_LOAD"
     LOW_SCORE = "LOW_SCORE"
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     LOW = "LOW"
     MODERATE = "MODERATE"
     HIGH = "HIGH"
     VERY_HIGH = "VERY_HIGH"
 
-class ReasonCode(str, Enum):
+class ReasonCode(StrEnum):
     DSCR_BELOW_ONE = "DSCR_BELOW_ONE"
     DSCR_BELOW_TARGET = "DSCR_BELOW_TARGET"
     CREDIT_HISTORY_SERIOUS = "CREDIT_HISTORY_SERIOUS"
@@ -64,14 +65,14 @@ class ReasonCode(str, Enum):
     REVENUE_STABLE_OR_GROWING = "REVENUE_STABLE_OR_GROWING"
     ESTABLISHED_BUSINESS = "ESTABLISHED_BUSINESS"
 
-class FallbackReason(str, Enum):
+class FallbackReason(StrEnum):
     DISABLED = "DISABLED"
     TIMEOUT = "TIMEOUT"
     UNAVAILABLE = "UNAVAILABLE"
     INVALID_OUTPUT = "INVALID_OUTPUT"
     REPLAY_MISS = "REPLAY_MISS"
 
-class TermsSource(str, Enum):
+class TermsSource(StrEnum):
     MANUAL = "MANUAL"
     RULES_CONFIRMED = "RULES_CONFIRMED"
     LLM_CONFIRMED = "LLM_CONFIRMED"

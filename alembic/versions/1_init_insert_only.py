@@ -1,5 +1,6 @@
 from alembic import op
 
+
 def upgrade() -> None:
     op.execute("""
         CREATE OR REPLACE FUNCTION prevent_update_delete()

@@ -3,7 +3,6 @@
 """
 import json
 import random
-from decimal import Decimal
 from datetime import date, timedelta
 from pathlib import Path
 

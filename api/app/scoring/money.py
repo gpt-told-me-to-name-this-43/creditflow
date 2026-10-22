@@ -1,6 +1,5 @@
-from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN, InvalidOperation, localcontext
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, InvalidOperation
 
-MONEY_CONTEXT = localcontext(prec=34)
 
 def to_decimal(value: str | int | Decimal) -> Decimal:
     if isinstance(value, float):
@@ -8,13 +7,16 @@ def to_decimal(value: str | int | Decimal) -> Decimal:
     try:
         return Decimal(str(value))
     except InvalidOperation:
-        raise ValueError(f"Invalid decimal value: {value}")
+        raise ValueError(f"Invalid decimal value: {value}") from None
+
 
 def round_money(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
+
 def display_dscr(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+
 
 def floor_to_10k(value: Decimal) -> Decimal:
     return (value // Decimal("10000")) * Decimal("10000")

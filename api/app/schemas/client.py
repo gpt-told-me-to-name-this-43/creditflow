@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
+
 from .common import MoneyStr
 from .enums import ApplicationStatus, PurposeCode, TermsSource
+
 
 class ClientApplicationView(BaseModel):
     id: str

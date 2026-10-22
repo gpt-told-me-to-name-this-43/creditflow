@@ -157,8 +157,8 @@ def build_company(c: dict) -> dict:
 
 def generate_ext_sim_fixtures():
     """Генерирует полную структуру фикстур для ext-sim."""
-    from pathlib import Path
     import json
+    from pathlib import Path
     
     fixtures_dir = Path("ext-sim/fixtures")
     

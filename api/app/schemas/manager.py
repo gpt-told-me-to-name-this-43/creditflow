@@ -1,6 +1,8 @@
 from pydantic import BaseModel
-from .common import MoneyStr, DscrStr
-from .enums import ApplicationStatus, SuggestedAction, RiskLevel, ManagerAction
+
+from .common import DscrStr, MoneyStr
+from .enums import ApplicationStatus, ManagerAction, RiskLevel, SuggestedAction
+
 
 class ManagerApplicationView(BaseModel):
     id: str

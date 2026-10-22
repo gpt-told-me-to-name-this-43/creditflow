@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, field_validator
 import re
+
+from pydantic import BaseModel, Field
 
 MONEY_PATTERN = r'^-?\d+\.\d{2}$'
 DSCR_PATTERN = r'^-?\d+\.\d{2}$'
