@@ -390,9 +390,10 @@
       },
       "FailKind": {
         "enum": [
-          "timeout",
-          "500",
-          "503"
+          "bki_timeout",
+          "fns_timeout",
+          "egrul_timeout",
+          "egrip_timeout"
         ],
         "title": "FailKind",
         "type": "string"
