@@ -34,8 +34,14 @@ def short_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(main, "TIMEOUT_SLEEP_SECONDS", 0.05)
 
 
-EXPECTED = {"timeout": (504, "SIMULATED_TIMEOUT"), "500": (500, "SIMULATED_ERROR"),
-            "503": (503, "SIMULATED_UNAVAILABLE")}  # fmt: skip
+# В начале файла test_failures.py
+
+EXPECTED = {
+    "bki_timeout": (504, "SIMULATED_TIMEOUT"),
+    "fns_timeout": (504, "SIMULATED_TIMEOUT"),
+    "egrul_timeout": (504, "SIMULATED_TIMEOUT"),
+    "egrip_timeout": (504, "SIMULATED_TIMEOUT"),
+}
 
 
 @pytest.mark.parametrize("source", sorted(REQUESTS))
@@ -49,7 +55,7 @@ async def test_x_sim_fail_header(client: httpx.AsyncClient, source: str, mode: s
 
 async def test_x_sim_fail_timeout_holds_connection(client: httpx.AsyncClient) -> None:
     started = time.perf_counter()
-    await call(client, "egrul", SAMPLE_INN, headers={"X-Sim-Fail": "timeout"})
+    await call(client, "egrul", SAMPLE_INN, headers={"X-Sim-Fail": "egrul_timeout"})
     assert time.perf_counter() - started >= 0.05
 
 

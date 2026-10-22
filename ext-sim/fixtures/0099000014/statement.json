@@ -1,0 +1,11 @@
+{
+  "account_masked": "*1234",
+  "transactions": [
+    {
+      "booked_at": "2026-09-15",
+      "direction": "IN",
+      "amount_kopecks": 100000,
+      "category": "CUSTOMER_PAYMENT"
+    }
+  ]
+}
