@@ -1,5 +1,5 @@
 #!/bin/sh
-# Старт api: миграции → базовый seed (идемпотентный) → uvicorn.
+# РЎС‚Р°СЂС‚ api: РјРёРіСЂР°С†РёРё в†’ Р±Р°Р·РѕРІС‹Р№ seed (РёРґРµРјРїРѕС‚РµРЅС‚РЅС‹Р№) в†’ uvicorn.
 set -eu
 alembic upgrade head
 python -m app.seed

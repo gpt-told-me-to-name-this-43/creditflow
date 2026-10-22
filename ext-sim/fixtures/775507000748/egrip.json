@@ -1,0 +1,13 @@
+{
+  "inn": "775507000748",
+  "ogrn": "321770000000075",
+  "name": "ИП Орлов Д.С.",
+  "legal_form": "IE",
+  "status": "ACTIVE",
+  "okved_main": "49.41",
+  "registered_at": "2023-02-10",
+  "entrepreneur": {
+    "full_name": "Орлов Дмитрий Степанович",
+    "inn": "775507000748"
+  }
+}

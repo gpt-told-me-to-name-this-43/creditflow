@@ -40,7 +40,6 @@ def gen_ogrn_ie(base14: str) -> str:
     return base14 + str(c)
 
 
-# Фикстуры демо-компаний (синтетические, не реальные)
 DEMO_COMPANIES = [
     # C1: ТехСервис — идеальная, ELIGIBLE
     {
@@ -153,7 +152,80 @@ def build_company(c: dict) -> dict:
     return out
 
 
+
+
+
+def generate_ext_sim_fixtures():
+    """Генерирует полную структуру фикстур для ext-sim."""
+    from pathlib import Path
+    import json
+    
+    fixtures_dir = Path("ext-sim/fixtures")
+    
+    for c in DEMO_COMPANIES:
+        if c["code"] == "T1":
+            continue
+            
+        company = build_company(c)
+        inn = company["inn"]
+        company_dir = fixtures_dir / inn
+        company_dir.mkdir(parents=True, exist_ok=True)
+        
+        # ЕГРЮЛ/ЕГРИП
+        if c["legal_form"] == "LLC":
+            egrul = {
+                "inn": inn,
+                "ogrn": company["ogrn"],
+                "name": c["name"],
+                "legal_form": "LLC",
+                "status": c["status"],
+                "okved_main": c["okved"],
+                "registered_at": c["registered_at"],
+                "director": {
+                    "full_name": c["director"]["full_name"],
+                    "inn": company["director_inn"]
+                }
+            }
+            (company_dir / "egrul.json").write_text(json.dumps(egrul, ensure_ascii=False, indent=2))
+        else:
+            egrip = {
+                "inn": inn,
+                "ogrn": company["ogrn"],
+                "name": c["name"],
+                "legal_form": "IE",
+                "status": c["status"],
+                "okved_main": c["okved"],
+                "registered_at": c["registered_at"],
+                "entrepreneur": {
+                    "full_name": c["director"]["full_name"],
+                    "inn": inn
+                }
+            }
+            (company_dir / "egrip.json").write_text(json.dumps(egrip, ensure_ascii=False, indent=2))
+        
+        # ФНС
+        fns = {
+            "inn": inn,
+            "bankruptcy": c.get("bankruptcy", False),
+            "fns_blocks": c.get("fns_blocks", 0)
+        }
+        (company_dir / "fns.json").write_text(json.dumps(fns, ensure_ascii=False, indent=2))
+        
+        # БКИ
+        bki = {
+            "inn": inn,
+            "summary_status": c["bki_status"],
+            "monthly_payments_total_rub": c.get("monthly_payments_bki", 0)
+        }
+        (company_dir / "bki.json").write_text(json.dumps(bki, ensure_ascii=False, indent=2))
+        
+        print(f"[OK] {c['code']} (ИНН {inn}): фикстуры ext-sim созданы")
+
+
 if __name__ == "__main__":
     import json
     for c in DEMO_COMPANIES:
         print(json.dumps(build_company(c), ensure_ascii=False, indent=2))
+    
+    print("\n--- Генерация фикстур ext-sim ---")
+    generate_ext_sim_fixtures()

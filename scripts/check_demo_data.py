@@ -1,20 +1,18 @@
-"""Прогоняет фикстуры через финансовое ядро и сверяет со спецификацией."""
 import sys
-from decimal import Decimal
 from pathlib import Path
+from decimal import Decimal
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "api"))
 
 from app.scoring.risk import RiskEngine
 from app.scoring.policy import DecisionPolicy
-from app.scoring.features import FeatureBuilder
-from gen_registry_ids import DEMO_COMPANIES, build_company
 
+# Инициализация движка: ставка 24%, макс 5 млн, мин 100 тыс (из design.md)
 ENGINE = RiskEngine(rate_pct=Decimal("24"), max_amount=Decimal("5000000"), min_amount=Decimal("100000"))
 POLICY = DecisionPolicy()
 
+
 def check_c1():
-    # cfads=400000, debt=50000, term=36, amount=2000000
     cfads = Decimal("400000")
     debt = Decimal("50000")
     A = ENGINE.calculate_annuity_factor(36)
@@ -23,15 +21,14 @@ def check_c1():
     score = ENGINE.calculate_score(dscr, "CLEAN", Decimal("5"), 60)
     limit = ENGINE.calculate_limit(cfads, debt, A)
     
-    assert str(P.quantize(Decimal("0.01"))) == "78464.88" or True  # уточнить по факту
-    assert dscr >= Decimal("3.11") and dscr < Decimal("3.12")
-    assert score["score"] == 100
-    assert score["risk_level"] == "LOW"
-    assert limit == Decimal("5000000")
+    assert score["score"] == 100, f"C1 score: {score['score']}"
+    assert score["risk_level"] == "LOW", f"C1 risk: {score['risk_level']}"
+    assert dscr >= Decimal("3.11") and dscr < Decimal("3.12"), f"C1 DSCR: {dscr}"
+    assert limit == Decimal("5000000"), f"C1 limit: {limit}"
     
     decision = POLICY.evaluate([], "CLEAN", dscr, limit, score["score"])
     assert decision["suggested_action"] == "ELIGIBLE_FOR_MANAGER_REVIEW"
-    print("[OK] C1: ELIGIBLE, score 100, DSCR 3.11")
+    print("[OK] C1: ELIGIBLE, score 100, DSCR 3.11, limit 5 000 000")
 
 
 def check_c2():
@@ -43,15 +40,15 @@ def check_c2():
     score = ENGINE.calculate_score(dscr, "CLEAN", Decimal("-8"), 36)
     limit = ENGINE.calculate_limit(cfads, debt, A)
     
-    assert P.quantize(Decimal("0.01")) == Decimal("117698.56"), f"P={P}"
-    assert dscr >= Decimal("1.10") and dscr < Decimal("1.11")
-    assert score["score"] == 63
-    assert score["risk_level"] == "MODERATE"
-    assert limit == Decimal("2340000"), f"limit={limit}"
+    assert P.quantize(Decimal("0.01")) == Decimal("117698.56"), f"C2 P: {P.quantize(Decimal('0.01'))}"
+    assert dscr >= Decimal("1.10") and dscr < Decimal("1.11"), f"C2 DSCR: {dscr}"
+    assert score["score"] == 63, f"C2 score: {score['score']}"
+    assert score["risk_level"] == "MODERATE", f"C2 risk: {score['risk_level']}"
+    assert limit == Decimal("2340000"), f"C2 limit: {limit}"
     
     decision = POLICY.evaluate([], "CLEAN", dscr, limit, score["score"])
     assert decision["suggested_action"] == "COUNTER_OFFER_CANDIDATE"
-    print("[OK] C2: COUNTER_OFFER, score 63, limit 2340000")
+    print("[OK] C2: COUNTER_OFFER, score 63, DSCR 1.10, limit 2 340 000")
 
 
 def check_c7():
@@ -63,10 +60,10 @@ def check_c7():
     score = ENGINE.calculate_score(dscr, "CLEAN", Decimal("0"), 36)
     limit = ENGINE.calculate_limit(cfads, debt, A)
     
-    assert dscr >= Decimal("0.86") and dscr < Decimal("0.87")
-    assert score["score"] == 60
-    assert score["risk_level"] == "HIGH"  # DSCR < 1.00 → не ниже HIGH
-    assert limit is None
+    assert dscr >= Decimal("0.86") and dscr < Decimal("0.87"), f"C7 DSCR: {dscr}"
+    assert score["score"] == 60, f"C7 score: {score['score']}"
+    assert score["risk_level"] == "HIGH", f"C7 risk: {score['risk_level']} (DSCR < 1.00 forces HIGH)"
+    assert limit is None, f"C7 limit: {limit}"
     
     decision = POLICY.evaluate([], "CLEAN", dscr, limit, score["score"])
     assert decision["suggested_action"] == "MANUAL_REVIEW"
