@@ -1,0 +1,95 @@
+# CreditFlow: локальный стек (design.md §3.2).
+# Наружу опубликован только web (http://localhost:8080). Порты api и db для
+# разработки открывает docker-compose.dev.yml (`make dev`).
+# docker-compose.override.yml в репозитории нет и быть не должно: Compose
+# подхватил бы его автоматически.
+
+name: creditflow
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?задайте POSTGRES_DB в .env}
+      POSTGRES_USER: ${POSTGRES_USER:?задайте POSTGRES_USER в .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ext-sim:
+    build: ./ext-sim
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    env_file: .env
+    extra_hosts:
+      # Для LLM на хосте (Ollama, vLLM): LLM_BASE_URL=http://host.docker.internal:<порт>/v1
+      - host.docker.internal:host-gateway
+    depends_on:
+      db:
+        condition: service_healthy
+      # Без ext-sim api стартует и отвечает health `degraded` (design.md §3.7).
+      ext-sim:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=4)
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Опционально: локальная LLM для офлайн-запуска (`make up-llm`).
+  # Модель скачивается отдельно: docker compose exec ollama ollama pull <модель>
+  # В .env: LLM_MODE=openai, LLM_BASE_URL=http://ollama:11434/v1, LLM_MODEL=<модель>.
+  ollama:
+    image: ollama/ollama:0.40.8
+    profiles: [llm]
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  pgdata:
+  ollama-data:

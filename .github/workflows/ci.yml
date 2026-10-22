@@ -1,0 +1,167 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_PYTHON_DOWNLOADS: never
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: creditflow
+          POSTGRES_USER: creditflow
+          POSTGRES_PASSWORD: creditflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U creditflow -d creditflow"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      APP_ENV: test
+      TEST_DATABASE_URL: postgresql+psycopg://creditflow:creditflow@localhost:5432/creditflow
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: api/uv.lock
+      # --locked падает, если uv.lock не соответствует pyproject.toml (--frozen этого не проверяет).
+      - run: uv sync --locked
+      - run: uv run ruff check . ../scripts
+      - run: uv run ruff format --check . ../scripts
+      - run: uv run mypy app tests alembic ../scripts
+      - run: uv run pytest
+
+  ext-sim:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ext-sim
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: ext-sim/uv.lock
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy app tests
+      - run: uv run pytest
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm exec vite build
+
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+      - run: uv sync --locked --directory api
+      - run: uv sync --locked --directory ext-sim
+      - run: make openapi er
+      - name: docs/ совпадает с кодом
+        run: |
+          git status --porcelain docs/
+          git diff --exit-code docs/
+          test -z "$(git status --porcelain docs/)"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Нет docker-compose.override.yml
+        run: |
+          if ls docker-compose.override.y*ml compose.override.y*ml 2>/dev/null; then
+            echo "::error::override-файл открыл бы порты автоматически (design.md §3.2)"; exit 1
+          fi
+      - run: cp .env.example .env
+      - name: Порты опубликованы только у web
+        run: |
+          published=$(docker compose --profile llm config --format json \
+            | jq -c '[.services | to_entries[] | select((.value.ports // []) | length > 0) | .key]')
+          echo "services with ports: $published"
+          test "$published" = '["web"]'
+      - run: docker compose build
+      - name: Стек поднимается и отвечает
+        run: |
+          docker compose up -d --wait --wait-timeout 180
+          curl -fsS http://localhost:8080/ | grep -q CreditFlow
+          curl -fsS http://localhost:8080/api/v1/health
+          curl -fsS -o /dev/null http://localhost:8080/api/docs
+      - name: Повторный старт api не ломает seed
+        run: |
+          docker compose restart api
+          scripts/ci/wait-api.sh ok 200
+      - name: Без ext-sim api остаётся healthy, health → 200 degraded
+        run: |
+          docker compose stop ext-sim
+          docker compose restart api
+          scripts/ci/wait-api.sh degraded 200
+          jq -e '.db == "ok" and .ext_sim == "unavailable"' health.json
+          docker compose start ext-sim
+      - name: Холодный старт без ext-sim → health 200 degraded
+        run: |
+          docker compose down
+          # --no-deps: иначе Compose поднял бы ext-sim как зависимость api.
+          docker compose up -d --wait --wait-timeout 120 db
+          docker compose up -d --wait --wait-timeout 180 --no-deps api
+          docker compose up -d --wait --wait-timeout 60 --no-deps web
+          running=$(docker compose ps --status running --services)
+          echo "running: $running"
+          if echo "$running" | grep -qx ext-sim; then
+            echo "::error::ext-sim не должен быть запущен"; exit 1
+          fi
+          scripts/ci/wait-api.sh degraded 200
+          jq -e '.db == "ok" and .ext_sim == "unavailable"' health.json
+      - if: failure()
+        run: docker compose logs --no-color
+      - if: always()
+        run: docker compose down -v

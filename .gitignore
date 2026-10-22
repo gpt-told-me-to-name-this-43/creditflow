@@ -7,6 +7,7 @@
 __pycache__/
 *.py[cod]
 .venv/
+.uv/
 venv/
 .pytest_cache/
 .mypy_cache/
@@ -15,12 +16,16 @@ venv/
 htmlcov/
 *.egg-info/
 
-# Node / Next.js
+# Node / Vite
 node_modules/
-.next/
-out/
+web/dist/
 *.tsbuildinfo
 npm-debug.log*
+pnpm-debug.log*
+
+# Playwright
+playwright-report/
+test-results/
 
 # Local LLM weights and runtime data (downloaded via `ollama pull`, never committed)
 ollama-data/

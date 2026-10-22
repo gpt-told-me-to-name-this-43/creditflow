@@ -1,0 +1,1171 @@
+{
+  "components": {
+    "schemas": {
+      "BankStatement": {
+        "additionalProperties": false,
+        "examples": [
+          {
+            "account_masked": "40702 •••• 0014",
+            "from": "2026-09-01",
+            "inn": "0099000014",
+            "to": "2026-09-30",
+            "transactions": [
+              {
+                "amount_rub": "350000.00",
+                "booked_at": "2026-09-05",
+                "counterparty": {
+                  "inn": "0099000021",
+                  "is_bank": false,
+                  "name": "ООО «Покупатель Образца»"
+                },
+                "direction": "IN",
+                "external_id": "0099000014-000003",
+                "purpose": "Оплата по счёту № 17 от 01.09.2026"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "account_masked": {
+            "title": "Account Masked",
+            "type": "string"
+          },
+          "from": {
+            "format": "date",
+            "title": "From",
+            "type": "string"
+          },
+          "inn": {
+            "title": "Inn",
+            "type": "string"
+          },
+          "to": {
+            "format": "date",
+            "title": "To",
+            "type": "string"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            },
+            "title": "Transactions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "inn",
+          "account_masked",
+          "from",
+          "to",
+          "transactions"
+        ],
+        "title": "BankStatement",
+        "type": "object"
+      },
+      "BkiObligation": {
+        "additionalProperties": false,
+        "properties": {
+          "creditor_name": {
+            "title": "Creditor Name",
+            "type": "string"
+          },
+          "monthly_payment_rub": {
+            "examples": [
+              "123.45"
+            ],
+            "pattern": "^\\d+\\.\\d{2}$",
+            "title": "Monthly Payment Rub",
+            "type": "string"
+          },
+          "outstanding_rub": {
+            "examples": [
+              "123.45"
+            ],
+            "pattern": "^\\d+\\.\\d{2}$",
+            "title": "Outstanding Rub",
+            "type": "string"
+          }
+        },
+        "required": [
+          "creditor_name",
+          "monthly_payment_rub",
+          "outstanding_rub"
+        ],
+        "title": "BkiObligation",
+        "type": "object"
+      },
+      "BkiReport": {
+        "additionalProperties": false,
+        "examples": [
+          {
+            "monthly_payments_total_rub": "45000.00",
+            "obligations": [
+              {
+                "creditor_name": "Банк Образец",
+                "monthly_payment_rub": "45000.00",
+                "outstanding_rub": "900000.00"
+              }
+            ],
+            "report_id": "5b0c3c1e-6f0e-5d55-9a43-8d7b8f3c2a10",
+            "summary_status": "CLEAN"
+          }
+        ],
+        "properties": {
+          "monthly_payments_total_rub": {
+            "examples": [
+              "123.45"
+            ],
+            "pattern": "^\\d+\\.\\d{2}$",
+            "title": "Monthly Payments Total Rub",
+            "type": "string"
+          },
+          "obligations": {
+            "items": {
+              "$ref": "#/components/schemas/BkiObligation"
+            },
+            "title": "Obligations",
+            "type": "array"
+          },
+          "report_id": {
+            "title": "Report Id",
+            "type": "string"
+          },
+          "summary_status": {
+            "$ref": "#/components/schemas/BkiSummaryStatus"
+          }
+        },
+        "required": [
+          "report_id",
+          "summary_status",
+          "monthly_payments_total_rub",
+          "obligations"
+        ],
+        "title": "BkiReport",
+        "type": "object"
+      },
+      "BkiReportRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "consent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "id согласия на запрос в БКИ; без него — 403",
+            "title": "Consent Id"
+          },
+          "inn": {
+            "pattern": "^\\d{10}$|^\\d{12}$",
+            "title": "Inn",
+            "type": "string"
+          }
+        },
+        "required": [
+          "inn"
+        ],
+        "title": "BkiReportRequest",
+        "type": "object"
+      },
+      "BkiSummaryStatus": {
+        "enum": [
+          "CLEAN",
+          "UNKNOWN",
+          "MINOR",
+          "SERIOUS"
+        ],
+        "title": "BkiSummaryStatus",
+        "type": "string"
+      },
+      "Counterparty": {
+        "additionalProperties": false,
+        "properties": {
+          "inn": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{10}$|^\\d{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inn"
+          },
+          "is_bank": {
+            "title": "Is Bank",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "is_bank"
+        ],
+        "title": "Counterparty",
+        "type": "object"
+      },
+      "Director": {
+        "additionalProperties": false,
+        "properties": {
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "inn": {
+            "pattern": "^\\d{12}$",
+            "title": "Inn",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "inn"
+        ],
+        "title": "Director",
+        "type": "object"
+      },
+      "EgripEntrepreneur": {
+        "additionalProperties": false,
+        "examples": [
+          {
+            "full_name": "Образцова Анна Сергеевна",
+            "inn": "009900000200",
+            "ogrnip": "321009900000010",
+            "okved_main": "47.19",
+            "registered_at": "2021-06-01",
+            "status": "ACTIVE"
+          }
+        ],
+        "properties": {
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "inn": {
+            "pattern": "^\\d{12}$",
+            "title": "Inn",
+            "type": "string"
+          },
+          "ogrnip": {
+            "pattern": "^\\d{15}$",
+            "title": "Ogrnip",
+            "type": "string"
+          },
+          "okved_main": {
+            "title": "Okved Main",
+            "type": "string"
+          },
+          "registered_at": {
+            "format": "date",
+            "title": "Registered At",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RegistryStatus"
+          }
+        },
+        "required": [
+          "inn",
+          "ogrnip",
+          "full_name",
+          "status",
+          "registered_at",
+          "okved_main"
+        ],
+        "title": "EgripEntrepreneur",
+        "type": "object"
+      },
+      "EgrulCompany": {
+        "additionalProperties": false,
+        "examples": [
+          {
+            "director": {
+              "full_name": "Образцов Пётр Ильич",
+              "inn": "009900000120"
+            },
+            "inn": "0099000014",
+            "name": "ООО «Образец»",
+            "ogrn": "1210099000011",
+            "okved_main": "10.71",
+            "registered_at": "2021-03-15",
+            "status": "ACTIVE"
+          }
+        ],
+        "properties": {
+          "director": {
+            "$ref": "#/components/schemas/Director"
+          },
+          "inn": {
+            "pattern": "^\\d{10}$",
+            "title": "Inn",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "ogrn": {
+            "pattern": "^\\d{13}$",
+            "title": "Ogrn",
+            "type": "string"
+          },
+          "okved_main": {
+            "title": "Okved Main",
+            "type": "string"
+          },
+          "registered_at": {
+            "format": "date",
+            "title": "Registered At",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RegistryStatus"
+          }
+        },
+        "required": [
+          "inn",
+          "ogrn",
+          "name",
+          "status",
+          "registered_at",
+          "okved_main",
+          "director"
+        ],
+        "title": "EgrulCompany",
+        "type": "object"
+      },
+      "ErrorBody": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "FailKind": {
+        "enum": [
+          "timeout",
+          "500",
+          "503"
+        ],
+        "title": "FailKind",
+        "type": "string"
+      },
+      "FnsCompanyStatus": {
+        "additionalProperties": false,
+        "examples": [
+          {
+            "active_account_blocks": 0,
+            "bankruptcy": false,
+            "checked_at": "2026-10-21T09:00:00Z"
+          }
+        ],
+        "properties": {
+          "active_account_blocks": {
+            "minimum": 0.0,
+            "title": "Active Account Blocks",
+            "type": "integer"
+          },
+          "bankruptcy": {
+            "title": "Bankruptcy",
+            "type": "boolean"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bankruptcy",
+          "active_account_blocks",
+          "checked_at"
+        ],
+        "title": "FnsCompanyStatus",
+        "type": "object"
+      },
+      "Health": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "Health",
+        "type": "object"
+      },
+      "RegistryStatus": {
+        "enum": [
+          "ACTIVE",
+          "LIQUIDATING",
+          "LIQUIDATED"
+        ],
+        "title": "RegistryStatus",
+        "type": "string"
+      },
+      "Transaction": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_rub": {
+            "examples": [
+              "123.45"
+            ],
+            "pattern": "^\\d+\\.\\d{2}$",
+            "title": "Amount Rub",
+            "type": "string"
+          },
+          "booked_at": {
+            "format": "date",
+            "title": "Booked At",
+            "type": "string"
+          },
+          "counterparty": {
+            "$ref": "#/components/schemas/Counterparty"
+          },
+          "direction": {
+            "enum": [
+              "IN",
+              "OUT"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "external_id": {
+            "title": "External Id",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          }
+        },
+        "required": [
+          "external_id",
+          "booked_at",
+          "direction",
+          "amount_rub",
+          "counterparty",
+          "purpose"
+        ],
+        "title": "Transaction",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Синтетические данные. Контракт — docs/design.md §3.4.",
+    "summary": "Симулятор внешних систем: ЕГРЮЛ, ЕГРИП, ФНС, БКИ, банковская выписка",
+    "title": "CreditFlow ext-sim",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/bank/v1/statements": {
+      "get": {
+        "operationId": "bank_statement_bank_v1_statements_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "inn",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{10}$|^\\d{12}$",
+              "title": "Inn",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "From",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "To",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Смоделировать сбой: timeout, 500 или 503",
+            "in": "header",
+            "name": "x-sim-fail",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FailKind"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Смоделировать сбой: timeout, 500 или 503",
+              "title": "X-Sim-Fail"
+            }
+          },
+          {
+            "description": "Задержка ответа, мс",
+            "in": "header",
+            "name": "x-sim-latency-ms",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Задержка ответа, мс",
+              "title": "X-Sim-Latency-Ms"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankStatement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Bank Statement",
+        "tags": [
+          "bank"
+        ]
+      }
+    },
+    "/bki/v1/reports": {
+      "post": {
+        "operationId": "bki_report_bki_v1_reports_post",
+        "parameters": [
+          {
+            "description": "Смоделировать сбой: timeout, 500 или 503",
+            "in": "header",
+            "name": "x-sim-fail",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FailKind"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Смоделировать сбой: timeout, 500 или 503",
+              "title": "X-Sim-Fail"
+            }
+          },
+          {
+            "description": "Задержка ответа, мс",
+            "in": "header",
+            "name": "x-sim-latency-ms",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Задержка ответа, мс",
+              "title": "X-Sim-Latency-Ms"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BkiReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BkiReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Bki Report",
+        "tags": [
+          "bki"
+        ]
+      }
+    },
+    "/egrip/v1/entrepreneurs/{inn}": {
+      "get": {
+        "operationId": "egrip_entrepreneur_egrip_v1_entrepreneurs__inn__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inn",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{12}$",
+              "title": "Inn",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Смоделировать сбой: timeout, 500 или 503",
+            "in": "header",
+            "name": "x-sim-fail",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FailKind"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Смоделировать сбой: timeout, 500 или 503",
+              "title": "X-Sim-Fail"
+            }
+          },
+          {
+            "description": "Задержка ответа, мс",
+            "in": "header",
+            "name": "x-sim-latency-ms",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Задержка ответа, мс",
+              "title": "X-Sim-Latency-Ms"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgripEntrepreneur"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Egrip Entrepreneur",
+        "tags": [
+          "egrip"
+        ]
+      }
+    },
+    "/egrul/v1/companies/{inn}": {
+      "get": {
+        "operationId": "egrul_company_egrul_v1_companies__inn__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inn",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{10}$",
+              "title": "Inn",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Смоделировать сбой: timeout, 500 или 503",
+            "in": "header",
+            "name": "x-sim-fail",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FailKind"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Смоделировать сбой: timeout, 500 или 503",
+              "title": "X-Sim-Fail"
+            }
+          },
+          {
+            "description": "Задержка ответа, мс",
+            "in": "header",
+            "name": "x-sim-latency-ms",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Задержка ответа, мс",
+              "title": "X-Sim-Latency-Ms"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgrulCompany"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Egrul Company",
+        "tags": [
+          "egrul"
+        ]
+      }
+    },
+    "/fns/v1/companies/{inn}": {
+      "get": {
+        "operationId": "fns_company_fns_v1_companies__inn__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inn",
+            "required": true,
+            "schema": {
+              "pattern": "^\\d{10}$|^\\d{12}$",
+              "title": "Inn",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Смоделировать сбой: timeout, 500 или 503",
+            "in": "header",
+            "name": "x-sim-fail",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FailKind"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Смоделировать сбой: timeout, 500 или 503",
+              "title": "X-Sim-Fail"
+            }
+          },
+          {
+            "description": "Задержка ответа, мс",
+            "in": "header",
+            "name": "x-sim-latency-ms",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Задержка ответа, мс",
+              "title": "X-Sim-Latency-Ms"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FnsCompanyStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Fns Company",
+        "tags": [
+          "fns"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "service"
+        ]
+      }
+    }
+  }
+}
