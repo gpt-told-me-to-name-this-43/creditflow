@@ -46,8 +46,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Без ext-sim api стартует и отвечает health `degraded` (design.md §3.7).
       ext-sim:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test:
         - CMD

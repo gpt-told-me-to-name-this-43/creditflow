@@ -44,16 +44,31 @@ def test_health_db_unavailable(
     [httpx.ConnectError("refused"), httpx.ReadTimeout("slow"), httpx.Response(503)],
     ids=["connect", "timeout", "http-503"],
 )
-def test_health_ext_sim_unavailable(
+def test_health_degraded_without_ext_sim(
     make_settings: Callable[..., Settings],
     ext_sim: respx.MockRouter,
     failure: Exception | httpx.Response,
 ) -> None:
     ext_sim.get("/health").mock(side_effect=[failure])
     response = get_health(make_settings())
+    # Без ext-sim API работает: 200, контейнер остаётся healthy.
+    assert response.status_code == 200
+    body = response.json()
+    assert (body["status"], body["db"], body["ext_sim"]) == ("degraded", "ok", "unavailable")
+
+
+def test_health_unavailable_without_db_and_ext_sim(
+    make_settings: Callable[..., Settings], ext_sim: respx.MockRouter
+) -> None:
+    ext_sim.get("/health").mock(side_effect=httpx.ConnectError("refused"))
+    response = get_health(make_settings(database_url=DEAD_DATABASE_URL))
     assert response.status_code == 503
     body = response.json()
-    assert (body["status"], body["db"], body["ext_sim"]) == ("unavailable", "ok", "unavailable")
+    assert (body["status"], body["db"], body["ext_sim"]) == (
+        "unavailable",
+        "unavailable",
+        "unavailable",
+    )
 
 
 @pytest.mark.parametrize(

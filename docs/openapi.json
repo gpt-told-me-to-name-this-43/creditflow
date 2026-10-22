@@ -33,6 +33,7 @@
           "status": {
             "enum": [
               "ok",
+              "degraded",
               "unavailable"
             ],
             "title": "Status",
@@ -79,7 +80,7 @@
                 }
               }
             },
-            "description": "БД или ext-sim недоступны"
+            "description": "БД недоступна"
           }
         },
         "summary": "Health",

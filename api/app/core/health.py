@@ -2,7 +2,10 @@
 
 `db` и `ext_sim` проверяются реальным запросом; `llm` пока выводится из
 конфигурации без обращения к провайдеру. Состояние circuit breaker
-(`degraded`) добавит #8. `status` от `llm` не зависит.
+(`degraded`) добавит #8.
+
+`status`: `ok`; `degraded` — недоступен только ext-sim (200, остальной API работает);
+`unavailable` — недоступна БД (503). От `llm` не зависит.
 """
 
 import asyncio
@@ -22,13 +25,14 @@ logger = logging.getLogger(__name__)
 DB_CHECK_TIMEOUT_SECONDS = 3.0
 
 ComponentStatus = Literal["ok", "unavailable"]
+OverallStatus = Literal["ok", "degraded", "unavailable"]
 LLMStatus = Literal["ok", "replay", "disabled", "degraded", "not_configured"]
 
 router = APIRouter(tags=["service"])
 
 
 class HealthResponse(BaseModel):
-    status: ComponentStatus
+    status: OverallStatus
     db: ComponentStatus
     ext_sim: ComponentStatus
     llm: LLMStatus
@@ -59,15 +63,18 @@ def llm_status(settings: Settings) -> LLMStatus:
 @router.get(
     "/health",
     response_model=HealthResponse,
-    responses={503: {"model": HealthResponse, "description": "БД или ext-sim недоступны"}},
+    responses={503: {"model": HealthResponse, "description": "БД недоступна"}},
 )
 async def health(request: Request, response: Response) -> HealthResponse:
     db, ext_sim = await asyncio.gather(
         check_db(request.app.state.engine), check_ext_sim(request.app.state.ext_sim)
     )
-    status: ComponentStatus = "ok" if db == ext_sim == "ok" else "unavailable"
-    if status != "ok":
+    status: OverallStatus
+    if db != "ok":
+        status = "unavailable"
         response.status_code = 503
+    else:
+        status = "ok" if ext_sim == "ok" else "degraded"
     return HealthResponse(
         status=status, db=db, ext_sim=ext_sim, llm=llm_status(request.app.state.settings)
     )

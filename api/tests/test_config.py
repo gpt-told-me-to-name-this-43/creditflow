@@ -66,3 +66,14 @@ def test_env_example_matches_settings() -> None:
     }
     app_names = {n for n in names if not n.startswith("POSTGRES_")}
     assert app_names == {f.upper() for f in Settings.model_fields}
+
+
+def test_env_example_demo_secret_is_long_enough() -> None:
+    from .conftest import REPO_ROOT
+
+    values = dict(
+        line.split("=", 1)
+        for line in (REPO_ROOT / ".env.example").read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#") and "=" in line
+    )
+    assert len(values["APP_SECRET_KEY"].encode()) >= 32
