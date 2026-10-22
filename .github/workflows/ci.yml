@@ -139,24 +139,13 @@ jobs:
       - name: Повторный старт api не ломает seed
         run: |
           docker compose restart api
-          docker compose up -d --wait --wait-timeout 120
-          curl -fsS http://localhost:8080/api/v1/health
+          scripts/ci/wait-api.sh ok 200
       - name: Без ext-sim api остаётся healthy, health → 200 degraded
         run: |
           docker compose stop ext-sim
           docker compose restart api
-          api=$(docker compose ps -q api)
-          for _ in $(seq 1 60); do
-            state=$(docker inspect -f '{{.State.Health.Status}}' "$api")
-            [ "$state" = healthy ] && break
-            sleep 2
-          done
-          echo "api: $state"
-          test "$state" = healthy
-          code=$(curl -sS -o health.json -w '%{http_code}' http://localhost:8080/api/v1/health)
-          cat health.json; echo
-          test "$code" = 200
-          jq -e '.status == "degraded" and .db == "ok" and .ext_sim == "unavailable"' health.json
+          scripts/ci/wait-api.sh degraded 200
+          jq -e '.db == "ok" and .ext_sim == "unavailable"' health.json
           docker compose start ext-sim
       - name: Холодный старт без ext-sim → health 200 degraded
         run: |
@@ -170,10 +159,8 @@ jobs:
           if echo "$running" | grep -qx ext-sim; then
             echo "::error::ext-sim не должен быть запущен"; exit 1
           fi
-          code=$(curl -sS -o health.json -w '%{http_code}' http://localhost:8080/api/v1/health)
-          cat health.json; echo
-          test "$code" = 200
-          jq -e '.status == "degraded" and .db == "ok" and .ext_sim == "unavailable"' health.json
+          scripts/ci/wait-api.sh degraded 200
+          jq -e '.db == "ok" and .ext_sim == "unavailable"' health.json
       - if: failure()
         run: docker compose logs --no-color
       - if: always()
