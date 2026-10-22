@@ -3,6 +3,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from app.schemas import BankStatement, BkiReport, EgripEntrepreneur, EgrulCompany, FnsCompanyStatus
+
 
 class Source(StrEnum):
     EGRUL = "EGRUL"
@@ -24,6 +26,35 @@ class CompanyFixture:
         self.inn = inn
         self.data = data
 
+    @property
+    def fail_mode(self) -> str | None:
+        return self.data.get("fail_mode")
+
+    @property
+    def egrul(self) -> EgrulCompany | None:
+        raw = self.data.get("egrul")
+        return EgrulCompany.model_validate(raw) if raw is not None else None
+
+    @property
+    def egrip(self) -> EgripEntrepreneur | None:
+        raw = self.data.get("egrip")
+        return EgripEntrepreneur.model_validate(raw) if raw is not None else None
+
+    @property
+    def fns(self) -> FnsCompanyStatus | None:
+        raw = self.data.get("fns")
+        return FnsCompanyStatus.model_validate(raw) if raw is not None else None
+
+    @property
+    def bki(self) -> BkiReport | None:
+        raw = self.data.get("bki")
+        return BkiReport.model_validate(raw) if raw is not None else None
+
+    @property
+    def statement(self) -> BankStatement | None:
+        raw = self.data.get("statement")
+        return BankStatement.model_validate(raw) if raw is not None else None
+
 
 DEFAULT_FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures"
 
@@ -36,7 +67,7 @@ def load_fixtures(
     if not target_dir.exists():
         raise FileNotFoundError(f"Директория с фикстурами не найдена: {target_dir}")
 
-    companies = {}
+    companies: dict[str, CompanyFixture] = {}
 
     for directory in target_dir.iterdir():
         if not directory.is_dir():
@@ -63,11 +94,3 @@ def load_fixtures(
         companies[inn] = CompanyFixture(inn, company_data)
 
     return companies
-
-
-def load_statements(inn: str, fixtures_dir: Path | None = None) -> list[dict[str, Any]]:
-    target_dir = fixtures_dir or DEFAULT_FIXTURES_DIR
-    stmt_file = target_dir / inn / "statements.json"
-    if stmt_file.exists():
-        return json.loads(stmt_file.read_text(encoding="utf-8"))
-    return []

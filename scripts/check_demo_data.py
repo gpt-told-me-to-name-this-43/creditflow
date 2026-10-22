@@ -8,7 +8,9 @@ from app.scoring.policy import DecisionPolicy
 from app.scoring.risk import RiskEngine
 
 # Инициализация движка: ставка 24%, макс 5 млн, мин 100 тыс (из design.md)
-ENGINE = RiskEngine(rate_pct=Decimal(24), max_amount=Decimal(5000000), min_amount=Decimal(100000))
+ENGINE = RiskEngine(
+    rate_pct=Decimal(24), max_amount=Decimal(5000000), min_amount=Decimal(100000)
+)
 POLICY = DecisionPolicy()
 
 
@@ -41,7 +43,8 @@ def check_c2():
     limit = ENGINE.calculate_limit(cfads, debt, A)
 
     assert P.quantize(Decimal("0.01")) == Decimal("117698.56"), (
-    f"C2 P: {P.quantize(Decimal('0.01'))}")
+        f"C2 P: {P.quantize(Decimal('0.01'))}"
+    )
     assert dscr >= Decimal("1.10") and dscr < Decimal("1.11"), f"C2 DSCR: {dscr}"
     assert score["score"] == 63, f"C2 score: {score['score']}"
     assert score["risk_level"] == "MODERATE", f"C2 risk: {score['risk_level']}"
@@ -64,7 +67,8 @@ def check_c7():
     assert dscr >= Decimal("0.86") and dscr < Decimal("0.87"), f"C7 DSCR: {dscr}"
     assert score["score"] == 60, f"C7 score: {score['score']}"
     assert score["risk_level"] == "HIGH", (
-    f"C7 risk: {score['risk_level']} (DSCR < 1.00 forces HIGH)")
+        f"C7 risk: {score['risk_level']} (DSCR < 1.00 forces HIGH)"
+    )
     assert limit is None, f"C7 limit: {limit}"
 
     decision = POLICY.evaluate([], "CLEAN", dscr, limit, score["score"])
