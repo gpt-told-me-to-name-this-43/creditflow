@@ -32,3 +32,82 @@
 | `IDEMPOTENCY_KEY_REUSED` | 422 | Тот же `Idempotency-Key` с другим методом, путём или телом | Повторите действие |
 | `TOO_MANY_ATTEMPTS` | 429 | Rate limit входа или > 3 попыток кода; есть `Retry-After` | Слишком много попыток, попробуйте позже |
 | `PROVIDER_UNAVAILABLE` | 503 | Только сбой ext-sim (таймаут 3 с + 1 повтор); заявка остаётся в `DRAFT` | Внешний сервис недоступен, повторите позже |
+
+## Доступ и служебные маршруты
+
+OpenAPI объявляет HTTP Bearer (`BearerAuth`, JWT). Авторизация требуется для
+`/auth/me`, привязки и чтения компании, каталога продуктов, клиентских заявок и
+всего `/manager/*`. `/auth/login`, `/auth/demo-accounts`, `/consents/texts` и `/health`
+публичны. `/auth/demo-accounts` возвращает 404 при `DEMO_AUTH_ENABLED=false`.
+`demo_code` подписания выдаётся только при этом флаге.
+
+`/_test/reset?mode=clean|demo` монтируется и появляется в OpenAPI только в `local/test`
+при `TEST_RESET_ENABLED=true`. В production тестовые флаги запрещают старт.
+Его отдельная схема `TestResetToken` — заголовок `X-Test-Reset-Token`.
+Настроенный токен должен быть не короче 32 байт; сравнение выполняется за постоянное
+время. Без подходящего токена всегда 404, даже при невалидном `mode`. С подходящим
+токеном невалидный `mode` даёт 422.
+
+В рамках #6 проверяются форма Bearer-заголовка и reset-токен. JWT/роль/владелец
+реализуются в #5. Reset пока возвращает выбранный режим; очистка и демо-seed — #7.
+`/health` имеет собственный контракт: его 503 возвращает `HealthResponse`, а не `ErrorEnvelope`.
+
+## Решения и предпросмотр
+
+`DecisionRequest` — discriminated union по `action`; OpenAPI содержит `oneOf`.
+
+| action | Обязательные поля помимо revision/action |
+|---|---|
+| APPROVE | Комментарий при отклонении от `ELIGIBLE_FOR_MANAGER_REVIEW`; условие зависит от сохранённого proposal и проверяется сервисом #7 |
+| COUNTER_OFFER | `client_reason_code`, непустой `comment`, хотя бы одно из `amount_rub`/`term_months` |
+| REQUEST_INFO | Непустой `question_text` до 1000 символов |
+| REJECT | `client_reason_code`, непустой `comment` |
+
+Структурные ограничения проверяются Pydantic. Проверки статуса, revision, продукта,
+лимита, изменения условий и `allowed_actions` используют сохранённую заявку (#7).
+Если одно из условий оффера не задано, сервис использует соответствующее условие заявки.
+
+Preview не пишет в БД и использует те же бизнес-проверки оффера, что и `decisions`.
+Невалидная структура запроса — 422. Бизнес-нарушение — 200, `valid=false`, непустой
+`violations`. Если метрики вычислимы, `calculation_status=OK` и они возвращаются даже
+для невалидного оффера. При исходном `SKIPPED` или невычислимых условиях
+`calculation_status=SKIPPED`, все пять расчётных полей — `null`, `valid=false`.
+Для недостаточных исходных данных в `violations` есть `CALCULATION_SKIPPED`.
+
+Коды нарушений preview: `ACTION_NOT_ALLOWED`, `AMOUNT_OUT_OF_PRODUCT`,
+`TERM_OUT_OF_PRODUCT`, `AMOUNT_ABOVE_LIMIT`, `OFFER_NOT_IMPROVED`, `CALCULATION_SKIPPED`.
+Они описывают причины невалидности preview и не являются HTTP-кодами ошибок.
+Стаб #6 возвращает фиксированный валидный C2; реализация проверок по заявке — #7.
+
+## Карточка менеджера и распознавание
+
+Карточка содержит `ai_report`, историю `decisions`, `offers` (со своим расчётом
+`COUNTER_OFFER`), `info_requests` (включая ответы), `contract`, аудит `sign_challenges`
+и `timeline` с автором события (`null` для SYSTEM). Коды и хеши подписания в аудит
+не попадают. В клиентских DTO этих внутренних полей нет.
+
+`ExternalSource.summary` сохраняет JSON-типы источников: вложенные объекты, массивы,
+логические значения, числа и null; денежные значения источников остаются строками.
+`InterpretResponse.suggestion` имеет три типизированных ключа: `purpose_code`
+(PurposeCode), `requested_amount_rub` (положительный JSON integer), `term_months`
+(integer 1–120). Источник предложения — только RULES или LLM. Отсутствие ключа или
+null означает отсутствие предложения; MANUAL используется только при сохранении формы.
+
+## Revision и AI
+
+Revision заявки передают PATCH и команды смены её состояния: submit, decisions,
+info-response, offer/accept, offer/decline, sign/challenge и sign. Конфликт — 409.
+Interpret и offer-preview не меняют заявку и revision не принимают.
+
+Для AI применяются специальные сигнатуры §3.5–3.6: feedback и regeneration не требуют
+и не изменяют revision заявки. Feedback заменяет запись по
+`(ai_report_id, manager_user_id)` и не меняет статус/расчёт/allowed_actions.
+Regeneration сериализуется блокировкой записи AI-отчёта: свежий PENDING возвращается
+без нового запуска; новый запуск получает `generation_id` и `updated_at`.
+Устаревший результат отбрасывается условным обновлением по `generation_id`.
+Это отдельный механизм конкурентности #8, а не конфликт revision заявки.
+`AiReportView.scoring_result_id` связывает отчёт с расчётом.
+
+OpenAPI содержит валидируемые примеры C2, полного графика платежей, завершённой
+истории подписания, трёх состояний preview и конвертов ошибок. Экспорт выполняется
+`scripts/export_openapi.py`; nullable-поля примеров сохраняются как явные null.
