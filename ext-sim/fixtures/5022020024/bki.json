@@ -1,5 +1,6 @@
 {
-  "inn": "5022020024",
+  "report_id": "bki-5022020024-report",
   "summary_status": "CLEAN",
-  "monthly_payments_total_rub": 100000
+  "monthly_payments_total_rub": "100000.00",
+  "obligations": []
 }

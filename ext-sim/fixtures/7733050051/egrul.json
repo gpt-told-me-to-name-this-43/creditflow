@@ -1,13 +1,12 @@
 {
   "inn": "7733050051",
-  "ogrn": "1207700000056",
+  "ogrn": "1027700000000",
   "name": "ООО \"Вектор\"",
-  "legal_form": "LLC",
-  "status": "LIQUIDATING",
   "okved_main": "46.90",
   "registered_at": "2019-03-14",
+  "status": "LIQUIDATING",
   "director": {
     "full_name": "Векторов Андрей Игоревич",
-    "inn": "7733050005"
+    "inn": "773305000500"
   }
 }

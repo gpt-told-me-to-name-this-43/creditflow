@@ -1,5 +1,5 @@
 {
-  "inn": "772233000378",
   "bankruptcy": false,
-  "fns_blocks": 0
+  "active_account_blocks": 0,
+  "checked_at": "2026-10-21"
 }

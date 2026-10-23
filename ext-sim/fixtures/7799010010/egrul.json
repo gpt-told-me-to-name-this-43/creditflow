@@ -1,13 +1,12 @@
 {
   "inn": "7799010010",
-  "ogrn": "1267700000017",
+  "ogrn": "1027700000000",
   "name": "ООО \"ТехСервис\"",
-  "legal_form": "LLC",
-  "status": "ACTIVE",
   "okved_main": "62.01",
   "registered_at": "2022-04-15",
+  "status": "ACTIVE",
   "director": {
     "full_name": "Иванов Петр Сергеевич",
-    "inn": "7799010003"
+    "inn": "779901000300"
   }
 }

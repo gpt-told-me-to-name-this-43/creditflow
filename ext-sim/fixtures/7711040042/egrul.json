@@ -1,13 +1,12 @@
 {
   "inn": "7711040042",
-  "ogrn": "1267700000040",
+  "ogrn": "1027700000000",
   "name": "ООО \"Новый Старт\"",
-  "legal_form": "LLC",
-  "status": "ACTIVE",
   "okved_main": "46.39",
   "registered_at": "2026-06-01",
+  "status": "ACTIVE",
   "director": {
     "full_name": "Новиков Станислав Олегович",
-    "inn": "7711040003"
+    "inn": "771104000300"
   }
 }

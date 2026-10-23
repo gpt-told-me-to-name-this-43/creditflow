@@ -1,13 +1,12 @@
 {
   "inn": "7744060069",
-  "ogrn": "1187700000069",
+  "ogrn": "1027700000000",
   "name": "ООО \"Склад-М\"",
-  "legal_form": "LLC",
-  "status": "ACTIVE",
   "okved_main": "52.10",
   "registered_at": "2020-09-01",
+  "status": "ACTIVE",
   "director": {
     "full_name": "Складов Михаил Дмитриевич",
-    "inn": "7744060005"
+    "inn": "774406000500"
   }
 }

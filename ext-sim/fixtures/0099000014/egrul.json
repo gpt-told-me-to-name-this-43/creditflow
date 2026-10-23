@@ -2,6 +2,11 @@
   "inn": "0099000014",
   "ogrn": "1027700000000",
   "name": "ООО Тестовая Компания",
+  "okved_main": "62.01",
   "registered_at": "2020-01-01",
-  "status": "ACTIVE"
+  "status": "ACTIVE",
+  "director": {
+    "full_name": "Иванов Иван Иванович",
+    "inn": "770101010101"
+  }
 }

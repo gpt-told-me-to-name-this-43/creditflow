@@ -1,5 +1,6 @@
 {
-  "inn": "772233000378",
+  "report_id": "bki-772233000378-report",
   "summary_status": "SERIOUS",
-  "monthly_payments_total_rub": 0
+  "monthly_payments_total_rub": "0.00",
+  "obligations": []
 }

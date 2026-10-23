@@ -1,5 +1,6 @@
 {
-  "inn": "7733050051",
+  "report_id": "bki-7733050051-report",
   "summary_status": "CLEAN",
-  "monthly_payments_total_rub": 0
+  "monthly_payments_total_rub": "0.00",
+  "obligations": []
 }

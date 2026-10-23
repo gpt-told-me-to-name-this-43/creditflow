@@ -393,7 +393,11 @@
           "bki_timeout",
           "fns_timeout",
           "egrul_timeout",
-          "egrip_timeout"
+          "egrip_timeout",
+          "bank_timeout",
+          "timeout",
+          "500",
+          "503"
         ],
         "title": "FailKind",
         "type": "string"
