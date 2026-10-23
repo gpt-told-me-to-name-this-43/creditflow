@@ -3,14 +3,19 @@
 
 - Пример запроса берётся из `REQUEST_EXAMPLES` и при старте валидируется своей моделью:
   невалидный пример роняет импорт, а не попадает к фронту.
-- Пример ответа — то, что стаб реально возвращает: стаб вызывается один раз с примером
-  запроса. Поэтому пример всегда проходит `response_model` и совпадает с моком.
+- Пример ответа строит чистая sync-функция, привязанная к маршруту через `@example_from`.
+  Ту же функцию вызывает стаб, поэтому пример совпадает с моком и проходит `response_model`.
+  Сам endpoint при генерации НЕ вызывается: когда #5/#7 добавят в обработчики `await`,
+  БД или зависимости, экспорт контракта и импорт приложения от этого не сломаются.
+- Время в примерах фиксировано (`EXAMPLE_NOW`), поэтому `docs/openapi.json` детерминирован.
 - Всё кладётся в `route.openapi_extra`, который FastAPI сливает с операцией, не трогая
   сгенерированные схемы.
 """
 
 import inspect
+from collections.abc import Callable
 from copy import deepcopy
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -40,6 +45,8 @@ from app.schemas.manager import (
 )
 
 EXAMPLE_ID = "7f3e2a10-0000-4000-8000-000000000001"
+EXAMPLE_NOW = datetime(2026, 10, 21, 9, 0, tzinfo=UTC)  # = APP_AS_OF_DATE, примеры стабильны
+_BUILDER_ATTR = "__openapi_example_builder__"
 
 # Значения — из сценария «Пекарни Плюс» (C2, docs/design.md §5), чтобы примеры читались вместе.
 REQUEST_EXAMPLES: dict[Any, dict[str, Any]] = {
@@ -76,26 +83,46 @@ REQUEST_EXAMPLES: dict[Any, dict[str, Any]] = {
 }
 
 
-def _call_stub(route: APIRoute, body: BaseModel | None) -> Any:
-    """Стабы не ждут ничего асинхронного: корутина завершается на первом шаге.
-    Без asyncio.run — модуль может импортироваться внутри уже запущенного цикла (uvicorn)."""
+def example_from[F: Callable[..., Any]](builder: Callable[..., Any]) -> Callable[[F], F]:
+    """Привязывает к endpoint чистую функцию, которая строит пример его ответа."""
+
+    def mark(endpoint: F) -> F:
+        setattr(endpoint, _BUILDER_ATTR, builder)
+        return endpoint
+
+    return mark
+
+
+def _example_kwargs(builder: Callable[..., Any], body: BaseModel | None) -> dict[str, Any]:
+    """Аргументы builder берутся из примера запроса и фиксированных значений, а не из
+    запроса FastAPI: builder — обычная функция, и её параметры известны заранее."""
+    known: dict[str, Any] = {
+        "body": body,
+        "application_id": UUID(EXAMPLE_ID),
+        "now": EXAMPLE_NOW,
+        "settings": Settings(demo_auth_enabled=True),
+    }
     kwargs: dict[str, Any] = {}
-    for name, param in inspect.signature(route.endpoint).parameters.items():
-        if name == "body":
-            kwargs[name] = body
-        elif name == "application_id":
-            kwargs[name] = UUID(EXAMPLE_ID)
-        elif name == "settings":
-            kwargs[name] = Settings(demo_auth_enabled=True)
+    for name, param in inspect.signature(builder).parameters.items():
+        if name in known:
+            kwargs[name] = known[name]
+        elif param.default is not inspect.Parameter.empty:
+            kwargs[name] = param.default
         else:
-            kwargs[name] = None if param.default is inspect.Parameter.empty else param.default
-    coro = route.endpoint(**kwargs)
-    try:
-        coro.send(None)
-    except StopIteration as done:
-        return done.value
-    coro.close()
-    raise RuntimeError(f"стаб {route.path} не должен ничего ждать")
+            kwargs[name] = None  # query-фильтры стабов: пример — без фильтра
+    return kwargs
+
+
+def _build_example(route: APIRoute, body: BaseModel | None) -> Any:
+    builder = getattr(route.endpoint, _BUILDER_ATTR, None)
+    if builder is None:
+        raise RuntimeError(f"{route.path}: нет @example_from — пример ответа не из чего строить")
+    result = builder(**_example_kwargs(builder, body))
+    if inspect.isawaitable(result):
+        if inspect.iscoroutine(result):
+            result.close()  # не оставляем неожиданную корутину висеть до GC
+        raise TypeError(f"{route.path}: builder примера должен быть sync-функцией")
+    return result
 
 
 def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
@@ -119,7 +146,8 @@ def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str,
         {
             "revision": 7,
             "status": "ISSUED",
-            "requested_amount_rub": "2340000.00",
+            # Запрос клиента не переписывается встречным предложением: 3 000 000 остаётся
+            # в заявке, 2 340 000 — в offers[] и в договоре (design §3.5, insert-only история).
             "scoring": offer_scoring,
             "ai_report": {**card["ai_report"], "scoring_result_id": offer_id},
             "allowed_actions": [],
@@ -206,15 +234,71 @@ def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str,
             ],
         }
     )
-    return ManagerApplicationView.model_validate(result).model_dump(mode="json")
+    view = ManagerApplicationView.model_validate(result).model_dump(mode="json")
+    check_history(card, view)
+    return view
+
+
+def check_history(card: dict[str, Any], issued: dict[str, Any]) -> None:
+    """Согласованность сценария «оффер → выдача»; нарушение роняет импорт, а не уходит фронту.
+
+    - запрошенные условия заявки не меняются оффером;
+    - договор = принятый оффер (сумма, срок, платёж);
+    - timeline — непрерывная цепочка от статуса карточки до текущего статуса,
+      время не убывает;
+    - offers и info_requests ссылаются на существующие решения нужного типа.
+    """
+    problems = []
+    for field in ("requested_amount_rub", "term_months", "product_id"):
+        if issued[field] != card[field]:
+            problems.append(f"{field}: {card[field]} → {issued[field]}")
+    accepted = [o for o in issued["offers"] if o["status"] == "ACCEPTED"]
+    if len(accepted) != 1:
+        problems.append(f"ожидается один ACCEPTED-оффер, найдено {len(accepted)}")
+    else:
+        offer, contract = accepted[0], issued["contract"]
+        for o_field, c_field in (
+            ("amount_rub", "amount_rub"),
+            ("term_months", "term_months"),
+            ("monthly_payment_rub", "monthly_payment_rub"),
+        ):
+            if offer[o_field] != contract[c_field]:
+                problems.append(f"оффер.{o_field} ≠ договор.{c_field}")
+        if offer["amount_rub"] == issued["requested_amount_rub"]:
+            problems.append("встречное предложение не отличается от запроса")
+    timeline = issued["timeline"]
+    status = card["status"]
+    for event in timeline:
+        if event["from_status"] != status:
+            problems.append(f"разрыв timeline: {status} → {event['from_status']}")
+        status = event["to_status"]
+    if status != issued["status"]:
+        problems.append(f"timeline заканчивается {status}, а статус {issued['status']}")
+    times = [e["created_at"] for e in timeline]
+    if times != sorted(times):
+        problems.append("время событий timeline убывает")
+    actions = {d["id"]: d["action"] for d in issued["decisions"]}
+    for offer in issued["offers"]:
+        if actions.get(offer["decision_id"]) != "COUNTER_OFFER":
+            problems.append(f"оффер {offer['id']} без решения COUNTER_OFFER")
+    for info in issued["info_requests"]:
+        if actions.get(info["decision_id"]) != "REQUEST_INFO":
+            problems.append(f"дозапрос {info['id']} без решения REQUEST_INFO")
+    if problems:
+        raise ValueError("Пример выданной заявки несогласован: " + "; ".join(problems))
 
 
 def attach_examples(routers: tuple[APIRouter, ...]) -> None:
+    # Договор нужен для примера «issued» карточки менеджера; без маршрута договора
+    # (например, в тестовом роутере) этот пример просто не строится.
     contract = next(
-        jsonable_encoder(_call_stub(route, None))
-        for router in routers
-        for route in router.routes
-        if isinstance(route, APIRoute) and route.response_model is ContractView
+        (
+            jsonable_encoder(_build_example(route, None))
+            for router in routers
+            for route in router.routes
+            if isinstance(route, APIRoute) and route.response_model is ContractView
+        ),
+        None,
     )
     for router in routers:
         for route in router.routes:
@@ -230,9 +314,9 @@ def attach_examples(routers: tuple[APIRouter, ...]) -> None:
                 extra["requestBody"] = {"content": {"application/json": {"example": example}}}
             status = route.status_code or 200
             if status != 204:
-                value = jsonable_encoder(_call_stub(route, body))
+                value = jsonable_encoder(_build_example(route, body))
                 content: dict[str, Any] = {"example": value}
-                if route.response_model is ManagerApplicationView:
+                if route.response_model is ManagerApplicationView and contract is not None:
                     content = {
                         "examples": {
                             "under_review": {"value": value},

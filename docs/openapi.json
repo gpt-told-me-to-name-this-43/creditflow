@@ -1309,7 +1309,11 @@
           "SIGN_CODE_INVALID",
           "IDEMPOTENCY_KEY_REUSED",
           "TOO_MANY_ATTEMPTS",
-          "PROVIDER_UNAVAILABLE"
+          "PROVIDER_UNAVAILABLE",
+          "BAD_REQUEST",
+          "METHOD_NOT_ALLOWED",
+          "SERVICE_UNAVAILABLE",
+          "INTERNAL_ERROR"
         ],
         "title": "ErrorCode",
         "type": "string"
@@ -3203,7 +3207,7 @@
     "securitySchemes": {
       "BearerAuth": {
         "bearerFormat": "JWT",
-        "description": "JWT HS256 из POST /auth/login. Проверка подписи и роли — задача #5.",
+        "description": "JWT HS256 из POST /auth/login. В контракте #6 сервер проверяет только наличие Bearer-заголовка; подпись, срок и роль проверяются начиная с #5.",
         "scheme": "bearer",
         "type": "http"
       }
@@ -6356,6 +6360,7 @@
     },
     "/api/v1/credit-products": {
       "get": {
+        "description": "Оба продукта каталога с подбором по design §3.3. Незаданный фильтр не проверяется; `monthly_payment_rub` — только для подходящего продукта при заданных amount и term. `unmet_constraints`: PURPOSE_NOT_ALLOWED, AMOUNT_BELOW_PRODUCT_MIN, AMOUNT_ABOVE_PRODUCT_MAX, TERM_BELOW_PRODUCT_MIN, TERM_ABOVE_PRODUCT_MAX. Пример ответа — для `?purpose=EQUIPMENT&amount=3000000&term=36` (C2).",
         "operationId": "credit_products_api_v1_credit_products_get",
         "parameters": [
           {
@@ -6432,6 +6437,27 @@
                     "name": "Инвестиционный кредит",
                     "suitable": true,
                     "unmet_constraints": []
+                  },
+                  {
+                    "allowed_purposes": [
+                      "INVENTORY",
+                      "SUPPLIERS",
+                      "WORKING_CAPITAL"
+                    ],
+                    "annual_rate_pct": "24.00",
+                    "disclaimer": "Расчёт предварительный и не является решением банка",
+                    "id": "working_capital",
+                    "max_amount_rub": "3000000.00",
+                    "max_term_months": 24,
+                    "min_amount_rub": "100000.00",
+                    "min_term_months": 3,
+                    "monthly_payment_rub": null,
+                    "name": "Оборотный кредит",
+                    "suitable": false,
+                    "unmet_constraints": [
+                      "PURPOSE_NOT_ALLOWED",
+                      "TERM_ABOVE_PRODUCT_MAX"
+                    ]
                   }
                 ],
                 "schema": {
@@ -7264,7 +7290,7 @@
                       },
                       "purpose_code": "EQUIPMENT",
                       "purpose_text": "Купить печь за 3 млн на 3 года",
-                      "requested_amount_rub": "2340000.00",
+                      "requested_amount_rub": "3000000.00",
                       "revision": 7,
                       "scoring": {
                         "business_age_months": 36,

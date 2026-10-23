@@ -8,6 +8,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import TypedDict
 
 from argon2 import PasswordHasher
 from sqlalchemy.dialects.postgresql import insert
@@ -24,8 +25,21 @@ logger = logging.getLogger("app.seed")
 # В БД хранится лишь argon2-хеш.
 DEMO_PASSWORD = "creditflow-demo"
 
+
+class ProductRow(TypedDict):
+    id: str
+    name: str
+    allowed_purposes: list[P]
+    min_amount_rub: Decimal
+    max_amount_rub: Decimal
+    min_term_months: int
+    max_term_months: int
+    annual_rate_pct: Decimal
+
+
 # Каталог design §3.3; ставка 24% = ключевая 14% + 10 п.п. (design §3.4 «Ставки»).
-PRODUCTS = (
+# Единственный источник каталога: его же читает стаб GET /credit-products.
+PRODUCTS: tuple[ProductRow, ...] = (
     {
         "id": "investment",
         "name": "Инвестиционный кредит",

@@ -5,6 +5,7 @@
 из `ERROR_STATUS`, поэтому код и статус не могут разойтись.
 """
 
+import logging
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -14,7 +15,27 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.schemas.common import ERROR_STATUS, ErrorBody, ErrorCode, ErrorEnvelope
 
-_HTTP_FALLBACK = {401: ErrorCode.UNAUTHORIZED, 403: ErrorCode.FORBIDDEN, 404: ErrorCode.NOT_FOUND}
+logger = logging.getLogger("app.errors")
+
+# HTTPException без бизнес-кода (Starlette, будущие middleware) → код по статусу.
+# 422 здесь нет: валидация входа идёт через RequestValidationError. Статус ответа
+# всегда сохраняется; неизвестный 4xx → BAD_REQUEST, неизвестный 5xx → INTERNAL_ERROR.
+_HTTP_FALLBACK = {
+    400: ErrorCode.BAD_REQUEST,
+    401: ErrorCode.UNAUTHORIZED,
+    403: ErrorCode.FORBIDDEN,
+    404: ErrorCode.NOT_FOUND,
+    405: ErrorCode.METHOD_NOT_ALLOWED,
+    422: ErrorCode.VALIDATION_ERROR,
+    429: ErrorCode.TOO_MANY_ATTEMPTS,
+    503: ErrorCode.SERVICE_UNAVAILABLE,
+}
+
+
+def http_error_code(status_code: int) -> ErrorCode:
+    if status_code in _HTTP_FALLBACK:
+        return _HTTP_FALLBACK[status_code]
+    return ErrorCode.INTERNAL_ERROR if status_code >= 500 else ErrorCode.BAD_REQUEST
 
 
 class AppError(Exception):
@@ -58,8 +79,15 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(StarletteHTTPException)
     async def _http(_: Request, exc: StarletteHTTPException) -> JSONResponse:
-        code = _HTTP_FALLBACK.get(exc.status_code, ErrorCode.VALIDATION_ERROR)
+        code = http_error_code(exc.status_code)
         return error_response(exc.status_code, ErrorBody(code=code, message=str(exc.detail)))
+
+    @app.exception_handler(Exception)
+    async def _unhandled(_: Request, exc: Exception) -> JSONResponse:
+        # Трассировка — в лог uvicorn; клиенту — конверт без деталей исключения.
+        logger.exception("unhandled error", exc_info=exc)
+        body = ErrorBody(code=ErrorCode.INTERNAL_ERROR, message="Внутренняя ошибка сервера")
+        return error_response(500, body)
 
 
 _DESCRIPTIONS = {

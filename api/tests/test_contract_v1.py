@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -85,11 +86,22 @@ def test_demo_accounts_disabled_without_flag(make_settings: Callable[..., Settin
 @pytest.mark.parametrize("enabled", [True, False])
 def test_signing_code_only_in_demo(make_settings: Callable[..., Settings], enabled: bool) -> None:
     client = TestClient(create_app(make_settings(demo_auth_enabled=enabled)), headers=AUTH)
+    before = datetime.now(UTC)
     response = client.post(f"/api/v1/applications/{APP_ID}/sign/challenge", json={"revision": 3})
+    after = datetime.now(UTC)
     assert response.status_code == 200
     value = response.json()
     assert value["demo_code"] == ("123456" if enabled else None)
-    assert value["expires_at"] == "2026-10-21T09:05:00Z"
+    # challenge живёт 5 минут от момента выдачи, а не от фиксированной даты демо-данных
+    expires = datetime.fromisoformat(value["expires_at"])
+    assert before + timedelta(minutes=5) <= expires <= after + timedelta(minutes=5)
+
+
+def test_sign_challenge_openapi_example_is_fixed(app: FastAPI) -> None:
+    """Runtime-время не попадает в контракт: пример в OpenAPI детерминирован."""
+    op = app.openapi()["paths"]["/api/v1/applications/{application_id}/sign/challenge"]["post"]
+    example = op["responses"]["200"]["content"]["application/json"]["example"]
+    assert example["expires_at"] == "2026-10-21T09:05:00Z"
 
 
 VALID_DECISIONS = [

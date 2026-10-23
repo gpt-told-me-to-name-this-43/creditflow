@@ -52,6 +52,12 @@ class ErrorCode(StrEnum):
     TOO_MANY_ATTEMPTS = "TOO_MANY_ATTEMPTS"
     # 503 — только сбой ext-sim
     PROVIDER_UNAVAILABLE = "PROVIDER_UNAVAILABLE"
+    # Инфраструктурные HTTP-ошибки без бизнес-кода (Starlette/прокси/необработанное исключение).
+    # Отдельные коды, чтобы фронт не принял их за ошибку валидации формы.
+    BAD_REQUEST = "BAD_REQUEST"
+    METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED"
+    SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"
+    INTERNAL_ERROR = "INTERNAL_ERROR"
 
 
 ERROR_STATUS: dict[ErrorCode, int] = {
@@ -75,6 +81,10 @@ ERROR_STATUS: dict[ErrorCode, int] = {
     ErrorCode.IDEMPOTENCY_KEY_REUSED: 422,
     ErrorCode.TOO_MANY_ATTEMPTS: 429,
     ErrorCode.PROVIDER_UNAVAILABLE: 503,
+    ErrorCode.BAD_REQUEST: 400,
+    ErrorCode.METHOD_NOT_ALLOWED: 405,
+    ErrorCode.SERVICE_UNAVAILABLE: 503,
+    ErrorCode.INTERNAL_ERROR: 500,
 }
 
 

@@ -1,5 +1,6 @@
 """Точка входа `api`: FastAPI-приложение CreditFlow (design.md §3.2)."""
 
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -16,6 +17,7 @@ from app.extsim_client import ExtSimClient
 from app.scoring.categorization import load_rules
 
 API_PREFIX = "/api/v1"
+logger = logging.getLogger("app.main")
 
 
 @asynccontextmanager
@@ -48,8 +50,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     install_error_handlers(app)
     app.include_router(health_router, prefix=API_PREFIX)
     # Стабы контракта v1 (#6); реализации заменяют их по модулям в #5/#7/#8.
-    for router in CONTRACT_ROUTERS:
-        app.include_router(router, prefix=API_PREFIX)
+    # Стабы контракта #6 не проверяют токен (только наличие Bearer, app/core/security.py)
+    # и отдают фиксированные данные. В production их не монтируем вовсе: до #5 маршруты
+    # отвечают 404, и стабом нельзя воспользоваться как настоящим API.
+    if settings.app_env is AppEnv.PRODUCTION:
+        logger.warning("APP_ENV=production: стабы контракта v1 не подключены (до #5)")
+    else:
+        for router in CONTRACT_ROUTERS:
+            app.include_router(router, prefix=API_PREFIX)
     # design §4: при TEST_RESET_ENABLED=false роутер не монтируется вовсе → 404
     if settings.app_env in {AppEnv.LOCAL, AppEnv.TEST} and settings.test_reset_enabled:
         app.include_router(test_reset.router, prefix=API_PREFIX)
