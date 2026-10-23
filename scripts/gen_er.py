@@ -58,9 +58,7 @@ def render(metadata: MetaData) -> str:
             for fk in sorted(column.foreign_keys, key=lambda f: f.target_fullname):
                 parent = fk.column.table.name
                 cardinality = "|o" if column.nullable else "||"
-                relations.append(
-                    f'    {table.name} }}o--{cardinality} {parent} : "{column.name}"'
-                )
+                relations.append(f'    {table.name} }}o--{cardinality} {parent} : "{column.name}"')
         lines.append("    }")
     lines.extend(sorted(relations))
     lines.append("```")

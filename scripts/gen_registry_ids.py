@@ -1,366 +1,235 @@
-"""Генерация валидных ИНН/ОГРН с корректными контрольными суммами"""
+"""Реестровые фикстуры ext-sim для демо-компаний C1–C7 и T1 (issue #6).
+
+Запуск из корня репозитория: `python scripts/gen_registry_ids.py`.
+
+Пишет в `ext-sim/fixtures/<inn>/` файлы `egrul.json` | `egrip.json`, `fns.json`,
+`bki.json` и (для T1) `meta.json` строго по контракту `ext-sim/fixtures/README.md`:
+ext-sim валидирует их своими Pydantic-схемами при старте (`extra="forbid"`), поэтому
+здесь нет ни одного поля сверх контракта.
+
+Синтетика: код региона `00` не встречается в настоящих ИНН/ОГРН, поэтому совпадение
+с реальной организацией исключено (тот же приём, что у образца `0099000014`).
+Повторный запуск побайтно совпадает: нет случайности, порядок ключей фиксирован,
+кодировка всегда UTF-8 независимо от ОС.
+"""
+
+import json
+from dataclasses import dataclass
+from datetime import date
+from pathlib import Path
+from typing import Any, Literal
+
+APP_AS_OF_DATE = date(2026, 10, 21)
+FIXTURES_DIR = Path(__file__).resolve().parent.parent / "ext-sim" / "fixtures"
+# Момент проверки ФНС фиксирован, а не `datetime.now()`: иначе файл меняется на каждом запуске.
+FNS_CHECKED_AT = "2026-10-21T09:00:00Z"
+
+_INN10_WEIGHTS = (2, 4, 10, 3, 5, 9, 4, 6, 8)
+_INN12_WEIGHTS_1 = (7, 2, 4, 10, 3, 5, 9, 4, 6, 8)
+_INN12_WEIGHTS_2 = (3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8)
 
 
-def _checksum(digits: list[int], coefficients: list[int]) -> int:
-    return sum(d * c for d, c in zip(digits, coefficients, strict=False)) % 11 % 10
+def _check_digit(digits: str, weights: tuple[int, ...]) -> str:
+    # strict=True: длина базы и весов обязана совпадать, иначе это ошибка вызова.
+    return str(sum(int(d) * w for d, w in zip(digits, weights, strict=True)) % 11 % 10)
 
 
-def gen_inn_ll(base9: str) -> str:
-    """10-значный ИНН для ЮЛ. base9 — любые 9 цифр."""
-    assert len(base9) == 9 and base9.isdigit()
-    digits = [int(d) for d in base9]
-    coefs = [2, 4, 10, 3, 5, 9, 4, 6, 8]
-    check = _checksum(digits, coefs)
-    return base9 + str(check)
+def inn_legal(base9: str) -> str:
+    """10-значный ИНН ЮЛ: 9 цифр + контрольная."""
+    assert len(base9) == 9 and base9.isdigit(), base9
+    return base9 + _check_digit(base9, _INN10_WEIGHTS)
 
 
-def gen_inn_ie(base10: str) -> str:
-    """12-значный ИНН для ИП. base10 — любые 10 цифр."""
-    assert len(base10) == 10 and base10.isdigit()
-    digits = [int(d) for d in base10]
-    coefs1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8]
-    coefs2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]
-    c1 = _checksum(digits, coefs1)
-    c2 = _checksum([*digits, c1], coefs2)
-    return base10 + str(c1) + str(c2)
+def inn_person(base10: str) -> str:
+    """12-значный ИНН физлица/ИП: 10 цифр + две контрольные."""
+    assert len(base10) == 10 and base10.isdigit(), base10
+    c1 = _check_digit(base10, _INN12_WEIGHTS_1)
+    return base10 + c1 + _check_digit(base10 + c1, _INN12_WEIGHTS_2)
 
 
-def gen_ogrn_ll(base12: str) -> str:
-    """13-значный ОГРН для ЮЛ."""
-    assert len(base12) == 12 and base12.isdigit()
-    n = int(base12)
-    c = n % 11 % 10
-    return base12 + str(c)
+def ogrn(base12: str) -> str:
+    """ОГРН ЮЛ: первые 12 цифр mod 11 mod 10."""
+    assert len(base12) == 12 and base12.isdigit(), base12
+    return base12 + str(int(base12) % 11 % 10)
 
 
-def gen_ogrn_ie(base14: str) -> str:
-    """15-значный ОГРНИП для ИП."""
-    assert len(base14) == 14 and base14.isdigit()
-    n = int(base14)
-    c = n % 13 % 10
-    return base14 + str(c)
+def ogrnip(base14: str) -> str:
+    """ОГРНИП: первые 14 цифр mod 13 mod 10."""
+    assert len(base14) == 14 and base14.isdigit(), base14
+    return base14 + str(int(base14) % 13 % 10)
 
 
-DEMO_COMPANIES = [
-    # C1: ТехСервис — идеальная, ELIGIBLE
-    {
-        "code": "C1",
-        "name": 'ООО "ТехСервис"',
-        "legal_form": "LLC",
-        "inn_base9": "779901001",
-        "ogrn_base12": "126770000001",
-        "okved": "62.01",
-        "registered_at": "2022-04-15",
-        "director": {
-            "full_name": "Иванов Петр Сергеевич",
-            "person_inn_base10": "7799010001",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 50000,
-        "scenario": "investment",
-        "amount": 2000000,
-        "term": 36,
-        "expected": {
-            "action": "ELIGIBLE_FOR_MANAGER_REVIEW",
-            "score": 100,
-            "dscr_display": "3.11",
-            "limit": 5000000,
-            "risk_level": "LOW",
-        },
-    },
-    # C2: Пекарня Плюс — COUNTER_OFFER
-    {
-        "code": "C2",
-        "name": 'ООО "Пекарня Плюс"',
-        "legal_form": "LLC",
-        "inn_base9": "502202002",
-        "ogrn_base12": "125500000002",
-        "okved": "10.71",
-        "registered_at": "2023-01-10",
-        "director": {
-            "full_name": "Кузнецова Анна Михайловна",
-            "person_inn_base10": "5022020002",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 100000,
-        "scenario": "investment",
-        "amount": 3000000,
-        "term": 36,
-        "expected": {
-            "action": "COUNTER_OFFER_CANDIDATE",
-            "score": 63,
-            "dscr_display": "1.10",
-            "limit": 2340000,
-            "risk_level": "MODERATE",
-        },
-    },
-    # C3: ИП Соколова — MANUAL_REVIEW по R2 (SERIOUS БКИ)
-    {
-        "code": "C3",
-        "name": "ИП Соколова А.В.",
-        "legal_form": "IE",
-        "inn_base10": "7722330003",
-        "ogrn_base14": "32577000000003",
-        "okved": "62.02",
-        "registered_at": "2023-04-20",
-        "director": {
-            "full_name": "Соколова Алиса Владимировна",
-            "person_inn_base10": "7722330003",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "SERIOUS",
-        "monthly_payments_bki": 0,
-        "scenario": "working_capital",
-        "amount": 800000,
-        "term": 12,
-        "expected": {
-            "action": "MANUAL_REVIEW",
-            "score": 70,
-            "dscr_display": "3.96",
-            "limit": 800000,
-            "risk_level": "MODERATE",
-        },
-    },
-    # C4: Новый Старт — BLOCKED (история 4 мес)
-    {
-        "code": "C4",
-        "name": 'ООО "Новый Старт"',
-        "legal_form": "LLC",
-        "inn_base9": "771104004",
-        "ogrn_base12": "126770000004",
-        "okved": "46.39",
-        "registered_at": "2026-06-01",  # 4 месяца до APP_AS_OF_DATE=2026-10-21
-        "director": {
-            "full_name": "Новиков Станислав Олегович",
-            "person_inn_base10": "7711040004",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 0,
-        "scenario": "investment",
-        "amount": 500000,
-        "term": 24,
-        "expected": {
-            "action": "BLOCKED_BY_RULE",
-            "blocking_codes": ["ACCOUNT_HISTORY_INSUFFICIENT"],
-        },
-    },
-    # C5: Вектор — BLOCKED (LIQUIDATING)
-    {
-        "code": "C5",
-        "name": 'ООО "Вектор"',
-        "legal_form": "LLC",
-        "inn_base9": "773305005",
-        "ogrn_base12": "120770000005",
-        "okved": "46.90",
-        "registered_at": "2019-03-14",
-        "director": {
-            "full_name": "Векторов Андрей Игоревич",
-            "person_inn_base10": "7733050005",
-        },
-        "status": "LIQUIDATING",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 0,
-        "scenario": "working_capital",
-        "amount": 1000000,
-        "term": 12,
-        "expected": {
-            "action": "BLOCKED_BY_RULE",
-            "blocking_codes": ["COMPANY_INACTIVE"],
-        },
-    },
-    # C6: Склад-М — BLOCKED (ФНС блокировки)
-    {
-        "code": "C6",
-        "name": 'ООО "Склад-М"',
-        "legal_form": "LLC",
-        "inn_base9": "774406006",
-        "ogrn_base12": "118770000006",
-        "okved": "52.10",
-        "registered_at": "2020-09-01",
-        "director": {
-            "full_name": "Складов Михаил Дмитриевич",
-            "person_inn_base10": "7744060006",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 2,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 0,
-        "scenario": "working_capital",
-        "amount": 1500000,
-        "term": 18,
-        "expected": {
-            "action": "BLOCKED_BY_RULE",
-            "blocking_codes": ["ACCOUNT_BLOCKED_BY_FNS"],
-        },
-    },
-    # C7: ИП Орлов — MANUAL_REVIEW по R5 (высокая нагрузка, лимит null)
-    {
-        "code": "C7",
-        "name": "ИП Орлов Д.С.",
-        "legal_form": "IE",
-        "inn_base10": "7755070007",
-        "ogrn_base14": "32177000000007",
-        "okved": "49.41",
-        "registered_at": "2023-02-10",
-        "director": {
-            "full_name": "Орлов Дмитрий Степанович",
-            "person_inn_base10": "7755070007",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 100000,
-        "scenario": "investment",
-        "amount": 1000000,
-        "term": 36,
-        "expected": {
-            "action": "MANUAL_REVIEW",
-            "score": 60,
-            "dscr_display": "0.86",
-            "limit": None,
-            "risk_level": "HIGH",
-        },
-    },
-    # T1: Тестовый сбой
-    {
-        "code": "T1",
-        "name": 'ООО "Тест Сбой"',
-        "legal_form": "LLC",
-        "inn_base9": "776608008",
-        "ogrn_base12": "124770000008",
-        "okved": "62.01",
-        "registered_at": "2022-01-01",
-        "director": {
-            "full_name": "Тестов Тест Тестович",
-            "person_inn_base10": "7766080008",
-        },
-        "status": "ACTIVE",
-        "bankruptcy": False,
-        "fns_blocks": 0,
-        "bki_status": "CLEAN",
-        "monthly_payments_bki": 0,
-        "scenario": "investment",
-        "amount": 1000000,
-        "term": 24,
-        "expected": {"fail_mode": "bki_timeout"},
-    },
-]
-
-
-def build_company(c: dict) -> dict:
-    out = {
-        k: v
-        for k, v in c.items()
-        if k
-        not in ("inn_base9", "inn_base10", "ogrn_base12", "ogrn_base14", "director")
-    }
-    if c["legal_form"] == "LLC":
-        out["inn"] = gen_inn_ll(c["inn_base9"])
-        out["ogrn"] = gen_ogrn_ll(c["ogrn_base12"])
-    else:
-        out["inn"] = gen_inn_ie(c["inn_base10"])
-        out["ogrn"] = gen_ogrn_ie(c["ogrn_base14"])
-    out["director_inn"] = (
-        gen_inn_ie(c["director"]["person_inn_base10"])
-        if c["legal_form"] == "IE"
-        else gen_inn_ll(c["director"]["person_inn_base10"][:9])
-    )
-    out["director_full_name"] = c["director"]["full_name"]
-    return out
-
-
-def generate_ext_sim_fixtures():
-    """Генерирует полную структуру фикстур для ext-sim."""
-    import json
-    from pathlib import Path
-
-    fixtures_dir = Path("ext-sim/fixtures")
-
-    for c in DEMO_COMPANIES:
-        if c["code"] == "T1":
+def months_before(as_of: date, months: int) -> date:
+    """Дата ровно `months` полных месяцев назад (то же число; для 29–31 — конец месяца)."""
+    y, m = divmod(as_of.year * 12 + as_of.month - 1 - months, 12)
+    for day in (as_of.day, 30, 29, 28):
+        try:
+            return date(y, m + 1, day)
+        except ValueError:
             continue
+    raise AssertionError("unreachable")
 
-        company = build_company(c)
-        inn = company["inn"]
-        company_dir = fixtures_dir / inn
-        company_dir.mkdir(parents=True, exist_ok=True)
 
-        # ЕГРЮЛ/ЕГРИП
-        if c["legal_form"] == "LLC":
-            egrul = {
-                "inn": inn,
-                "ogrn": company["ogrn"],
-                "name": c["name"],
-                "legal_form": "LLC",
-                "status": c["status"],
-                "okved_main": c["okved"],
-                "registered_at": c["registered_at"],
-                "director": {
-                    "full_name": c["director"]["full_name"],
-                    "inn": company["director_inn"],
-                },
-            }
-            (company_dir / "egrul.json").write_text(
-                json.dumps(egrul, ensure_ascii=False, indent=2)
-            )
-        else:
-            egrip = {
-                "inn": inn,
-                "ogrn": company["ogrn"],
-                "name": c["name"],
-                "legal_form": "IE",
-                "status": c["status"],
-                "okved_main": c["okved"],
-                "registered_at": c["registered_at"],
-                "entrepreneur": {"full_name": c["director"]["full_name"], "inn": inn},
-            }
-            (company_dir / "egrip.json").write_text(
-                json.dumps(egrip, ensure_ascii=False, indent=2)
-            )
+@dataclass(frozen=True)
+class Obligation:
+    creditor_name: str
+    monthly_payment_rub: int
+    outstanding_rub: int
 
-        # ФНС
-        fns = {
-            "inn": inn,
-            "bankruptcy": c.get("bankruptcy", False),
-            "fns_blocks": c.get("fns_blocks", 0),
+
+@dataclass(frozen=True)
+class DemoCompany:
+    code: str
+    legal_form: Literal["LLC", "IE"]
+    name: str  # для ЮЛ — название; в ЕГРИП у ИП хранится только ФИО
+    director_full_name: str
+    # Базы без контрольных цифр. ИНН ИП = ИНН физлица, поэтому у ИП inn_base не нужен.
+    inn_base: str  # 9 цифр, только LLC
+    person_base: str  # 10 цифр: ИНН руководителя ЮЛ или самого ИП
+    ogrn_base: str  # 12 цифр (ОГРН) или 14 (ОГРНИП)
+    okved: str
+    age_months: int  # возраст бизнеса на APP_AS_OF_DATE — из спецификации #6
+    status: Literal["ACTIVE", "LIQUIDATING", "LIQUIDATED"] = "ACTIVE"
+    bankruptcy: bool = False
+    active_account_blocks: int = 0
+    bki_status: Literal["CLEAN", "UNKNOWN", "MINOR", "SERIOUS"] = "CLEAN"
+    obligations: tuple[Obligation, ...] = ()
+    fail_mode: str | None = None
+
+    @property
+    def director_inn(self) -> str:
+        return inn_person(self.person_base)
+
+    @property
+    def inn(self) -> str:
+        return inn_legal(self.inn_base) if self.legal_form == "LLC" else self.director_inn
+
+    @property
+    def registered_at(self) -> date:
+        return months_before(APP_AS_OF_DATE, self.age_months)
+
+
+_BANK = "АО «Демо-Банк»"
+
+# Единственный источник истины для реестровой части демо-компаний.
+# Ожидаемые результаты расчёта живут в docs/demo-data.md и в golden-тесте, а не здесь:
+# эталон не должен «подстраиваться» под генератор.
+# fmt: off
+DEMO_COMPANIES: tuple[DemoCompany, ...] = (
+    DemoCompany(code="C1", legal_form="LLC", name="ООО «ТехСервис»",
+                director_full_name="Иванов Пётр Сергеевич",
+                inn_base="009901001", person_base="0099010010", ogrn_base="120009901001",
+                okved="62.01", age_months=60,
+                obligations=(Obligation(_BANK, 50_000, 1_200_000),)),
+    DemoCompany(code="C2", legal_form="LLC", name="ООО «Пекарня Плюс»",
+                director_full_name="Кузнецова Анна Михайловна",
+                inn_base="009902001", person_base="0099020010", ogrn_base="122009902001",
+                okved="10.71", age_months=36,
+                obligations=(Obligation(_BANK, 100_000, 2_400_000),)),
+    # #5 проверяет нормализацию «Соколова Алёна Викторовна» = «соколова  алена викторовна»,
+    # поэтому в реестре именно «Алёна» — с «ё».
+    DemoCompany(code="C3", legal_form="IE", name="ИП Соколова А. В.",
+                director_full_name="Соколова Алёна Викторовна",
+                inn_base="", person_base="0099030010", ogrn_base="32300990300001",
+                okved="62.02", age_months=30, bki_status="SERIOUS"),
+    DemoCompany(code="C4", legal_form="LLC", name="ООО «Новый Старт»",
+                director_full_name="Новиков Станислав Олегович",
+                inn_base="009904001", person_base="0099040010", ogrn_base="126009904001",
+                okved="46.39", age_months=4),
+    DemoCompany(code="C5", legal_form="LLC", name="ООО «Вектор»",
+                director_full_name="Векторов Андрей Игоревич",
+                inn_base="009905001", person_base="0099050010", ogrn_base="119009905001",
+                okved="46.90", age_months=91, status="LIQUIDATING"),
+    DemoCompany(code="C6", legal_form="LLC", name="ООО «Склад-М»",
+                director_full_name="Складов Михаил Дмитриевич",
+                inn_base="009906001", person_base="0099060010", ogrn_base="120009906001",
+                okved="52.10", age_months=73, active_account_blocks=2),
+    DemoCompany(code="C7", legal_form="IE", name="ИП Орлов Д. С.",
+                director_full_name="Орлов Дмитрий Степанович",
+                inn_base="", person_base="0099070010", ogrn_base="32300990700001",
+                okved="49.41", age_months=36,
+                obligations=(Obligation(_BANK, 100_000, 3_000_000),)),
+    DemoCompany(code="T1", legal_form="LLC", name="ООО «Тест Сбой»",
+                director_full_name="Тестов Тест Тестович",
+                inn_base="009999001", person_base="0099990010", ogrn_base="122009999001",
+                okved="62.01", age_months=48, fail_mode="bki_timeout"),
+)
+# fmt: on
+
+
+def _money(rub: int) -> str:
+    # Контракт ext-sim: деньги — строка с двумя знаками ("45000.00"), float запрещён.
+    return f"{rub}.00"
+
+
+def registry_record(c: DemoCompany) -> tuple[str, dict[str, Any]]:
+    """(имя файла, содержимое) — ровно поля EgrulCompany / EgripEntrepreneur."""
+    if c.legal_form == "LLC":
+        return "egrul.json", {
+            "inn": c.inn,
+            "ogrn": ogrn(c.ogrn_base),
+            "name": c.name,
+            "status": c.status,
+            "registered_at": c.registered_at.isoformat(),
+            "okved_main": c.okved,
+            # ИНН руководителя — ИНН физлица, 12 цифр (Director.inn: ^\d{12}$).
+            "director": {"full_name": c.director_full_name, "inn": c.director_inn},
         }
-        (company_dir / "fns.json").write_text(
-            json.dumps(fns, ensure_ascii=False, indent=2)
-        )
+    return "egrip.json", {
+        "inn": c.inn,
+        "ogrnip": ogrnip(c.ogrn_base),
+        "full_name": c.director_full_name,
+        "status": c.status,
+        "registered_at": c.registered_at.isoformat(),
+        "okved_main": c.okved,
+    }
 
-        # БКИ
-        bki = {
-            "inn": inn,
-            "summary_status": c["bki_status"],
-            "monthly_payments_total_rub": c.get("monthly_payments_bki", 0),
-        }
-        (company_dir / "bki.json").write_text(
-            json.dumps(bki, ensure_ascii=False, indent=2)
-        )
 
-        print(f"[OK] {c['code']} (ИНН {inn}): фикстуры ext-sim созданы")
+def fns_record(c: DemoCompany) -> dict[str, Any]:
+    return {
+        "bankruptcy": c.bankruptcy,
+        "active_account_blocks": c.active_account_blocks,
+        "checked_at": FNS_CHECKED_AT,
+    }
+
+
+def bki_record(c: DemoCompany) -> dict[str, Any]:
+    # report_id не хранится: ext-sim вычисляет его из ИНН и consent_id (UUID v5).
+    return {
+        "summary_status": c.bki_status,
+        "monthly_payments_total_rub": _money(sum(o.monthly_payment_rub for o in c.obligations)),
+        "obligations": [
+            {
+                "creditor_name": o.creditor_name,
+                "monthly_payment_rub": _money(o.monthly_payment_rub),
+                "outstanding_rub": _money(o.outstanding_rub),
+            }
+            for o in c.obligations
+        ],
+    }
+
+
+def write_json(path: Path, data: Any) -> None:
+    """Детерминированная запись: всегда UTF-8 и LF, фиксированный отступ, \\n в конце."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def main() -> None:
+    for c in DEMO_COMPANIES:
+        company_dir = FIXTURES_DIR / c.inn
+        filename, record = registry_record(c)
+        write_json(company_dir / filename, record)
+        write_json(company_dir / "fns.json", fns_record(c))
+        write_json(company_dir / "bki.json", bki_record(c))
+        meta = company_dir / "meta.json"
+        if c.fail_mode is not None:
+            write_json(meta, {"fail_mode": c.fail_mode})
+        elif meta.exists():
+            meta.unlink()
+        print(f"[OK] {c.code} {c.inn}: {filename}, fns.json, bki.json")
 
 
 if __name__ == "__main__":
-    import json
-
-    for c in DEMO_COMPANIES:
-        print(json.dumps(build_company(c), ensure_ascii=False, indent=2))
-
-    print("\n--- Генерация фикстур ext-sim ---")
-    generate_ext_sim_fixtures()
+    main()

@@ -93,3 +93,63 @@ def test_directors_match_registry_fixtures() -> None:
         assert registry.get(user.person_inn or "") == user.full_name, user.email
     accountant = next(u for u in seed.DEMO_USERS if u.email.startswith("accountant."))
     assert accountant.person_inn not in registry  # бухгалтер не руководитель ни одной компании
+
+
+INSERT_ONLY = (
+    "application_events",
+    "credit_decisions",
+    "decision_proposals",
+    "external_snapshots",
+    "scoring_results",
+)
+
+
+def test_insert_only_triggers_on_all_tables(db: sa.Connection) -> None:
+    """Поведенчески проверен scoring_results (выше); остальные — по каталогу: триггер
+    BEFORE UPDATE OR DELETE есть ровно на 5 таблицах из issue #6."""
+    rows = db.execute(
+        sa.text("""
+        SELECT c.relname FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid
+        WHERE NOT t.tgisinternal
+          AND t.tgtype & 2 = 2      -- BEFORE
+          AND t.tgtype & 8 = 8      -- DELETE
+          AND t.tgtype & 16 = 16    -- UPDATE
+        ORDER BY c.relname
+    """)
+    ).scalars()
+    assert tuple(rows) == INSERT_ONLY
+
+
+def test_all_foreign_keys_restrict(db: sa.Connection) -> None:
+    """issue #6: внешние ключи ON DELETE RESTRICT — историю заявки нельзя снести каскадом."""
+    rows = db.execute(
+        sa.text("""
+        SELECT conrelid::regclass::text || '.' || conname FROM pg_constraint
+        WHERE contype = 'f' AND confdeltype <> 'r'
+    """)
+    ).scalars()
+    assert list(rows) == []
+
+
+@pytest.mark.parametrize(
+    ("table", "columns"),
+    [
+        ("companies", ["inn"]),
+        ("ai_feedback", ["ai_report_id", "manager_user_id"]),
+        ("decision_proposals", ["scoring_result_id"]),
+        ("account_transactions", ["company_id", "external_id"]),
+        ("contracts", ["application_id"]),
+        ("consents", ["application_id", "text_version", "type"]),
+    ],
+)
+def test_required_unique_constraints(db: sa.Connection, table: str, columns: list[str]) -> None:
+    uniques = db.execute(
+        sa.text("""
+        SELECT array_agg(a.attname::text ORDER BY a.attname) FROM pg_constraint k
+        JOIN pg_attribute a ON a.attrelid = k.conrelid AND a.attnum = ANY(k.conkey)
+        WHERE k.contype = 'u' AND k.conrelid = CAST(:t AS regclass)
+        GROUP BY k.oid
+    """),
+        {"t": table},
+    ).scalars()
+    assert sorted(columns) in [list(u) for u in uniques]

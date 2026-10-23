@@ -85,3 +85,49 @@ class TermsSource(StrEnum):
     MANUAL = "MANUAL"
     RULES_CONFIRMED = "RULES_CONFIRMED"
     LLM_CONFIRMED = "LLM_CONFIRMED"
+
+
+# --- Добавлено для финансового ядра (#6). Значения — из design.md §3.4. ---
+
+
+class StopFactor(StrEnum):
+    """Стоп-факторы DecisionPolicy (R1). Порядок — как в таблице design §3.4."""
+
+    COMPANY_INACTIVE = "COMPANY_INACTIVE"
+    APPLICANT_NOT_AUTHORIZED = "APPLICANT_NOT_AUTHORIZED"
+    BANKRUPTCY_PROCEEDING = "BANKRUPTCY_PROCEEDING"
+    ACCOUNT_BLOCKED_BY_FNS = "ACCOUNT_BLOCKED_BY_FNS"
+    ACCOUNT_HISTORY_INSUFFICIENT = "ACCOUNT_HISTORY_INSUFFICIENT"
+
+
+class CalculationStatus(StrEnum):
+    OK = "OK"
+    SKIPPED = "SKIPPED"  # h < 6 или нулевая база выручки: метрики не считаются
+
+
+class BkiSummaryStatus(StrEnum):
+    CLEAN = "CLEAN"
+    UNKNOWN = "UNKNOWN"
+    MINOR = "MINOR"
+    SERIOUS = "SERIOUS"
+
+
+class RegistryStatus(StrEnum):
+    ACTIVE = "ACTIVE"
+    LIQUIDATING = "LIQUIDATING"
+    LIQUIDATED = "LIQUIDATED"
+
+
+class TransactionCategory(StrEnum):
+    OWN_TRANSFER = "OWN_TRANSFER"
+    LOAN_REPAYMENT = "LOAN_REPAYMENT"
+    LOAN_PROCEEDS = "LOAN_PROCEEDS"
+    TAX = "TAX"
+    SALARY = "SALARY"
+    RENT = "RENT"
+    CASH_WITHDRAWAL = "CASH_WITHDRAWAL"
+    OWNER_TRANSFER = "OWNER_TRANSFER"
+    ACQUIRING = "ACQUIRING"
+    CUSTOMER_PAYMENT = "CUSTOMER_PAYMENT"
+    SUPPLIER = "SUPPLIER"
+    UNCLASSIFIED = "UNCLASSIFIED"
