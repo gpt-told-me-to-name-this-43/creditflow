@@ -1,6 +1,11 @@
 {
-  "report_id": "bki-0099000014-report",
   "summary_status": "CLEAN",
-  "monthly_payments_total_rub": "0.00",
-  "obligations": []
+  "monthly_payments_total_rub": "45000.00",
+  "obligations": [
+    {
+      "creditor_name": "Банк Образец",
+      "monthly_payment_rub": "45000.00",
+      "outstanding_rub": "900000.00"
+    }
+  ]
 }

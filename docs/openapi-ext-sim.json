@@ -390,11 +390,6 @@
       },
       "FailKind": {
         "enum": [
-          "bki_timeout",
-          "fns_timeout",
-          "egrul_timeout",
-          "egrip_timeout",
-          "bank_timeout",
           "timeout",
           "500",
           "503"
@@ -510,7 +505,7 @@
   },
   "info": {
     "description": "Синтетические данные. Контракт — docs/design.md §3.4.",
-    "summary": "Симулятор внешних систем",
+    "summary": "Симулятор внешних систем: ЕГРЮЛ, ЕГРИП, ФНС, БКИ, банковская выписка",
     "title": "CreditFlow ext-sim",
     "version": "0.1.0"
   },
@@ -551,7 +546,7 @@
             }
           },
           {
-            "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+            "description": "Смоделировать сбой: timeout, 500 или 503",
             "in": "header",
             "name": "x-sim-fail",
             "required": false,
@@ -564,7 +559,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+              "description": "Смоделировать сбой: timeout, 500 или 503",
               "title": "X-Sim-Fail"
             }
           },
@@ -662,7 +657,7 @@
         "operationId": "bki_report_bki_v1_reports_post",
         "parameters": [
           {
-            "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+            "description": "Смоделировать сбой: timeout, 500 или 503",
             "in": "header",
             "name": "x-sim-fail",
             "required": false,
@@ -675,7 +670,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+              "description": "Смоделировать сбой: timeout, 500 или 503",
               "title": "X-Sim-Fail"
             }
           },
@@ -803,7 +798,7 @@
             }
           },
           {
-            "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+            "description": "Смоделировать сбой: timeout, 500 или 503",
             "in": "header",
             "name": "x-sim-fail",
             "required": false,
@@ -816,7 +811,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+              "description": "Смоделировать сбой: timeout, 500 или 503",
               "title": "X-Sim-Fail"
             }
           },
@@ -924,7 +919,7 @@
             }
           },
           {
-            "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+            "description": "Смоделировать сбой: timeout, 500 или 503",
             "in": "header",
             "name": "x-sim-fail",
             "required": false,
@@ -937,7 +932,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+              "description": "Смоделировать сбой: timeout, 500 или 503",
               "title": "X-Sim-Fail"
             }
           },
@@ -1045,7 +1040,7 @@
             }
           },
           {
-            "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+            "description": "Смоделировать сбой: timeout, 500 или 503",
             "in": "header",
             "name": "x-sim-fail",
             "required": false,
@@ -1058,7 +1053,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Смоделировать сбой: bki_timeout, fns_timeout и т.д.",
+              "description": "Смоделировать сбой: timeout, 500 или 503",
               "title": "X-Sim-Fail"
             }
           },

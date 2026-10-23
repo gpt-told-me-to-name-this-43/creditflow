@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from ..schemas.client import ClientApplicationView
-from ..schemas.common import DscrStr, MoneyStr
-from ..schemas.enums import (
+from app.schemas.client import ClientApplicationView
+from app.schemas.common import DscrStr, MoneyStr
+from app.schemas.enums import (
     ApplicationStatus,
     ManagerAction,
     PurposeCode,
@@ -10,7 +10,7 @@ from ..schemas.enums import (
     SuggestedAction,
     TermsSource,
 )
-from ..schemas.manager import ManagerApplicationView
+from app.schemas.manager import ManagerApplicationView
 
 router = APIRouter()
 
