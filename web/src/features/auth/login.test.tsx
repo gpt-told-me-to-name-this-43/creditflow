@@ -18,6 +18,19 @@ describe('экран входа', () => {
     expect(auth.getSession()?.role).toBe('CLIENT')
   })
 
+  it('«Выйти» появляется сразу после входа и уводит на экран входа', async () => {
+    const user = userEvent.setup()
+    const { router } = renderApp('/login')
+    expect(screen.queryByRole('button', { name: 'Выйти' })).not.toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: /Кузнецова Анна Михайловна/ }))
+    await user.click(screen.getByRole('button', { name: 'Войти' }))
+    await screen.findByRole('heading', { name: 'Подключите компанию' })
+
+    await user.click(screen.getByRole('button', { name: 'Выйти' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/login'))
+    expect(screen.queryByRole('button', { name: 'Выйти' })).not.toBeInTheDocument()
+  })
+
   it('сценарий учётки описан словами, без кодов', async () => {
     renderApp('/login')
     expect(await screen.findByText('Банк предложит другую сумму')).toBeInTheDocument()

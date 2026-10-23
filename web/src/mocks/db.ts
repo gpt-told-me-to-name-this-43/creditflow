@@ -602,9 +602,44 @@ export function scenarioOffer(application: ApplicationRow, byTerm: boolean): Dec
 export const NEED_INFO_QUESTION =
   'Пришлите, пожалуйста, договор с поставщиком или счёт на оборудование'
 
+/** Сценарий демо-учётки владельца заявки (C1–C7) — для `?mock=default`. */
+function ownerScenario(application: ApplicationRow) {
+  return db.findUser(application.owner_user_id)?.scenario
+}
+
 /**
- * Каким решением закончится рассмотрение в сценарии `?mock=`. `null` — заявка остаётся
- * на рассмотрении и ждёт менеджера (default) или недоступного внешнего сервиса.
+ * Решение по ветке демо-учётки (docs/demo-data.md): C1 — одобрение, C2 — встречное
+ * предложение по сумме, C3 — дозапрос, C4–C6 — отказ по стоп-фактору, C7 — отказ
+ * из-за долговой нагрузки. Остальные учётки ждут менеджера.
+ */
+function accountOutcome(application: ApplicationRow): Decision | null {
+  switch (ownerScenario(application)) {
+    case 'C1':
+      return { action: 'APPROVE' }
+    case 'C2':
+      return scenarioOffer(application, false)
+    case 'C3':
+      return { action: 'REQUEST_INFO', question_text: NEED_INFO_QUESTION }
+    case 'C4':
+    case 'C5':
+    case 'C6':
+      return stopDecision(application)
+    case 'C7':
+      return { action: 'REJECT', client_reason_code: 'HIGH_DEBT_LOAD' }
+    default:
+      return null
+  }
+}
+
+function stopDecision(application: ApplicationRow): Decision {
+  const inn = db.findCompany(application.company_id)?.inn ?? ''
+  return { action: 'REJECT', client_reason_code: STOP_REASONS[inn] ?? 'LOW_SCORE' }
+}
+
+/**
+ * Каким решением закончится рассмотрение в сценарии `?mock=`. По умолчанию — ветка
+ * демо-учётки. `null` — заявка остаётся на рассмотрении и ждёт менеджера (`manager`)
+ * или недоступного внешнего сервиса.
  */
 export function reviewOutcome(application: ApplicationRow, scenario: Scenario): Decision | null {
   switch (scenario) {
@@ -616,11 +651,11 @@ export function reviewOutcome(application: ApplicationRow, scenario: Scenario): 
       return scenarioOffer(application, true)
     case 'need_info':
       return { action: 'REQUEST_INFO', question_text: NEED_INFO_QUESTION }
-    case 'stop': {
-      const inn = db.findCompany(application.company_id)?.inn ?? ''
-      return { action: 'REJECT', client_reason_code: STOP_REASONS[inn] ?? 'LOW_SCORE' }
-    }
+    case 'stop':
+      return stopDecision(application)
     case 'default':
+      return accountOutcome(application)
+    case 'manager':
     case 'unavailable':
     case 'error503':
       return null
@@ -673,13 +708,16 @@ export function submitApplication(application: ApplicationRow) {
   decideLater(application, reviewOutcome(application, getScenario()))
 }
 
-/** Ответ на дозапрос: снова на рассмотрение; в сценарии need_info затем одобрение. */
+/** Ответ на дозапрос: снова на рассмотрение; в ветке дозапроса (need_info, C3) затем одобрение. */
 export function answerInfoRequest(application: ApplicationRow, answerText: string) {
   if (!application.info_request) throw new Error('Ответ без вопроса')
   application.info_request.answer_text = answerText
   application.info_request.answered_at = now()
   setStatus(application, 'UNDER_REVIEW')
-  decideLater(application, getScenario() === 'need_info' ? { action: 'APPROVE' } : null)
+  const scenario = getScenario()
+  const approves =
+    scenario === 'need_info' || (scenario === 'default' && ownerScenario(application) === 'C3')
+  decideLater(application, approves ? { action: 'APPROVE' } : null)
 }
 
 /** Принятие оффера: договор на условиях оффера, исходный запрос не меняется. */
