@@ -1,4 +1,4 @@
-import type { PurposeCode } from '@/api/contract-draft.ts'
+import type { PurposeCode } from '@/api/enums.ts'
 
 interface PurposeText {
   label: string

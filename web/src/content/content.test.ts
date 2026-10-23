@@ -4,7 +4,7 @@ import {
   CLIENT_REASON_CODES,
   ERROR_CODES,
   PURPOSE_CODES,
-} from '@/api/contract-draft.ts'
+} from '@/api/enums.ts'
 import { errorMessages, networkErrorMessage, pageErrors, unknownErrorMessage } from './errors.ts'
 import { glossary } from './glossary.ts'
 import { purposeTexts } from './purposes.ts'

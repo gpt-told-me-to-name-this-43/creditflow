@@ -1,11 +1,11 @@
 import { z } from 'zod'
+import { ROLES } from '@/api/enums.ts'
 
 // Сессия живёт в sessionStorage: у каждой вкладки своя, поэтому на демо можно открыть
-// клиента и менеджера рядом. Роль — из контракта; когда в docs/openapi.json появится
-// contract-v1 (#6), enum заменится на тип из schema.d.ts.
+// клиента и менеджера рядом. Роль — из GET /auth/me после входа.
 const sessionSchema = z.object({
   token: z.string().min(1),
-  role: z.enum(['CLIENT', 'MANAGER']),
+  role: z.enum(ROLES),
 })
 
 export type Session = z.infer<typeof sessionSchema>

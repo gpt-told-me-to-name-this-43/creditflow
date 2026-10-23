@@ -1,4 +1,4 @@
-import type { ApplicationStatus } from '@/api/contract-draft.ts'
+import type { ApplicationStatus } from '@/api/enums.ts'
 
 interface StatusText {
   /** Бейдж. */

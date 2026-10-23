@@ -1,4 +1,4 @@
-import type { ErrorCode } from '@/api/contract-draft.ts'
+import type { ErrorCode } from '@/api/enums.ts'
 
 // Тексты для пользователя по `code` из docs/api.md. Тексты привязки — из #9.
 // Экран может уточнить текст под контекст (например, 503 на отправке заявки).
@@ -15,16 +15,24 @@ export const errorMessages = {
   IDEMPOTENCY_IN_PROGRESS: 'Запрос уже обрабатывается, подождите несколько секунд',
   COMPANY_ALREADY_BOUND: 'Эта компания уже подключена другим пользователем',
   USER_ALREADY_BOUND: 'К вашему кабинету уже подключена компания',
+  COMPANY_NOT_BOUND: 'Сначала подключите компанию к кабинету',
   VALIDATION_ERROR: 'Проверьте введённые данные',
   INVALID_INN: 'Проверьте ИНН: 10 цифр для организации или 12 для ИП',
   COMPANY_NOT_IN_REGISTRY: 'Компания с таким ИНН не найдена в ЕГРЮЛ/ЕГРИП',
   CONSENT_REQUIRED: 'Чтобы продолжить, подтвердите согласие',
+  APPLICATION_INCOMPLETE: 'Заполните все шаги заявки перед отправкой',
+  PRODUCT_NOT_ELIGIBLE: 'Выбранный кредит не подходит под указанные условия',
+  SIGN_CHALLENGE_EXPIRED: 'Код больше не действует. Получите новый',
   ACTION_NOT_ALLOWED: 'Это действие недоступно для заявки',
   AMOUNT_ABOVE_LIMIT: 'Сумма больше доступной на этот срок',
   SIGN_CODE_INVALID: 'Неверный код подтверждения',
   IDEMPOTENCY_KEY_REUSED: 'Не удалось выполнить действие. Повторите ещё раз',
   TOO_MANY_ATTEMPTS: 'Слишком много попыток. Попробуйте немного позже',
   PROVIDER_UNAVAILABLE: 'Сервис временно недоступен. Повторите через минуту',
+  BAD_REQUEST: 'Не удалось выполнить запрос. Повторите ещё раз',
+  METHOD_NOT_ALLOWED: 'Не удалось выполнить запрос. Повторите ещё раз',
+  SERVICE_UNAVAILABLE: 'Сервис временно недоступен. Повторите через минуту',
+  INTERNAL_ERROR: 'Что-то пошло не так. Повторите ещё раз',
 } as const satisfies Record<ErrorCode, string>
 
 export const networkErrorMessage = 'Нет связи с сервером. Проверьте интернет и повторите'

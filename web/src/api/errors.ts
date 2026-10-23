@@ -1,5 +1,5 @@
 import { errorMessages, networkErrorMessage, unknownErrorMessage } from '@/content/errors.ts'
-import type { ErrorCode } from './contract-draft.ts'
+import type { ErrorCode } from './enums.ts'
 
 // Сеть недоступна или ответ не дошёл: HTTP-статуса нет.
 export const NETWORK_ERROR = 'NETWORK_ERROR'

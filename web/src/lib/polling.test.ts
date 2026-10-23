@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { APPLICATION_STATUSES } from '@/api/contract-draft.ts'
+import { APPLICATION_STATUSES } from '@/api/enums.ts'
 import { applicationRefetchInterval, isFinal } from './polling.ts'
 
 describe('isFinal', () => {

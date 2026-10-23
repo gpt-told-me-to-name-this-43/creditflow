@@ -1,4 +1,4 @@
-import type { ApplicationStatus } from '@/api/contract-draft.ts'
+import type { ApplicationStatus } from '@/api/enums.ts'
 
 const FINAL_STATUSES: ReadonlySet<ApplicationStatus> = new Set(['REJECTED', 'DECLINED', 'ISSUED'])
 

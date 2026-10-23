@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import type { ErrorCode } from '@/api/contract-draft.ts'
+import type { ErrorCode } from '@/api/enums.ts'
 import type { components } from '@/api/schema.d.ts'
 import { getScenario } from './scenarios.ts'
 

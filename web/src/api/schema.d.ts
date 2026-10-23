@@ -4,6 +4,304 @@
  */
 
 export interface paths {
+    "/api/v1/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Applications */
+        get: operations["list_applications_api_v1_applications_get"];
+        put?: never;
+        /**
+         * Create Application
+         * @description 201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. Стаб всегда возвращает 201, состояние не хранит; конкурентная реализация — #7.
+         */
+        post: operations["create_application_api_v1_applications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Application */
+        get: operations["get_application_api_v1_applications__application_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Patch Application
+         * @description Сохранение подтверждённых полей черновика, только DRAFT. Пропуск поля оставляет значение, null очищает. terms_source вычисляет сервер. Успех увеличивает revision; следующий запрос использует revision из ответа.
+         */
+        patch: operations["patch_application_api_v1_applications__application_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/contract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Contract */
+        get: operations["contract_api_v1_applications__application_id__contract_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/info-response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Info Response */
+        post: operations["info_response_api_v1_applications__application_id__info_response_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/interpret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Interpret
+         * @description Распознаёт потребность без записи в заявку и без revision. RULES/LLM — источник каждого предложения. NEEDS_CLARIFICATION содержит вопрос; UNAVAILABLE оставляет доступным ручной ввод. Сбой LLM — 200 с правилами либо UNAVAILABLE. Сохранение — отдельный PATCH после явного подтверждения. UI #9 ограничивает ввод 1000 символами; API использует тот же предел.
+         */
+        post: operations["interpret_api_v1_applications__application_id__interpret_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/offer/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Offer Accept */
+        post: operations["offer_accept_api_v1_applications__application_id__offer_accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/offer/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Offer Decline */
+        post: operations["offer_decline_api_v1_applications__application_id__offer_decline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/sign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign
+         * @description APPROVED → SIGNED с актуальной revision из challenge. Неверный код — 422 SIGN_CODE_INVALID с details.remaining_attempts; третья неверная попытка — 429 scope SIGN_ATTEMPTS без Retry-After, challenge недействителен. Неизвестный, чужой, просроченный, использованный или заменённый challenge — 422 SIGN_CHALLENGE_EXPIRED. Неуспешная попытка не меняет revision заявки. Успех запускает выдачу SYSTEM: SIGNED → ISSUED через 3–5 с; опрашивать карточку каждые 2 с. Повтор успешного запроса с тем же ключом возвращает сохранённый ответ.
+         */
+        post: operations["sign_api_v1_applications__application_id__sign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/sign/challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign Challenge
+         * @description Только APPROVED; UI предварительно получает подтверждение ознакомления с договором. Выдаёт новый код на 5 минут и инвалидирует предыдущий; максимум 3 попытки. Не более 5 challenge на заявку за 15 минут: 429 scope CHALLENGE_ISSUE и Retry-After. Не требует Idempotency-Key. В sign передать revision из этого ответа. demo_code показывать только из ответа API; отсутствует при DEMO_AUTH_ENABLED=false.
+         */
+        post: operations["sign_challenge_api_v1_applications__application_id__sign_challenge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/applications/{application_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit
+         * @description DRAFT → UNDER_REVIEW. Только заполненная заявка с подходящим продуктом и актуальным bki_consent_version после явного согласия. Синхронный сбор источников и расчёт; AI-заключение в фоне. 503 PROVIDER_UNAVAILABLE сохраняет DRAFT: можно повторить тот же запрос с тем же Idempotency-Key.
+         */
+        post: operations["submit_api_v1_applications__application_id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/demo-accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Demo Accounts
+         * @description Публичный маршрут. При DEMO_AUTH_ENABLED=false возвращает 404.
+         */
+        get: operations["demo_accounts_api_v1_auth_demo_accounts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login */
+        post: operations["login_api_v1_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Me */
+        get: operations["me_api_v1_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/company": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Company */
+        get: operations["company_api_v1_company_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/consents/texts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consent Texts */
+        get: operations["consent_texts_api_v1_consents_texts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/credit-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Credit Products
+         * @description Оба продукта каталога с подбором по design §3.3. Незаданный фильтр не проверяется; `monthly_payment_rub` — только для подходящего продукта при заданных amount и term. `unmet_constraints`: PURPOSE_NOT_ALLOWED, AMOUNT_BELOW_PRODUCT_MIN, AMOUNT_ABOVE_PRODUCT_MAX, TERM_BELOW_PRODUCT_MIN, TERM_ABOVE_PRODUCT_MAX. Пример ответа — для `?purpose=EQUIPMENT&amount=3000000&term=36` (C2).
+         */
+        get: operations["credit_products_api_v1_credit_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -21,10 +319,739 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/manager/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Queue */
+        get: operations["queue_api_v1_manager_applications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/manager/applications/{application_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Manager Card */
+        get: operations["manager_card_api_v1_manager_applications__application_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/manager/applications/{application_id}/ai-feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ai Feedback
+         * @description Не требует и не меняет revision заявки. UPSERT по (ai_report_id, manager_user_id): повтор заменяет оценку. Не меняет статус, расчёт и allowed_actions. Реализация — #8.
+         */
+        post: operations["ai_feedback_api_v1_manager_applications__application_id__ai_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/manager/applications/{application_id}/ai-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ai Report */
+        get: operations["get_ai_report_api_v1_manager_applications__application_id__ai_report_get"];
+        put?: never;
+        /**
+         * Regenerate Ai Report
+         * @description Не меняет revision заявки. Сериализация по записи ai_reports; свежий PENDING возвращается без повторного запуска (200), в том числе при regenerate. READY/FALLBACK без regenerate — 200; иначе, включая зависший PENDING, — 202. При 202 опрашивать GET каждые 3 секунды. Новая генерация использует generation_id и updated_at (design §3.6). Реализация — #8.
+         */
+        post: operations["regenerate_ai_report_api_v1_manager_applications__application_id__ai_report_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/manager/applications/{application_id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decisions */
+        post: operations["decisions_api_v1_manager_applications__application_id__decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/manager/applications/{application_id}/offer-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Offer Preview
+         * @description Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED или невычислимых условиях все метрики null, valid=false и violations непустой. Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий совпадают с COUNTER_OFFER в decisions; реализация — #7. Стаб возвращает пример C2.
+         */
+        post: operations["offer_preview_api_v1_manager_applications__application_id__offer_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/manager/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stats */
+        get: operations["stats_api_v1_manager_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/company-binding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Company Binding */
+        post: operations["company_binding_api_v1_onboarding_company_binding_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AiFactor */
+        AiFactor: {
+            code: components["schemas"]["ReasonCode"];
+            /** Text */
+            text: string;
+        };
+        /** AiFeedbackGroup */
+        AiFeedbackGroup: {
+            /** Model Id */
+            model_id: string | null;
+            /** Prompt Version */
+            prompt_version: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "openai" | "replay" | "disabled";
+            /** Total */
+            total: number;
+            /** Up Count */
+            up_count: number;
+            /**
+             * Up Share
+             * @description null при total=0; доля 0..1
+             */
+            up_share: string | null;
+        };
+        /** AiFeedbackRequest */
+        AiFeedbackRequest: {
+            /**
+             * Ai Report Id
+             * Format: uuid
+             */
+            ai_report_id: string;
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "UP" | "DOWN";
+        };
+        /** AiReportBody */
+        AiReportBody: {
+            /** Manager Questions */
+            manager_questions: string[];
+            /** Positive Factors */
+            positive_factors: components["schemas"]["AiFactor"][];
+            /** Risk Factors */
+            risk_factors: components["schemas"]["AiFactor"][];
+            /** Summary */
+            summary: string;
+        };
+        /**
+         * AiReportStatus
+         * @enum {string}
+         */
+        AiReportStatus: "PENDING" | "READY" | "FALLBACK";
+        /** AiReportView */
+        AiReportView: {
+            fallback_reason: components["schemas"]["FallbackReason"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Llm Mode
+             * @enum {string}
+             */
+            llm_mode: "openai" | "replay" | "disabled";
+            /** Model Id */
+            model_id: string | null;
+            /** Prompt Version */
+            prompt_version: string;
+            report: components["schemas"]["AiReportBody"] | null;
+            /**
+             * Scoring Result Id
+             * Format: uuid
+             */
+            scoring_result_id: string;
+            status: components["schemas"]["AiReportStatus"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** AmountSuggestion */
+        AmountSuggestion: {
+            /** Matched Text */
+            matched_text?: string | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "RULES" | "LLM";
+            /** Value */
+            value: number;
+        };
+        /** ApplicationCreate */
+        ApplicationCreate: {
+            /** Purpose Text */
+            purpose_text?: string | null;
+        };
+        /** ApplicationIncompleteDetails */
+        ApplicationIncompleteDetails: {
+            /** Missing Fields */
+            missing_fields: string[];
+        };
+        /**
+         * ApplicationPatch
+         * @description PATCH сохраняет только явно переданные поля; null очищает поле, пропуск сохраняет его.
+         *
+         *     terms_source вычисляет сервер из terms_field_sources: LLM_CONFIRMED при наличии LLM,
+         *     иначе RULES_CONFIRMED при наличии RULES, иначе MANUAL. Ручная правка помечается MANUAL.
+         *     Интерпретация сама ничего не сохраняет: PATCH вызывается после подтверждения клиентом.
+         */
+        ApplicationPatch: {
+            /** Product Id */
+            product_id?: string | null;
+            purpose_code?: components["schemas"]["PurposeCode"] | null;
+            /** Purpose Text */
+            purpose_text?: string | null;
+            /** Requested Amount Rub */
+            requested_amount_rub?: number | null;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+            /** Term Months */
+            term_months?: number | null;
+            /** Terms Field Sources */
+            terms_field_sources?: {
+                [key: string]: components["schemas"]["FieldSource"];
+            } | null;
+        };
+        /**
+         * ApplicationStatus
+         * @enum {string}
+         */
+        ApplicationStatus: "DRAFT" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "COUNTER_OFFER" | "NEED_INFO" | "DECLINED" | "SIGNED" | "ISSUED";
+        /** ApproveDecision */
+        ApproveDecision: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "APPROVE";
+            /**
+             * Comment
+             * @description Обязателен при suggested_action != ELIGIBLE_FOR_MANAGER_REVIEW. Условие по сохранённой рекомендации проверяет сервис (#7).
+             */
+            comment?: string | null;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /**
+         * CalculatedOfferPreview
+         * @description 200 даже при valid=false: вычислимые метрики сохраняются, причины в violations.
+         *
+         *     Ничего не пишет в БД. Проверки условий совпадают с COUNTER_OFFER в decisions (#7).
+         */
+        CalculatedOfferPreview: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            calculation_status: "OK";
+            /**
+             * Dscr
+             * @example 1.10
+             */
+            dscr: string;
+            /** Limit For Term Rub */
+            limit_for_term_rub: string | null;
+            /**
+             * Monthly Payment Rub
+             * @example 117698.56
+             */
+            monthly_payment_rub: string;
+            risk_level: components["schemas"]["RiskLevel"];
+            /** Score */
+            score: number;
+            /** Valid */
+            valid: boolean;
+            /** Violations */
+            violations: components["schemas"]["OfferViolation"][];
+        } & ({
+            /** @constant */
+            valid?: true;
+            violations?: unknown;
+        } | {
+            /** @constant */
+            valid?: false;
+            violations?: unknown;
+        });
+        /**
+         * CalculationStatus
+         * @enum {string}
+         */
+        CalculationStatus: "OK" | "SKIPPED";
+        /**
+         * ClientAction
+         * @description Разрешения от сервера; UI не выводит их из статуса самостоятельно.
+         * @enum {string}
+         */
+        ClientAction: "EDIT" | "INTERPRET" | "SUBMIT" | "RESPOND_INFO" | "ACCEPT_OFFER" | "DECLINE_OFFER" | "VIEW_CONTRACT" | "REQUEST_SIGN_CODE" | "SIGN";
+        /** ClientApplicationView */
+        ClientApplicationView: {
+            /**
+             * Allowed Actions
+             * @description Единственный источник разрешённых кнопок. Пустой список — нет действий.
+             */
+            allowed_actions: components["schemas"]["ClientAction"][];
+            /**
+             * Annual Rate Pct
+             * @description Ставка выбранного продукта, иначе null
+             */
+            annual_rate_pct: string | null;
+            /** @description Причина отказа (шаблон) */
+            client_reason_code: components["schemas"]["ClientReasonCode"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            info_request: components["schemas"]["ClientInfoRequest"] | null;
+            /**
+             * Monthly Payment Rub
+             * @description Платёж по текущим условиям заявки; null, пока условия не заполнены
+             */
+            monthly_payment_rub: string | null;
+            offer: components["schemas"]["ClientOffer"] | null;
+            /**
+             * Overpayment Rub
+             * @description Переплата по графику текущих условий; для сравнения с offer.overpayment_rub
+             */
+            overpayment_rub: string | null;
+            /** Product Id */
+            product_id: string | null;
+            purpose_code: components["schemas"]["PurposeCode"] | null;
+            /** Purpose Text */
+            purpose_text: string | null;
+            /** Requested Amount Rub */
+            requested_amount_rub: string | null;
+            /** Revision */
+            revision: number;
+            status: components["schemas"]["ApplicationStatus"];
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Term Months */
+            term_months: number | null;
+            /** Terms Field Sources */
+            terms_field_sources: {
+                [key: string]: components["schemas"]["FieldSource"];
+            };
+            terms_source: components["schemas"]["TermsSource"];
+            /** Timeline */
+            timeline: components["schemas"]["TimelineEvent"][];
+        };
+        /** ClientInfoRequest */
+        ClientInfoRequest: {
+            /** Answer Text */
+            answer_text: string | null;
+            /** Answered At */
+            answered_at: string | null;
+            /** Question Text */
+            question_text: string;
+        };
+        /**
+         * ClientOffer
+         * @description «Вы просили → Банк предлагает»: только условия, без DSCR и лимита.
+         */
+        ClientOffer: {
+            /**
+             * Amount Rub
+             * @example 117698.56
+             */
+            amount_rub: string;
+            /** Annual Rate Pct */
+            annual_rate_pct: string;
+            /**
+             * Monthly Payment Rub
+             * @example 117698.56
+             */
+            monthly_payment_rub: string;
+            /**
+             * Overpayment Rub
+             * @example 117698.56
+             */
+            overpayment_rub: string;
+            /** Term Months */
+            term_months: number;
+        };
+        /**
+         * ClientReasonCode
+         * @enum {string}
+         */
+        ClientReasonCode: "COMPANY_STATUS" | "APPLICANT_NOT_AUTHORIZED" | "TAX_AUTHORITY_RESTRICTIONS" | "INSUFFICIENT_DATA" | "HIGH_DEBT_LOAD" | "LOW_SCORE";
+        /** Company */
+        Company: {
+            /**
+             * Bound At
+             * Format: date-time
+             */
+            bound_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Inn
+             * @example 0099020010
+             */
+            inn: string;
+            /**
+             * Legal Form
+             * @enum {string}
+             */
+            legal_form: "LLC" | "IE";
+            /** Name */
+            name: string;
+            /** Okved Main */
+            okved_main: string;
+            /**
+             * Registered At
+             * Format: date
+             */
+            registered_at: string;
+        };
+        /** CompanyBindingRequest */
+        CompanyBindingRequest: {
+            /**
+             * Inn
+             * @example 0099020010
+             */
+            inn: string;
+            /** Pd Consent Version */
+            pd_consent_version: string;
+        };
+        /** ConsentText */
+        ConsentText: {
+            /** Text */
+            text: string;
+            type: components["schemas"]["ConsentType"];
+            /** Version */
+            version: string;
+        };
+        /**
+         * ConsentType
+         * @enum {string}
+         */
+        ConsentType: "PD_PROCESSING" | "BKI_REQUEST";
+        /** ContractView */
+        ContractView: {
+            /** Account Masked */
+            account_masked: string;
+            /**
+             * Amount Rub
+             * @example 117698.56
+             */
+            amount_rub: string;
+            /** Annual Rate Pct */
+            annual_rate_pct: string;
+            /** Issued At */
+            issued_at: string | null;
+            /**
+             * Key Terms Markdown
+             * @description Условия договора для отображения; без raw HTML
+             */
+            key_terms_markdown: string;
+            /**
+             * Monthly Payment Rub
+             * @example 117698.56
+             */
+            monthly_payment_rub: string;
+            /** Number */
+            number: string;
+            /**
+             * Overpayment Rub
+             * @example 117698.56
+             */
+            overpayment_rub: string;
+            /** Schedule */
+            schedule: components["schemas"]["ScheduleItem"][];
+            /** Signed At */
+            signed_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "SIGNED" | "ISSUED";
+            /** Term Months */
+            term_months: number;
+        };
+        /** CounterOfferDecision */
+        CounterOfferDecision: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "COUNTER_OFFER";
+            /** Amount Rub */
+            amount_rub?: number | null;
+            client_reason_code: components["schemas"]["ClientReasonCode"];
+            /** Comment */
+            comment: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+            /** Term Months */
+            term_months?: number | null;
+        } | {
+            amount_rub: number;
+        } | {
+            term_months: number;
+        };
+        /** CreditProduct */
+        CreditProduct: {
+            /** Allowed Purposes */
+            allowed_purposes: components["schemas"]["PurposeCode"][];
+            /**
+             * Annual Rate Pct
+             * @example 24.00
+             */
+            annual_rate_pct: string;
+            /**
+             * Disclaimer
+             * @default Расчёт предварительный и не является решением банка
+             */
+            disclaimer: string;
+            /** Id */
+            id: string;
+            /**
+             * Max Amount Rub
+             * @example 117698.56
+             */
+            max_amount_rub: string;
+            /** Max Term Months */
+            max_term_months: number;
+            /**
+             * Min Amount Rub
+             * @example 117698.56
+             */
+            min_amount_rub: string;
+            /** Min Term Months */
+            min_term_months: number;
+            /**
+             * Monthly Payment Rub
+             * @description Только для подходящего продукта
+             */
+            monthly_payment_rub: string | null;
+            /** Name */
+            name: string;
+            /** Suitable */
+            suitable: boolean;
+            /**
+             * Unmet Constraints
+             * @example [
+             *       "AMOUNT_ABOVE_PRODUCT_MAX"
+             *     ]
+             */
+            unmet_constraints: components["schemas"]["ProductConstraint"][];
+        };
+        /** DecisionHistoryItem */
+        DecisionHistoryItem: {
+            action: components["schemas"]["ManagerAction"];
+            client_reason_code: components["schemas"]["ClientReasonCode"] | null;
+            /** Comment */
+            comment: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Manager Full Name */
+            manager_full_name: string;
+            /**
+             * Manager User Id
+             * Format: uuid
+             */
+            manager_user_id: string;
+            /**
+             * Proposal Id
+             * Format: uuid
+             */
+            proposal_id: string;
+        };
+        /** DecisionResponse */
+        DecisionResponse: {
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+            status: components["schemas"]["ApplicationStatus"];
+        };
+        /** DemoAccount */
+        DemoAccount: {
+            /**
+             * Label
+             * @description Подпись на экране входа
+             */
+            label: string;
+            /** Login */
+            login: string;
+            /**
+             * Password
+             * @description Демо-пароль; маршрут доступен только с DEMO_AUTH_ENABLED
+             */
+            password: string;
+            role: components["schemas"]["Role"];
+            /**
+             * Scenario
+             * @description Ожидаемый сценарий: C1…C7, бухгалтер, менеджер
+             */
+            scenario: string;
+        };
+        /** ErrorBody */
+        ErrorBody: {
+            code: components["schemas"]["ErrorCode"];
+            /** Details */
+            details?: components["schemas"]["ValidationDetails"] | components["schemas"]["ApplicationIncompleteDetails"] | components["schemas"]["ProductNotEligibleDetails"] | components["schemas"]["RevisionConflictDetails"] | components["schemas"]["SignCodeInvalidDetails"] | components["schemas"]["TooManyAttemptsDetails"] | null;
+            /** Message */
+            message: string;
+        };
+        /**
+         * ErrorCode
+         * @enum {string}
+         */
+        ErrorCode: "UNAUTHORIZED" | "INVALID_CREDENTIALS" | "FORBIDDEN" | "APPLICANT_NOT_AUTHORIZED" | "NOT_FOUND" | "REVISION_CONFLICT" | "INVALID_STATUS_TRANSITION" | "IDEMPOTENCY_IN_PROGRESS" | "COMPANY_ALREADY_BOUND" | "USER_ALREADY_BOUND" | "COMPANY_NOT_BOUND" | "VALIDATION_ERROR" | "INVALID_INN" | "COMPANY_NOT_IN_REGISTRY" | "CONSENT_REQUIRED" | "APPLICATION_INCOMPLETE" | "PRODUCT_NOT_ELIGIBLE" | "SIGN_CHALLENGE_EXPIRED" | "ACTION_NOT_ALLOWED" | "AMOUNT_ABOVE_LIMIT" | "SIGN_CODE_INVALID" | "IDEMPOTENCY_KEY_REUSED" | "TOO_MANY_ATTEMPTS" | "PROVIDER_UNAVAILABLE" | "BAD_REQUEST" | "METHOD_NOT_ALLOWED" | "SERVICE_UNAVAILABLE" | "INTERNAL_ERROR";
+        /** ErrorEnvelope */
+        ErrorEnvelope: {
+            error: components["schemas"]["ErrorBody"];
+        };
+        /** ExternalSource */
+        ExternalSource: {
+            /**
+             * Fetched At
+             * Format: date-time
+             */
+            fetched_at: string;
+            /**
+             * Provider
+             * @enum {string}
+             */
+            provider: "EGRUL" | "EGRIP" | "FNS" | "BKI" | "BANK";
+            /**
+             * Summary
+             * @description Сводка источника: вложенные JSON-объекты, списки, bool, int и null. Денежные значения передаются строками с двумя знаками.
+             */
+            summary: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+        };
+        /**
+         * FallbackReason
+         * @enum {string}
+         */
+        FallbackReason: "DISABLED" | "TIMEOUT" | "UNAVAILABLE" | "INVALID_OUTPUT" | "REPLAY_MISS";
+        /**
+         * FieldSource
+         * @enum {string}
+         */
+        FieldSource: "MANUAL" | "RULES" | "LLM";
         /** HealthResponse */
         HealthResponse: {
             /**
@@ -48,6 +1075,795 @@ export interface components {
              */
             status: "ok" | "degraded" | "unavailable";
         };
+        /** InfoRequestHistoryItem */
+        InfoRequestHistoryItem: {
+            /** Answer Text */
+            answer_text: string | null;
+            /** Answered At */
+            answered_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Question Text */
+            question_text: string;
+        };
+        /** InfoResponseRequest */
+        InfoResponseRequest: {
+            /** Answer Text */
+            answer_text: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /** InterpretRequest */
+        InterpretRequest: {
+            /** Purpose Text */
+            purpose_text: string;
+        };
+        /**
+         * InterpretResponse
+         * @description Не меняет заявку: поля сохраняются только PATCH-ем после «Подтвердить».
+         */
+        InterpretResponse: {
+            /** Clarification Question */
+            clarification_question: string | null;
+            status: components["schemas"]["InterpretStatus"];
+            suggestion: components["schemas"]["InterpretSuggestions"];
+        };
+        /**
+         * InterpretStatus
+         * @enum {string}
+         */
+        InterpretStatus: "OK" | "NEEDS_CLARIFICATION" | "UNAVAILABLE";
+        /**
+         * InterpretSuggestions
+         * @description Отсутствующее или null-поле означает, что предложение для него не найдено.
+         */
+        InterpretSuggestions: {
+            purpose_code?: components["schemas"]["PurposeSuggestion"] | null;
+            requested_amount_rub?: components["schemas"]["AmountSuggestion"] | null;
+            term_months?: components["schemas"]["TermSuggestion"] | null;
+        };
+        JsonValue: unknown;
+        /** LoginRequest */
+        LoginRequest: {
+            /**
+             * Login
+             * @example director.bakery@creditflow.demo
+             */
+            login: string;
+            /** Password */
+            password: string;
+        };
+        /**
+         * ManagerAction
+         * @enum {string}
+         */
+        ManagerAction: "APPROVE" | "COUNTER_OFFER" | "REQUEST_INFO" | "REJECT";
+        /** ManagerApplicationView */
+        ManagerApplicationView: {
+            ai_report: components["schemas"]["AiReportView"] | null;
+            /** Allowed Actions */
+            allowed_actions: components["schemas"]["ManagerAction"][];
+            /** Company Inn */
+            company_inn: string;
+            /** Company Name */
+            company_name: string;
+            contract: components["schemas"]["ManagerContractView"] | null;
+            /** Decisions */
+            decisions: components["schemas"]["DecisionHistoryItem"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Info Requests */
+            info_requests: components["schemas"]["InfoRequestHistoryItem"][];
+            /**
+             * Legal Form
+             * @enum {string}
+             */
+            legal_form: "LLC" | "IE";
+            offer_constraints: components["schemas"]["OfferConstraints"] | null;
+            /** Offers */
+            offers: components["schemas"]["OfferHistoryItem"][];
+            /** Okved Main */
+            okved_main: string;
+            /** Product Id */
+            product_id: string | null;
+            proposal: components["schemas"]["Proposal"] | null;
+            purpose_code: components["schemas"]["PurposeCode"] | null;
+            /** Purpose Text */
+            purpose_text: string | null;
+            /**
+             * Registered At
+             * Format: date
+             */
+            registered_at: string;
+            /** Requested Amount Rub */
+            requested_amount_rub: string | null;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+            scoring: components["schemas"]["Scoring"] | null;
+            /** Sign Challenges */
+            sign_challenges: components["schemas"]["SignChallengeHistoryItem"][];
+            /** Sources */
+            sources: components["schemas"]["ExternalSource"][];
+            status: components["schemas"]["ApplicationStatus"];
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Term Months */
+            term_months: number | null;
+            /** Terms Field Sources */
+            terms_field_sources: {
+                [key: string]: components["schemas"]["FieldSource"];
+            };
+            terms_source: components["schemas"]["TermsSource"];
+            /** Timeline */
+            timeline: components["schemas"]["ManagerTimelineEvent"][];
+        };
+        /** ManagerContractView */
+        ManagerContractView: {
+            /** Account Masked */
+            account_masked: string;
+            /**
+             * Amount Rub
+             * @example 117698.56
+             */
+            amount_rub: string;
+            /** Annual Rate Pct */
+            annual_rate_pct: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Issued At */
+            issued_at: string | null;
+            /**
+             * Key Terms Markdown
+             * @description Условия договора для отображения; без raw HTML
+             */
+            key_terms_markdown: string;
+            /**
+             * Monthly Payment Rub
+             * @example 117698.56
+             */
+            monthly_payment_rub: string;
+            /** Number */
+            number: string;
+            /**
+             * Overpayment Rub
+             * @example 117698.56
+             */
+            overpayment_rub: string;
+            /** Schedule */
+            schedule: components["schemas"]["ScheduleItem"][];
+            /** Signed At */
+            signed_at: string | null;
+            /** Signed By User Id */
+            signed_by_user_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "SIGNED" | "ISSUED";
+            /** Term Months */
+            term_months: number;
+        };
+        /** ManagerStats */
+        ManagerStats: {
+            /**
+             * Ai Feedback Groups
+             * @description Типизированные группы с размером выборки; при total<5 UI показывает недостаточно оценок
+             */
+            ai_feedback_groups: components["schemas"]["AiFeedbackGroup"][];
+            /**
+             * Ai Feedback Up Share
+             * @description Ключ: prompt_version|model|source
+             */
+            ai_feedback_up_share: {
+                [key: string]: string;
+            };
+            /** Applications By Status */
+            applications_by_status: {
+                [key: string]: number;
+            };
+            /**
+             * Decisions Matching Suggestion Share
+             * @example 0.75
+             */
+            decisions_matching_suggestion_share: string | null;
+            /** Median Time To Decision Seconds */
+            median_time_to_decision_seconds: number | null;
+            /** Suggested Action Distribution */
+            suggested_action_distribution: {
+                [key: string]: number;
+            };
+        };
+        /** ManagerTimelineEvent */
+        ManagerTimelineEvent: {
+            /**
+             * Actor Full Name
+             * @description null — SYSTEM
+             */
+            actor_full_name: string | null;
+            /**
+             * Actor User Id
+             * @description null — SYSTEM
+             */
+            actor_user_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            from_status: components["schemas"]["ApplicationStatus"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            to_status: components["schemas"]["ApplicationStatus"];
+        };
+        /** Me */
+        Me: {
+            /** Company Id */
+            company_id: string | null;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            role: components["schemas"]["Role"];
+        };
+        /** MonthlyFeature */
+        MonthlyFeature: {
+            /**
+             * Debt Svc Rub
+             * @example 117698.56
+             */
+            debt_svc_rub: string;
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /**
+             * Opex Rub
+             * @example 117698.56
+             */
+            opex_rub: string;
+            /**
+             * Revenue Rub
+             * @example 117698.56
+             */
+            revenue_rub: string;
+        };
+        /** OfferConstraints */
+        OfferConstraints: {
+            /**
+             * Max Amount Rub
+             * @example 100000.00
+             */
+            max_amount_rub: string;
+            /** Max Term Months */
+            max_term_months: number;
+            /**
+             * Min Amount Rub
+             * @example 100000.00
+             */
+            min_amount_rub: string;
+            /** Min Term Months */
+            min_term_months: number;
+        };
+        /** OfferHistoryItem */
+        OfferHistoryItem: {
+            /**
+             * Amount Rub
+             * @example 117698.56
+             */
+            amount_rub: string;
+            /** Annual Rate Pct */
+            annual_rate_pct: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Monthly Payment Rub
+             * @example 117698.56
+             */
+            monthly_payment_rub: string;
+            /**
+             * Overpayment Rub
+             * @example 117698.56
+             */
+            overpayment_rub: string;
+            /** Product Id */
+            product_id: string;
+            /** @description Собственный расчёт оффера kind=COUNTER_OFFER */
+            scoring: components["schemas"]["Scoring"];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "OPEN" | "ACCEPTED" | "DECLINED";
+            /** Term Months */
+            term_months: number;
+        };
+        /** OfferPreviewRequest */
+        OfferPreviewRequest: {
+            /**
+             * Amount Rub
+             * @example 3000000
+             */
+            amount_rub: number;
+            /** Term Months */
+            term_months: number;
+        };
+        /**
+         * OfferViolation
+         * @enum {string}
+         */
+        OfferViolation: "ACTION_NOT_ALLOWED" | "AMOUNT_OUT_OF_PRODUCT" | "TERM_OUT_OF_PRODUCT" | "AMOUNT_ABOVE_LIMIT" | "OFFER_NOT_IMPROVED" | "CALCULATION_SKIPPED";
+        /**
+         * ProductConstraint
+         * @enum {string}
+         */
+        ProductConstraint: "PURPOSE_NOT_ALLOWED" | "AMOUNT_BELOW_PRODUCT_MIN" | "AMOUNT_ABOVE_PRODUCT_MAX" | "TERM_BELOW_PRODUCT_MIN" | "TERM_ABOVE_PRODUCT_MAX";
+        /** ProductNotEligibleDetails */
+        ProductNotEligibleDetails: {
+            /** Product Id */
+            product_id: string;
+            /** Unmet Constraints */
+            unmet_constraints: components["schemas"]["ProductConstraint"][];
+        };
+        /** Proposal */
+        Proposal: {
+            /** Blocking Codes */
+            blocking_codes: components["schemas"]["StopFactor"][];
+            /** Policy Version */
+            policy_version: string;
+            /** Rule Trace */
+            rule_trace: components["schemas"]["RuleTraceItem"][];
+            suggested_action: components["schemas"]["SuggestedAction"];
+        };
+        /**
+         * PurposeCode
+         * @enum {string}
+         */
+        PurposeCode: "EQUIPMENT" | "RENOVATION" | "BUSINESS_EXPANSION" | "INVENTORY" | "SUPPLIERS" | "WORKING_CAPITAL";
+        /** PurposeSuggestion */
+        PurposeSuggestion: {
+            /** Matched Text */
+            matched_text?: string | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "RULES" | "LLM";
+            value: components["schemas"]["PurposeCode"];
+        };
+        /** QueueItem */
+        QueueItem: {
+            /** Blocking Codes */
+            blocking_codes: components["schemas"]["StopFactor"][];
+            /** Company Inn */
+            company_inn: string;
+            /** Company Name */
+            company_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Product Id */
+            product_id: string | null;
+            /** Requested Amount Rub */
+            requested_amount_rub: string | null;
+            status: components["schemas"]["ApplicationStatus"];
+            /** Submitted At */
+            submitted_at: string | null;
+            suggested_action: components["schemas"]["SuggestedAction"] | null;
+            /** Term Months */
+            term_months: number | null;
+        };
+        /**
+         * ReasonCode
+         * @enum {string}
+         */
+        ReasonCode: "DSCR_BELOW_ONE" | "DSCR_BELOW_TARGET" | "CREDIT_HISTORY_SERIOUS" | "CREDIT_HISTORY_MINOR" | "CREDIT_HISTORY_UNKNOWN" | "REVENUE_DECLINE" | "REVENUE_SHARP_DECLINE" | "YOUNG_BUSINESS" | "DSCR_MEETS_TARGET" | "CLEAN_CREDIT_HISTORY" | "REVENUE_STABLE_OR_GROWING" | "ESTABLISHED_BUSINESS";
+        /** RejectDecision */
+        RejectDecision: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "REJECT";
+            client_reason_code: components["schemas"]["ClientReasonCode"];
+            /** Comment */
+            comment: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /** RequestInfoDecision */
+        RequestInfoDecision: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "REQUEST_INFO";
+            /** Comment */
+            comment?: string | null;
+            /** Question Text */
+            question_text: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /** RevisionConflictDetails */
+        RevisionConflictDetails: {
+            /**
+             * Current Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            current_revision: number;
+        };
+        /**
+         * RevisionRequest
+         * @description Тело offer/accept, offer/decline, sign/challenge.
+         */
+        RevisionRequest: {
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /**
+         * RiskLevel
+         * @enum {string}
+         */
+        RiskLevel: "LOW" | "MODERATE" | "HIGH" | "VERY_HIGH";
+        /**
+         * Role
+         * @enum {string}
+         */
+        Role: "CLIENT" | "MANAGER";
+        /** RuleTraceItem */
+        RuleTraceItem: {
+            /** Detail */
+            detail: string | null;
+            /** Matched */
+            matched: boolean;
+            /**
+             * Rule
+             * @enum {string}
+             */
+            rule: "R1" | "R2" | "R3" | "R4" | "R5";
+        };
+        /** ScheduleItem */
+        ScheduleItem: {
+            /**
+             * Balance After Rub
+             * @example 117698.56
+             */
+            balance_after_rub: string;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /**
+             * Interest Rub
+             * @example 117698.56
+             */
+            interest_rub: string;
+            /** Number */
+            number: number;
+            /**
+             * Payment Rub
+             * @example 117698.56
+             */
+            payment_rub: string;
+            /**
+             * Principal Rub
+             * @example 117698.56
+             */
+            principal_rub: string;
+        };
+        /** Scoring */
+        Scoring: {
+            /**
+             * Account History Months
+             * @description h: месяцы доступной истории
+             */
+            account_history_months: number;
+            /** Business Age Months */
+            business_age_months: number;
+            calculation_status: components["schemas"]["CalculationStatus"];
+            /** Cfads Monthly Rub */
+            cfads_monthly_rub: string | null;
+            /** Dscr */
+            dscr: string | null;
+            /** Engine Version */
+            engine_version: string;
+            /**
+             * Existing Debt Payments Rub
+             * @example 117698.56
+             */
+            existing_debt_payments_rub: string;
+            /** Factor Points */
+            factor_points: {
+                [key: string]: number;
+            } | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Inputs Hash */
+            inputs_hash: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "SUBMISSION" | "COUNTER_OFFER";
+            /** Limit Rub */
+            limit_rub: string | null;
+            /** Monthly */
+            monthly: components["schemas"]["MonthlyFeature"][];
+            /** Monthly Payment Rub */
+            monthly_payment_rub: string | null;
+            /** Positive Codes */
+            positive_codes: components["schemas"]["ReasonCode"][];
+            /** Reason Codes */
+            reason_codes: components["schemas"]["ReasonCode"][];
+            /** Revenue Change Pct */
+            revenue_change_pct: string | null;
+            risk_level: components["schemas"]["RiskLevel"] | null;
+            /** Score */
+            score: number | null;
+        };
+        /** SignChallenge */
+        SignChallenge: {
+            /**
+             * Attempts Remaining
+             * @description Оставшиеся попытки ввода кода
+             */
+            attempts_remaining: number;
+            /**
+             * Challenge Id
+             * Format: uuid
+             */
+            challenge_id: string;
+            /**
+             * Demo Code
+             * @description Присутствует только при DEMO_AUTH_ENABLED=true
+             */
+            demo_code?: string | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Revision
+             * @description Актуальная revision после выдачи кода; передать в sign
+             */
+            revision: number;
+        };
+        /**
+         * SignChallengeHistoryItem
+         * @description Аудит подписания без кода, его хеша и demo_code.
+         */
+        SignChallengeHistoryItem: {
+            /** Attempts */
+            attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Used At */
+            used_at: string | null;
+        };
+        /** SignCodeInvalidDetails */
+        SignCodeInvalidDetails: {
+            /** Remaining Attempts */
+            remaining_attempts: number;
+        };
+        /** SignRequest */
+        SignRequest: {
+            /**
+             * Challenge Id
+             * Format: uuid
+             */
+            challenge_id: string;
+            /** Code */
+            code: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /**
+         * SkippedOfferPreview
+         * @description 200, valid=false, все метрики null: данных недостаточно или условия невычислимы.
+         *
+         *     Невалидная структура запроса — 422; невалидный бизнес-оффер — 200 с violations.
+         *     При исходном SKIPPED violations содержит CALCULATION_SKIPPED.
+         */
+        SkippedOfferPreview: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            calculation_status: "SKIPPED";
+            /** Dscr */
+            dscr: null;
+            /** Limit For Term Rub */
+            limit_for_term_rub: null;
+            /** Monthly Payment Rub */
+            monthly_payment_rub: null;
+            /** Risk Level */
+            risk_level: null;
+            /** Score */
+            score: null;
+            /**
+             * Valid
+             * @constant
+             */
+            valid: false;
+            /** Violations */
+            violations: components["schemas"]["OfferViolation"][];
+        };
+        /**
+         * StopFactor
+         * @description Стоп-факторы DecisionPolicy (R1). Порядок — как в таблице design §3.4.
+         * @enum {string}
+         */
+        StopFactor: "COMPANY_INACTIVE" | "APPLICANT_NOT_AUTHORIZED" | "BANKRUPTCY_PROCEEDING" | "ACCOUNT_BLOCKED_BY_FNS" | "ACCOUNT_HISTORY_INSUFFICIENT";
+        /** SubmitRequest */
+        SubmitRequest: {
+            /** Bki Consent Version */
+            bki_consent_version: string;
+            /**
+             * Revision
+             * @description Текущая revision заявки (409 при расхождении)
+             */
+            revision: number;
+        };
+        /**
+         * SuggestedAction
+         * @enum {string}
+         */
+        SuggestedAction: "BLOCKED_BY_RULE" | "MANUAL_REVIEW" | "COUNTER_OFFER_CANDIDATE" | "ELIGIBLE_FOR_MANAGER_REVIEW";
+        /** TermSuggestion */
+        TermSuggestion: {
+            /** Matched Text */
+            matched_text?: string | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "RULES" | "LLM";
+            /** Value */
+            value: number;
+        };
+        /**
+         * TermsField
+         * @enum {string}
+         */
+        TermsField: "purpose_code" | "requested_amount_rub" | "term_months";
+        /**
+         * TermsSource
+         * @enum {string}
+         */
+        TermsSource: "MANUAL" | "RULES_CONFIRMED" | "LLM_CONFIRMED";
+        /** TimelineEvent */
+        TimelineEvent: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            from_status: components["schemas"]["ApplicationStatus"] | null;
+            to_status: components["schemas"]["ApplicationStatus"];
+        };
+        /** TokenResponse */
+        TokenResponse: {
+            /** Access Token */
+            access_token: string;
+            /**
+             * Expires In
+             * @description Секунды до истечения (8 ч)
+             */
+            expires_in: number;
+            /**
+             * Token Type
+             * @default bearer
+             * @constant
+             */
+            token_type: "bearer";
+        };
+        /** TooManyAttemptsDetails */
+        TooManyAttemptsDetails: {
+            /** Retry After Seconds */
+            retry_after_seconds?: number | null;
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "LOGIN" | "SIGN_ATTEMPTS" | "CHALLENGE_ISSUE";
+        };
+        /** ValidationDetail */
+        ValidationDetail: {
+            /**
+             * Code
+             * @example OUT_OF_RANGE
+             */
+            code: string;
+            /**
+             * Field
+             * @description Путь body/query/path/header через точку; индексы с нуля
+             */
+            field: string;
+            /** Message */
+            message: string;
+        };
+        /** ValidationDetails */
+        ValidationDetails: {
+            /** Fields */
+            fields: components["schemas"]["ValidationDetail"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -57,6 +1873,2436 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_applications_api_v1_applications_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "allowed_actions": [
+                     *           "EDIT",
+                     *           "INTERPRET",
+                     *           "SUBMIT"
+                     *         ],
+                     *         "annual_rate_pct": "24.00",
+                     *         "client_reason_code": null,
+                     *         "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *         "info_request": null,
+                     *         "monthly_payment_rub": "117698.56",
+                     *         "offer": null,
+                     *         "overpayment_rub": "1237148.07",
+                     *         "product_id": "investment",
+                     *         "purpose_code": "EQUIPMENT",
+                     *         "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *         "requested_amount_rub": "3000000.00",
+                     *         "revision": 1,
+                     *         "status": "DRAFT",
+                     *         "submitted_at": null,
+                     *         "term_months": 36,
+                     *         "terms_field_sources": {
+                     *           "purpose_code": "RULES",
+                     *           "requested_amount_rub": "RULES",
+                     *           "term_months": "MANUAL"
+                     *         },
+                     *         "terms_source": "RULES_CONFIRMED",
+                     *         "timeline": [
+                     *           {
+                     *             "created_at": "2026-10-21T09:00:00Z",
+                     *             "from_status": null,
+                     *             "to_status": "DRAFT"
+                     *           }
+                     *         ]
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"][];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_application_api_v1_applications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "purpose_text": "Купить печь за 3 млн на 3 года"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ApplicationCreate"];
+            };
+        };
+        responses: {
+            /** @description Существующий DRAFT; тело не применяется */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [
+                     *         "EDIT",
+                     *         "INTERPRET"
+                     *       ],
+                     *       "annual_rate_pct": null,
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": null,
+                     *       "offer": null,
+                     *       "overpayment_rub": null,
+                     *       "product_id": null,
+                     *       "purpose_code": null,
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": null,
+                     *       "revision": 1,
+                     *       "status": "DRAFT",
+                     *       "submitted_at": null,
+                     *       "term_months": null,
+                     *       "terms_field_sources": {},
+                     *       "terms_source": "MANUAL",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [
+                     *         "EDIT",
+                     *         "INTERPRET"
+                     *       ],
+                     *       "annual_rate_pct": null,
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": null,
+                     *       "offer": null,
+                     *       "overpayment_rub": null,
+                     *       "product_id": null,
+                     *       "purpose_code": null,
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": null,
+                     *       "revision": 1,
+                     *       "status": "DRAFT",
+                     *       "submitted_at": null,
+                     *       "term_months": null,
+                     *       "terms_field_sources": {},
+                     *       "terms_source": "MANUAL",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_application_api_v1_applications__application_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    patch_application_api_v1_applications__application_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "product_id": "investment",
+                 *       "purpose_code": "EQUIPMENT",
+                 *       "requested_amount_rub": 3000000,
+                 *       "revision": 1,
+                 *       "term_months": 36,
+                 *       "terms_field_sources": {
+                 *         "purpose_code": "RULES",
+                 *         "requested_amount_rub": "RULES",
+                 *         "term_months": "MANUAL"
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["ApplicationPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [
+                     *         "EDIT",
+                     *         "INTERPRET",
+                     *         "SUBMIT"
+                     *       ],
+                     *       "annual_rate_pct": "24.00",
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": "117698.56",
+                     *       "offer": null,
+                     *       "overpayment_rub": "1237148.07",
+                     *       "product_id": "investment",
+                     *       "purpose_code": "EQUIPMENT",
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": "3000000.00",
+                     *       "revision": 2,
+                     *       "status": "DRAFT",
+                     *       "submitted_at": null,
+                     *       "term_months": 36,
+                     *       "terms_field_sources": {
+                     *         "purpose_code": "RULES",
+                     *         "requested_amount_rub": "RULES",
+                     *         "term_months": "MANUAL"
+                     *       },
+                     *       "terms_source": "RULES_CONFIRMED",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    contract_api_v1_applications__application_id__contract_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "account_masked": "40702 •••• 0010",
+                     *       "amount_rub": "2340000.00",
+                     *       "annual_rate_pct": "24.00",
+                     *       "issued_at": null,
+                     *       "key_terms_markdown": "## Основные условия\nСумма: 2 340 000 ₽. Срок: 36 месяцев. Ставка: 24% годовых.\nПогашение ежемесячно по приложенному графику. Демо-договор.",
+                     *       "monthly_payment_rub": "91804.88",
+                     *       "number": "CF-2026-000001",
+                     *       "overpayment_rub": "964975.43",
+                     *       "schedule": [
+                     *         {
+                     *           "balance_after_rub": "2294995.12",
+                     *           "due_date": "2026-11-21",
+                     *           "interest_rub": "46800.00",
+                     *           "number": 1,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "45004.88"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "2249090.14",
+                     *           "due_date": "2026-12-21",
+                     *           "interest_rub": "45899.90",
+                     *           "number": 2,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "45904.98"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "2202267.06",
+                     *           "due_date": "2027-01-21",
+                     *           "interest_rub": "44981.80",
+                     *           "number": 3,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "46823.08"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "2154507.52",
+                     *           "due_date": "2027-02-21",
+                     *           "interest_rub": "44045.34",
+                     *           "number": 4,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "47759.54"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "2105792.79",
+                     *           "due_date": "2027-03-21",
+                     *           "interest_rub": "43090.15",
+                     *           "number": 5,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "48714.73"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "2056103.77",
+                     *           "due_date": "2027-04-21",
+                     *           "interest_rub": "42115.86",
+                     *           "number": 6,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "49689.02"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "2005420.97",
+                     *           "due_date": "2027-05-21",
+                     *           "interest_rub": "41122.08",
+                     *           "number": 7,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "50682.80"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1953724.51",
+                     *           "due_date": "2027-06-21",
+                     *           "interest_rub": "40108.42",
+                     *           "number": 8,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "51696.46"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1900994.12",
+                     *           "due_date": "2027-07-21",
+                     *           "interest_rub": "39074.49",
+                     *           "number": 9,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "52730.39"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1847209.12",
+                     *           "due_date": "2027-08-21",
+                     *           "interest_rub": "38019.88",
+                     *           "number": 10,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "53785.00"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1792348.42",
+                     *           "due_date": "2027-09-21",
+                     *           "interest_rub": "36944.18",
+                     *           "number": 11,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "54860.70"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1736390.51",
+                     *           "due_date": "2027-10-21",
+                     *           "interest_rub": "35846.97",
+                     *           "number": 12,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "55957.91"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1679313.44",
+                     *           "due_date": "2027-11-21",
+                     *           "interest_rub": "34727.81",
+                     *           "number": 13,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "57077.07"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1621094.83",
+                     *           "due_date": "2027-12-21",
+                     *           "interest_rub": "33586.27",
+                     *           "number": 14,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "58218.61"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1561711.85",
+                     *           "due_date": "2028-01-21",
+                     *           "interest_rub": "32421.90",
+                     *           "number": 15,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "59382.98"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1501141.21",
+                     *           "due_date": "2028-02-21",
+                     *           "interest_rub": "31234.24",
+                     *           "number": 16,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "60570.64"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1439359.15",
+                     *           "due_date": "2028-03-21",
+                     *           "interest_rub": "30022.82",
+                     *           "number": 17,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "61782.06"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1376341.45",
+                     *           "due_date": "2028-04-21",
+                     *           "interest_rub": "28787.18",
+                     *           "number": 18,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "63017.70"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1312063.40",
+                     *           "due_date": "2028-05-21",
+                     *           "interest_rub": "27526.83",
+                     *           "number": 19,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "64278.05"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1246499.79",
+                     *           "due_date": "2028-06-21",
+                     *           "interest_rub": "26241.27",
+                     *           "number": 20,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "65563.61"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1179624.91",
+                     *           "due_date": "2028-07-21",
+                     *           "interest_rub": "24930.00",
+                     *           "number": 21,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "66874.88"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1111412.53",
+                     *           "due_date": "2028-08-21",
+                     *           "interest_rub": "23592.50",
+                     *           "number": 22,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "68212.38"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "1041835.90",
+                     *           "due_date": "2028-09-21",
+                     *           "interest_rub": "22228.25",
+                     *           "number": 23,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "69576.63"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "970867.74",
+                     *           "due_date": "2028-10-21",
+                     *           "interest_rub": "20836.72",
+                     *           "number": 24,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "70968.16"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "898480.21",
+                     *           "due_date": "2028-11-21",
+                     *           "interest_rub": "19417.35",
+                     *           "number": 25,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "72387.53"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "824644.93",
+                     *           "due_date": "2028-12-21",
+                     *           "interest_rub": "17969.60",
+                     *           "number": 26,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "73835.28"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "749332.95",
+                     *           "due_date": "2029-01-21",
+                     *           "interest_rub": "16492.90",
+                     *           "number": 27,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "75311.98"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "672514.73",
+                     *           "due_date": "2029-02-21",
+                     *           "interest_rub": "14986.66",
+                     *           "number": 28,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "76818.22"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "594160.14",
+                     *           "due_date": "2029-03-21",
+                     *           "interest_rub": "13450.29",
+                     *           "number": 29,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "78354.59"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "514238.46",
+                     *           "due_date": "2029-04-21",
+                     *           "interest_rub": "11883.20",
+                     *           "number": 30,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "79921.68"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "432718.35",
+                     *           "due_date": "2029-05-21",
+                     *           "interest_rub": "10284.77",
+                     *           "number": 31,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "81520.11"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "349567.84",
+                     *           "due_date": "2029-06-21",
+                     *           "interest_rub": "8654.37",
+                     *           "number": 32,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "83150.51"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "264754.32",
+                     *           "due_date": "2029-07-21",
+                     *           "interest_rub": "6991.36",
+                     *           "number": 33,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "84813.52"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "178244.53",
+                     *           "due_date": "2029-08-21",
+                     *           "interest_rub": "5295.09",
+                     *           "number": 34,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "86509.79"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "90004.54",
+                     *           "due_date": "2029-09-21",
+                     *           "interest_rub": "3564.89",
+                     *           "number": 35,
+                     *           "payment_rub": "91804.88",
+                     *           "principal_rub": "88239.99"
+                     *         },
+                     *         {
+                     *           "balance_after_rub": "0.00",
+                     *           "due_date": "2029-10-21",
+                     *           "interest_rub": "1800.09",
+                     *           "number": 36,
+                     *           "payment_rub": "91804.63",
+                     *           "principal_rub": "90004.54"
+                     *         }
+                     *       ],
+                     *       "signed_at": null,
+                     *       "status": "DRAFT",
+                     *       "term_months": 36
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ContractView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    info_response_api_v1_applications__application_id__info_response_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID запроса */
+                "Idempotency-Key": string;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "answer_text": "Прикладываю договор поставки печи",
+                 *       "revision": 3
+                 *     }
+                 */
+                "application/json": components["schemas"]["InfoResponseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [],
+                     *       "annual_rate_pct": "24.00",
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": {
+                     *         "answer_text": "Прикладываю договор поставки печи",
+                     *         "answered_at": "2026-10-21T09:03:00Z",
+                     *         "question_text": "Подтвердите стоимость печи"
+                     *       },
+                     *       "monthly_payment_rub": "117698.56",
+                     *       "offer": null,
+                     *       "overpayment_rub": "1237148.07",
+                     *       "product_id": "investment",
+                     *       "purpose_code": "EQUIPMENT",
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": "3000000.00",
+                     *       "revision": 4,
+                     *       "status": "UNDER_REVIEW",
+                     *       "submitted_at": "2026-10-21T09:01:00Z",
+                     *       "term_months": 36,
+                     *       "terms_field_sources": {
+                     *         "purpose_code": "RULES",
+                     *         "requested_amount_rub": "RULES",
+                     *         "term_months": "MANUAL"
+                     *       },
+                     *       "terms_source": "RULES_CONFIRMED",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:01:00Z",
+                     *           "from_status": "DRAFT",
+                     *           "to_status": "UNDER_REVIEW"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:02:00Z",
+                     *           "from_status": "UNDER_REVIEW",
+                     *           "to_status": "NEED_INFO"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:03:00Z",
+                     *           "from_status": "NEED_INFO",
+                     *           "to_status": "UNDER_REVIEW"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION, IDEMPOTENCY_IN_PROGRESS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, IDEMPOTENCY_KEY_REUSED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    interpret_api_v1_applications__application_id__interpret_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "purpose_text": "Купить печь за 3 млн на 3 года"
+                 *     }
+                 */
+                "application/json": components["schemas"]["InterpretRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterpretResponse"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, INVALID_STATUS_TRANSITION */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    offer_accept_api_v1_applications__application_id__offer_accept_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID запроса */
+                "Idempotency-Key": string;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "revision": 3
+                 *     }
+                 */
+                "application/json": components["schemas"]["RevisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [
+                     *         "VIEW_CONTRACT",
+                     *         "REQUEST_SIGN_CODE",
+                     *         "SIGN"
+                     *       ],
+                     *       "annual_rate_pct": "24.00",
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": "117698.56",
+                     *       "offer": {
+                     *         "amount_rub": "2340000.00",
+                     *         "annual_rate_pct": "24.00",
+                     *         "monthly_payment_rub": "91804.88",
+                     *         "overpayment_rub": "964975.43",
+                     *         "term_months": 36
+                     *       },
+                     *       "overpayment_rub": "1237148.07",
+                     *       "product_id": "investment",
+                     *       "purpose_code": "EQUIPMENT",
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": "3000000.00",
+                     *       "revision": 4,
+                     *       "status": "APPROVED",
+                     *       "submitted_at": "2026-10-21T09:01:00Z",
+                     *       "term_months": 36,
+                     *       "terms_field_sources": {
+                     *         "purpose_code": "RULES",
+                     *         "requested_amount_rub": "RULES",
+                     *         "term_months": "MANUAL"
+                     *       },
+                     *       "terms_source": "RULES_CONFIRMED",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:01:00Z",
+                     *           "from_status": "DRAFT",
+                     *           "to_status": "UNDER_REVIEW"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:02:00Z",
+                     *           "from_status": "UNDER_REVIEW",
+                     *           "to_status": "COUNTER_OFFER"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:03:00Z",
+                     *           "from_status": "COUNTER_OFFER",
+                     *           "to_status": "APPROVED"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION, IDEMPOTENCY_IN_PROGRESS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, IDEMPOTENCY_KEY_REUSED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    offer_decline_api_v1_applications__application_id__offer_decline_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID запроса */
+                "Idempotency-Key": string;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "revision": 3
+                 *     }
+                 */
+                "application/json": components["schemas"]["RevisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [],
+                     *       "annual_rate_pct": "24.00",
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": "117698.56",
+                     *       "offer": {
+                     *         "amount_rub": "2340000.00",
+                     *         "annual_rate_pct": "24.00",
+                     *         "monthly_payment_rub": "91804.88",
+                     *         "overpayment_rub": "964975.43",
+                     *         "term_months": 36
+                     *       },
+                     *       "overpayment_rub": "1237148.07",
+                     *       "product_id": "investment",
+                     *       "purpose_code": "EQUIPMENT",
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": "3000000.00",
+                     *       "revision": 4,
+                     *       "status": "DECLINED",
+                     *       "submitted_at": "2026-10-21T09:01:00Z",
+                     *       "term_months": 36,
+                     *       "terms_field_sources": {
+                     *         "purpose_code": "RULES",
+                     *         "requested_amount_rub": "RULES",
+                     *         "term_months": "MANUAL"
+                     *       },
+                     *       "terms_source": "RULES_CONFIRMED",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:01:00Z",
+                     *           "from_status": "DRAFT",
+                     *           "to_status": "UNDER_REVIEW"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:02:00Z",
+                     *           "from_status": "UNDER_REVIEW",
+                     *           "to_status": "COUNTER_OFFER"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:03:00Z",
+                     *           "from_status": "COUNTER_OFFER",
+                     *           "to_status": "DECLINED"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION, IDEMPOTENCY_IN_PROGRESS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, IDEMPOTENCY_KEY_REUSED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    sign_api_v1_applications__application_id__sign_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID запроса */
+                "Idempotency-Key": string;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "challenge_id": "7f3e2a10-0000-4000-8000-000000000001",
+                 *       "code": "123456",
+                 *       "revision": 4
+                 *     }
+                 */
+                "application/json": components["schemas"]["SignRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [
+                     *         "VIEW_CONTRACT"
+                     *       ],
+                     *       "annual_rate_pct": "24.00",
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": "117698.56",
+                     *       "offer": {
+                     *         "amount_rub": "2340000.00",
+                     *         "annual_rate_pct": "24.00",
+                     *         "monthly_payment_rub": "91804.88",
+                     *         "overpayment_rub": "964975.43",
+                     *         "term_months": 36
+                     *       },
+                     *       "overpayment_rub": "1237148.07",
+                     *       "product_id": "investment",
+                     *       "purpose_code": "EQUIPMENT",
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": "3000000.00",
+                     *       "revision": 5,
+                     *       "status": "SIGNED",
+                     *       "submitted_at": "2026-10-21T09:01:00Z",
+                     *       "term_months": 36,
+                     *       "terms_field_sources": {
+                     *         "purpose_code": "RULES",
+                     *         "requested_amount_rub": "RULES",
+                     *         "term_months": "MANUAL"
+                     *       },
+                     *       "terms_source": "RULES_CONFIRMED",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:01:00Z",
+                     *           "from_status": "DRAFT",
+                     *           "to_status": "UNDER_REVIEW"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:02:00Z",
+                     *           "from_status": "UNDER_REVIEW",
+                     *           "to_status": "COUNTER_OFFER"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:03:00Z",
+                     *           "from_status": "COUNTER_OFFER",
+                     *           "to_status": "APPROVED"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:04:00Z",
+                     *           "from_status": "APPROVED",
+                     *           "to_status": "SIGNED"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION, IDEMPOTENCY_IN_PROGRESS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, IDEMPOTENCY_KEY_REUSED, SIGN_CODE_INVALID, SIGN_CHALLENGE_EXPIRED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Слишком много попыток: TOO_MANY_ATTEMPTS */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    sign_challenge_api_v1_applications__application_id__sign_challenge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "revision": 3
+                 *     }
+                 */
+                "application/json": components["schemas"]["RevisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "attempts_remaining": 3,
+                     *       "challenge_id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "demo_code": "123456",
+                     *       "expires_at": "2026-10-21T09:05:00Z",
+                     *       "revision": 4
+                     *     }
+                     */
+                    "application/json": components["schemas"]["SignChallenge"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Слишком много попыток: TOO_MANY_ATTEMPTS */
+            429: {
+                headers: {
+                    /**
+                     * @description Целые секунды; отсутствует при scope SIGN_ATTEMPTS
+                     * @example 60
+                     */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    submit_api_v1_applications__application_id__submit_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID запроса */
+                "Idempotency-Key": string;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "bki_consent_version": "bki-v1",
+                 *       "revision": 2
+                 *     }
+                 */
+                "application/json": components["schemas"]["SubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "allowed_actions": [],
+                     *       "annual_rate_pct": "24.00",
+                     *       "client_reason_code": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "info_request": null,
+                     *       "monthly_payment_rub": "117698.56",
+                     *       "offer": null,
+                     *       "overpayment_rub": "1237148.07",
+                     *       "product_id": "investment",
+                     *       "purpose_code": "EQUIPMENT",
+                     *       "purpose_text": "Купить печь за 3 млн на 3 года",
+                     *       "requested_amount_rub": "3000000.00",
+                     *       "revision": 3,
+                     *       "status": "UNDER_REVIEW",
+                     *       "submitted_at": "2026-10-21T09:01:00Z",
+                     *       "term_months": 36,
+                     *       "terms_field_sources": {
+                     *         "purpose_code": "RULES",
+                     *         "requested_amount_rub": "RULES",
+                     *         "term_months": "MANUAL"
+                     *       },
+                     *       "terms_source": "RULES_CONFIRMED",
+                     *       "timeline": [
+                     *         {
+                     *           "created_at": "2026-10-21T09:00:00Z",
+                     *           "from_status": null,
+                     *           "to_status": "DRAFT"
+                     *         },
+                     *         {
+                     *           "created_at": "2026-10-21T09:01:00Z",
+                     *           "from_status": "DRAFT",
+                     *           "to_status": "UNDER_REVIEW"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ClientApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND, REVISION_CONFLICT, INVALID_STATUS_TRANSITION, IDEMPOTENCY_IN_PROGRESS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, CONSENT_REQUIRED, APPLICATION_INCOMPLETE, PRODUCT_NOT_ELIGIBLE, IDEMPOTENCY_KEY_REUSED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE, PROVIDER_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    demo_accounts_api_v1_auth_demo_accounts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "label": "Иванов Пётр Сергеевич",
+                     *         "login": "director.techservice@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C1"
+                     *       },
+                     *       {
+                     *         "label": "Кузнецова Анна Михайловна",
+                     *         "login": "director.bakery@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C2"
+                     *       },
+                     *       {
+                     *         "label": "Соколова Алёна Викторовна",
+                     *         "login": "ip.sokolova@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C3"
+                     *       },
+                     *       {
+                     *         "label": "Новиков Станислав Олегович",
+                     *         "login": "director.newstart@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C4"
+                     *       },
+                     *       {
+                     *         "label": "Векторов Андрей Игоревич",
+                     *         "login": "director.vector@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C5"
+                     *       },
+                     *       {
+                     *         "label": "Складов Михаил Дмитриевич",
+                     *         "login": "director.sklad@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C6"
+                     *       },
+                     *       {
+                     *         "label": "Орлов Дмитрий Степанович",
+                     *         "login": "ip.orlov@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "C7"
+                     *       },
+                     *       {
+                     *         "label": "Бухгалтерова Ольга Ивановна",
+                     *         "login": "accountant.bakery@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "CLIENT",
+                     *         "scenario": "Отказ полномочий"
+                     *       },
+                     *       {
+                     *         "label": "Анна Менеджерова",
+                     *         "login": "manager.anna@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "MANAGER",
+                     *         "scenario": "MANAGER"
+                     *       },
+                     *       {
+                     *         "label": "Олег Менеджеров",
+                     *         "login": "manager.oleg@creditflow.demo",
+                     *         "password": "creditflow-demo",
+                     *         "role": "MANAGER",
+                     *         "scenario": "MANAGER"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["DemoAccount"][];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    login_api_v1_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "login": "director.bakery@creditflow.demo",
+                 *       "password": "creditflow-demo"
+                 *     }
+                 */
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "access_token": "stub.jwt.token",
+                     *       "expires_in": 28800,
+                     *       "token_type": "bearer"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Нет или недействителен токен: INVALID_CREDENTIALS */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Слишком много попыток: TOO_MANY_ATTEMPTS */
+            429: {
+                headers: {
+                    /**
+                     * @description Целые секунды; отсутствует при scope SIGN_ATTEMPTS
+                     * @example 60
+                     */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_api_v1_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "company_id": null,
+                     *       "full_name": "Кузнецова Анна Михайловна",
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "role": "CLIENT"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    company_api_v1_company_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "bound_at": "2026-10-21T09:00:00Z",
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "inn": "0099020010",
+                     *       "legal_form": "LLC",
+                     *       "name": "ООО «Пекарня Плюс»",
+                     *       "okved_main": "10.71",
+                     *       "registered_at": "2023-10-21"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Company"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_NOT_BOUND */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    consent_texts_api_v1_consents_texts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "text": "Согласен на обработку персональных данных для рассмотрения заявки (демо).",
+                     *         "type": "PD_PROCESSING",
+                     *         "version": "pd-v1"
+                     *       },
+                     *       {
+                     *         "text": "Согласен на запрос кредитного отчёта в БКИ для рассмотрения заявки (демо).",
+                     *         "type": "BKI_REQUEST",
+                     *         "version": "bki-v1"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["ConsentText"][];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    credit_products_api_v1_credit_products_get: {
+        parameters: {
+            query?: {
+                purpose?: components["schemas"]["PurposeCode"] | null;
+                amount?: number | null;
+                term?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "allowed_purposes": [
+                     *           "EQUIPMENT",
+                     *           "RENOVATION",
+                     *           "BUSINESS_EXPANSION"
+                     *         ],
+                     *         "annual_rate_pct": "24.00",
+                     *         "disclaimer": "Расчёт предварительный и не является решением банка",
+                     *         "id": "investment",
+                     *         "max_amount_rub": "5000000.00",
+                     *         "max_term_months": 60,
+                     *         "min_amount_rub": "100000.00",
+                     *         "min_term_months": 12,
+                     *         "monthly_payment_rub": "117698.56",
+                     *         "name": "Инвестиционный кредит",
+                     *         "suitable": true,
+                     *         "unmet_constraints": []
+                     *       },
+                     *       {
+                     *         "allowed_purposes": [
+                     *           "INVENTORY",
+                     *           "SUPPLIERS",
+                     *           "WORKING_CAPITAL"
+                     *         ],
+                     *         "annual_rate_pct": "25.00",
+                     *         "disclaimer": "Расчёт предварительный и не является решением банка",
+                     *         "id": "working_capital",
+                     *         "max_amount_rub": "3000000.00",
+                     *         "max_term_months": 24,
+                     *         "min_amount_rub": "100000.00",
+                     *         "min_term_months": 3,
+                     *         "monthly_payment_rub": null,
+                     *         "name": "Оборотный кредит",
+                     *         "suitable": false,
+                     *         "unmet_constraints": [
+                     *           "PURPOSE_NOT_ALLOWED",
+                     *           "TERM_ABOVE_PRODUCT_MAX"
+                     *         ]
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["CreditProduct"][];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     health_api_v1_health_get: {
         parameters: {
             query?: never;
@@ -72,6 +4318,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "db": "ok",
+                     *       "ext_sim": "ok",
+                     *       "llm": "replay",
+                     *       "status": "ok"
+                     *     }
+                     */
                     "application/json": components["schemas"]["HealthResponse"];
                 };
             };
@@ -81,7 +4335,849 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "db": "unavailable",
+                     *       "ext_sim": "ok",
+                     *       "llm": "replay",
+                     *       "status": "unavailable"
+                     *     }
+                     */
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    queue_api_v1_manager_applications_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ApplicationStatus"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "blocking_codes": [],
+                     *         "company_inn": "0099020010",
+                     *         "company_name": "ООО «Пекарня Плюс»",
+                     *         "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *         "product_id": "investment",
+                     *         "requested_amount_rub": "3000000.00",
+                     *         "status": "UNDER_REVIEW",
+                     *         "submitted_at": "2026-10-21T09:00:00Z",
+                     *         "suggested_action": "COUNTER_OFFER_CANDIDATE",
+                     *         "term_months": 36
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["QueueItem"][];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    manager_card_api_v1_manager_applications__application_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagerApplicationView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ai_feedback_api_v1_manager_applications__application_id__ai_feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "ai_report_id": "7f3e2a10-0000-4000-8000-000000000001",
+                 *       "comment": null,
+                 *       "verdict": "UP"
+                 *     }
+                 */
+                "application/json": components["schemas"]["AiFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_ai_report_api_v1_manager_applications__application_id__ai_report_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiReportView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    regenerate_ai_report_api_v1_manager_applications__application_id__ai_report_post: {
+        parameters: {
+            query?: {
+                regenerate?: boolean;
+            };
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Существующий READY/FALLBACK или свежий PENDING */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiReportView"];
+                };
+            };
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "fallback_reason": null,
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "llm_mode": "replay",
+                     *       "model_id": null,
+                     *       "prompt_version": "explain-v1",
+                     *       "report": null,
+                     *       "scoring_result_id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "status": "PENDING",
+                     *       "updated_at": "2026-10-21T09:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AiReportView"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    decisions_api_v1_manager_applications__application_id__decisions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID запроса */
+                "Idempotency-Key": string;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "action": "COUNTER_OFFER",
+                 *       "amount_rub": 2340000,
+                 *       "client_reason_code": "HIGH_DEBT_LOAD",
+                 *       "comment": "DSCR 1.10 < 1.25 на запрошенной сумме; лимит на 36 мес. — 2 340 000",
+                 *       "revision": 2,
+                 *       "term_months": 36
+                 *     }
+                 */
+                "application/json": components["schemas"]["ApproveDecision"] | components["schemas"]["CounterOfferDecision"] | components["schemas"]["RequestInfoDecision"] | components["schemas"]["RejectDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "decision_id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "revision": 3,
+                     *       "status": "COUNTER_OFFER"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["DecisionResponse"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: REVISION_CONFLICT, INVALID_STATUS_TRANSITION, IDEMPOTENCY_IN_PROGRESS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, IDEMPOTENCY_KEY_REUSED, ACTION_NOT_ALLOWED, AMOUNT_ABOVE_LIMIT */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    offer_preview_api_v1_manager_applications__application_id__offer_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "amount_rub": 2340000,
+                 *       "term_months": 36
+                 *     }
+                 */
+                "application/json": components["schemas"]["OfferPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalculatedOfferPreview"] | components["schemas"]["SkippedOfferPreview"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Объект не найден или принадлежит другому клиенту: NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: INVALID_STATUS_TRANSITION */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    stats_api_v1_manager_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "ai_feedback_groups": [],
+                     *       "ai_feedback_up_share": {},
+                     *       "applications_by_status": {
+                     *         "UNDER_REVIEW": 1
+                     *       },
+                     *       "decisions_matching_suggestion_share": null,
+                     *       "median_time_to_decision_seconds": null,
+                     *       "suggested_action_distribution": {
+                     *         "COUNTER_OFFER_CANDIDATE": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ManagerStats"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    company_binding_api_v1_onboarding_company_binding_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "inn": "0099020010",
+                 *       "pd_consent_version": "pd-v1"
+                 *     }
+                 */
+                "application/json": components["schemas"]["CompanyBindingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "bound_at": "2026-10-21T09:00:00Z",
+                     *       "id": "7f3e2a10-0000-4000-8000-000000000001",
+                     *       "inn": "0099020010",
+                     *       "legal_form": "LLC",
+                     *       "name": "ООО «Пекарня Плюс»",
+                     *       "okved_main": "10.71",
+                     *       "registered_at": "2023-10-21"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Company"];
+                };
+            };
+            /** @description Нет или недействителен токен: UNAUTHORIZED */
+            401: {
+                headers: {
+                    /**
+                     * @description Схема аутентификации
+                     * @example Bearer
+                     */
+                    "WWW-Authenticate"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Недостаточно прав для роли: FORBIDDEN, APPLICANT_NOT_AUTHORIZED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Конфликт состояния: COMPANY_ALREADY_BOUND, USER_ALREADY_BOUND */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Ошибка валидации или бизнес-правила: VALIDATION_ERROR, INVALID_INN, CONSENT_REQUIRED, COMPANY_NOT_IN_REGISTRY */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Внутренняя ошибка сервера: INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Сервис или внешний источник временно недоступен: SERVICE_UNAVAILABLE, PROVIDER_UNAVAILABLE */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
         };

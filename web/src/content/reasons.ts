@@ -1,4 +1,4 @@
-import type { ClientReasonCode } from '@/api/contract-draft.ts'
+import type { ClientReasonCode } from '@/api/enums.ts'
 
 interface ReasonText {
   /** Почему банк отказал — без внутренних метрик и кодов. */
