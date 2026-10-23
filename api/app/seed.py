@@ -37,8 +37,10 @@ class ProductRow(TypedDict):
     annual_rate_pct: Decimal
 
 
-# Каталог design §3.3; ставка 24% = ключевая 14% + 10 п.п. (design §3.4 «Ставки»).
+# Каталог Design 2.5: investment 24%, working_capital 25% (design §3.4 «Ставки»).
 # Единственный источник каталога: его же читает стаб GET /credit-products.
+CATALOG_VERSION = "products-v2"
+
 PRODUCTS: tuple[ProductRow, ...] = (
     {
         "id": "investment",
@@ -58,7 +60,7 @@ PRODUCTS: tuple[ProductRow, ...] = (
         "max_amount_rub": Decimal(3_000_000),
         "min_term_months": 3,
         "max_term_months": 24,
-        "annual_rate_pct": Decimal(24),
+        "annual_rate_pct": Decimal(25),
     },
 )
 

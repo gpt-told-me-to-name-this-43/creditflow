@@ -39,7 +39,10 @@ from app.schemas.client import (
     AmountSuggestion,
     ApplicationCreate,
     ApplicationPatch,
+    ClientAction,
     ClientApplicationView,
+    ClientInfoRequest,
+    ClientOffer,
     ContractView,
     CreditProduct,
     FieldSource,
@@ -48,18 +51,23 @@ from app.schemas.client import (
     InterpretResponse,
     InterpretStatus,
     InterpretSuggestions,
+    PurposeSuggestion,
     RevisionRequest,
     ScheduleItem,
     SignChallenge,
     SignRequest,
     SubmitRequest,
     TermsField,
+    TermSuggestion,
+    TimelineEvent,
 )
 from app.schemas.common import ErrorCode as E
+from app.schemas.common import ProductConstraint
 from app.schemas.enums import (
     AiReportStatus,
     ApplicationStatus,
     CalculationStatus,
+    ClientReasonCode,
     ManagerAction,
     PurposeCode,
     ReasonCode,
@@ -77,6 +85,7 @@ from app.schemas.manager import (
     ManagerApplicationView,
     ManagerStats,
     MonthlyFeature,
+    OfferConstraints,
     OfferPreviewRequest,
     OfferPreviewResponse,
     Proposal,
@@ -88,7 +97,7 @@ from app.scoring.money import money_str
 from app.scoring.risk import Product as RiskProduct
 from app.scoring.risk import monthly_payment
 from app.scoring.schedule import build_schedule
-from app.seed import PRODUCTS
+from app.seed import DEMO_PASSWORD, DEMO_USERS, PRODUCTS
 
 IdempotencyKey = Annotated[
     str, Header(alias="Idempotency-Key", min_length=8, max_length=128, description="UUID запроса")
@@ -116,13 +125,46 @@ AppSettings = Annotated[Settings, Depends(app_settings)]
 
 
 def _client_app(status: ApplicationStatus = ApplicationStatus.DRAFT) -> ClientApplicationView:
+    # Только примеры контракта, не runtime FSM. Расчёты теми же чистыми функциями,
+    # что и договор; исходные условия C2 сохраняются после принятия оффера.
+    accepted = status in {
+        ApplicationStatus.APPROVED,
+        ApplicationStatus.SIGNED,
+        ApplicationStatus.ISSUED,
+    }
+    amount = Decimal(3_000_000)
+    rows = build_schedule(amount, Decimal(24), 36, _NOW.date())
+    actions = {
+        ApplicationStatus.DRAFT: [ClientAction.EDIT, ClientAction.INTERPRET, ClientAction.SUBMIT],
+        ApplicationStatus.NEED_INFO: [ClientAction.RESPOND_INFO],
+        ApplicationStatus.COUNTER_OFFER: [ClientAction.ACCEPT_OFFER, ClientAction.DECLINE_OFFER],
+        ApplicationStatus.APPROVED: [
+            ClientAction.VIEW_CONTRACT,
+            ClientAction.REQUEST_SIGN_CODE,
+            ClientAction.SIGN,
+        ],
+        ApplicationStatus.SIGNED: [ClientAction.VIEW_CONTRACT],
+        ApplicationStatus.ISSUED: [ClientAction.VIEW_CONTRACT],
+    }
+    chain = [ApplicationStatus.DRAFT]
+    if status is not ApplicationStatus.DRAFT:
+        chain.append(ApplicationStatus.UNDER_REVIEW)
+        if status is not ApplicationStatus.UNDER_REVIEW:
+            if accepted or status is ApplicationStatus.DECLINED:
+                chain.append(ApplicationStatus.COUNTER_OFFER)
+            if status in {ApplicationStatus.SIGNED, ApplicationStatus.ISSUED}:
+                chain.append(ApplicationStatus.APPROVED)
+            if status is ApplicationStatus.ISSUED:
+                chain.append(ApplicationStatus.SIGNED)
+            chain.append(status)
+    offer_rows = build_schedule(Decimal(2_340_000), Decimal(24), 36, _NOW.date())
     return ClientApplicationView(
         id=_ID,
-        revision=1,
+        revision=len(chain),
         status=status,
         purpose_text="Купить печь за 3 млн на 3 года",
         purpose_code=PurposeCode.EQUIPMENT,
-        requested_amount_rub="3000000.00",
+        requested_amount_rub=money_str(amount),
         term_months=36,
         product_id="investment",
         terms_source=TermsSource.RULES_CONFIRMED,
@@ -131,11 +173,36 @@ def _client_app(status: ApplicationStatus = ApplicationStatus.DRAFT) -> ClientAp
             TermsField.REQUESTED_AMOUNT_RUB: FieldSource.RULES,
             TermsField.TERM_MONTHS: FieldSource.MANUAL,
         },
-        submitted_at=None,
-        client_reason_code=None,
-        offer=None,
-        info_request=None,
-        timeline=[],
+        allowed_actions=actions.get(status, []),
+        annual_rate_pct="24.00",
+        monthly_payment_rub=money_str(rows[0].payment_rub),
+        overpayment_rub=money_str(sum((r.interest_rub for r in rows), Decimal(0))),
+        submitted_at=_NOW + timedelta(minutes=1) if status is not ApplicationStatus.DRAFT else None,
+        client_reason_code=(
+            ClientReasonCode.HIGH_DEBT_LOAD if status is ApplicationStatus.REJECTED else None
+        ),
+        offer=ClientOffer(
+            amount_rub="2340000.00",
+            term_months=36,
+            annual_rate_pct="24.00",
+            monthly_payment_rub=money_str(offer_rows[0].payment_rub),
+            overpayment_rub=money_str(sum((r.interest_rub for r in offer_rows), Decimal(0))),
+        )
+        if status in {ApplicationStatus.COUNTER_OFFER, ApplicationStatus.DECLINED} or accepted
+        else None,
+        info_request=ClientInfoRequest(
+            question_text="Подтвердите стоимость печи", answer_text=None, answered_at=None
+        )
+        if status is ApplicationStatus.NEED_INFO
+        else None,
+        timeline=[
+            TimelineEvent(
+                from_status=chain[i - 1] if i else None,
+                to_status=step,
+                created_at=_NOW + timedelta(minutes=i),
+            )
+            for i, step in enumerate(chain)
+        ],
     )
 
 
@@ -149,7 +216,7 @@ def _build_login() -> TokenResponse:
 @auth_router.post(
     "/login",
     response_model=TokenResponse,
-    responses=errors(E.INVALID_CREDENTIALS, E.TOO_MANY_ATTEMPTS, public=True),
+    responses=errors(E.INVALID_CREDENTIALS, E.TOO_MANY_ATTEMPTS, public=True, not_found=False),
 )
 @example_from(_build_login)
 async def login(body: LoginRequest) -> TokenResponse:
@@ -161,7 +228,10 @@ def _build_me() -> Me:
 
 
 @auth_router.get(
-    "/me", response_model=Me, responses=errors(), dependencies=[Depends(require_bearer)]
+    "/me",
+    response_model=Me,
+    responses=errors(role=False, not_found=False, validation=False),
+    dependencies=[Depends(require_bearer)],
 )
 @example_from(_build_me)
 async def me() -> Me:
@@ -171,18 +241,20 @@ async def me() -> Me:
 def _build_demo_accounts() -> list[DemoAccount]:
     return [
         DemoAccount(
-            login="director.bakery@creditflow.demo",
-            role=Role.CLIENT,
-            label="Директор «Пекарни Плюс»",
-            scenario="C2: оффер",
+            login=user.email,
+            password=DEMO_PASSWORD,
+            role=Role(user.role),
+            label=user.full_name,
+            scenario=(f"C{i + 1}" if i < 7 else "Отказ полномочий" if i == 7 else "MANAGER"),
         )
+        for i, user in enumerate(DEMO_USERS)
     ]
 
 
 @auth_router.get(
     "/demo-accounts",
     response_model=list[DemoAccount],
-    responses=errors(public=True),
+    responses=errors(public=True, validation=False),
     description="Публичный маршрут. При DEMO_AUTH_ENABLED=false возвращает 404.",
 )
 @example_from(_build_demo_accounts)
@@ -197,13 +269,23 @@ async def demo_accounts(settings: AppSettings) -> list[DemoAccount]:
 
 def _build_consent_texts() -> list[ConsentText]:
     return [
-        ConsentText(type=ConsentType.PD_PROCESSING, version="pd-v1", text="…"),
-        ConsentText(type=ConsentType.BKI_REQUEST, version="bki-v1", text="…"),
+        ConsentText(
+            type=ConsentType.PD_PROCESSING,
+            version="pd-v1",
+            text="Согласен на обработку персональных данных для рассмотрения заявки (демо).",
+        ),
+        ConsentText(
+            type=ConsentType.BKI_REQUEST,
+            version="bki-v1",
+            text="Согласен на запрос кредитного отчёта в БКИ для рассмотрения заявки (демо).",
+        ),
     ]
 
 
 @public_router.get(
-    "/consents/texts", response_model=list[ConsentText], responses=errors(public=True)
+    "/consents/texts",
+    response_model=list[ConsentText],
+    responses=errors(public=True, not_found=False, validation=False),
 )
 @example_from(_build_consent_texts)
 async def consent_texts() -> list[ConsentText]:
@@ -233,6 +315,7 @@ def _build_company_binding(body: CompanyBindingRequest) -> Company:
         E.COMPANY_ALREADY_BOUND,
         E.USER_ALREADY_BOUND,
         E.PROVIDER_UNAVAILABLE,
+        not_found=False,
     ),
 )
 @example_from(_build_company_binding)
@@ -252,7 +335,11 @@ def _build_company() -> Company:
     )
 
 
-@onboarding_router.get("/company", response_model=Company, responses=errors())
+@onboarding_router.get(
+    "/company",
+    response_model=Company,
+    responses=errors(E.COMPANY_NOT_BOUND, not_found=False, validation=False),
+)
 @example_from(_build_company)
 async def company() -> Company:
     return _build_company()
@@ -275,15 +362,15 @@ def _build_credit_products(
     for p in PRODUCTS:
         unmet = []
         if purpose is not None and purpose not in p["allowed_purposes"]:
-            unmet.append("PURPOSE_NOT_ALLOWED")
+            unmet.append(ProductConstraint.PURPOSE_NOT_ALLOWED)
         if amount is not None and amount < p["min_amount_rub"]:
-            unmet.append("AMOUNT_BELOW_PRODUCT_MIN")
+            unmet.append(ProductConstraint.AMOUNT_BELOW_PRODUCT_MIN)
         if amount is not None and amount > p["max_amount_rub"]:
-            unmet.append("AMOUNT_ABOVE_PRODUCT_MAX")
+            unmet.append(ProductConstraint.AMOUNT_ABOVE_PRODUCT_MAX)
         if term is not None and term < p["min_term_months"]:
-            unmet.append("TERM_BELOW_PRODUCT_MIN")
+            unmet.append(ProductConstraint.TERM_BELOW_PRODUCT_MIN)
         if term is not None and term > p["max_term_months"]:
-            unmet.append("TERM_ABOVE_PRODUCT_MAX")
+            unmet.append(ProductConstraint.TERM_ABOVE_PRODUCT_MAX)
         payment = None
         if not unmet and amount is not None and term is not None:
             product = RiskProduct(
@@ -316,7 +403,7 @@ def _build_credit_products(
 @client_router.get(
     "/credit-products",
     response_model=list[CreditProduct],
-    responses=errors(),
+    responses=errors(not_found=False),
     description=(
         "Оба продукта каталога с подбором по design §3.3. Незаданный фильтр не проверяется; "
         "`monthly_payment_rub` — только для подходящего продукта при заданных amount и term. "
@@ -334,61 +421,105 @@ async def credit_products(
     return _build_credit_products(purpose, amount, term)
 
 
-def _build_create_application() -> ClientApplicationView:
-    return _client_app()
+def _build_create_application(body: ApplicationCreate) -> ClientApplicationView:
+    return _client_app().model_copy(
+        update={
+            "purpose_text": body.purpose_text,
+            "purpose_code": None,
+            "requested_amount_rub": None,
+            "term_months": None,
+            "product_id": None,
+            "terms_source": TermsSource.MANUAL,
+            "terms_field_sources": {},
+            "annual_rate_pct": None,
+            "monthly_payment_rub": None,
+            "overpayment_rub": None,
+            "allowed_actions": [ClientAction.EDIT, ClientAction.INTERPRET],
+        }
+    )
 
 
 @client_router.post(
-    "/applications", response_model=ClientApplicationView, status_code=201, responses=errors()
+    "/applications",
+    response_model=ClientApplicationView,
+    status_code=201,
+    responses={
+        200: {
+            "model": ClientApplicationView,
+            "description": "Существующий DRAFT; тело не применяется",
+        },
+        **errors(E.COMPANY_NOT_BOUND, not_found=False),
+    },
+    description="201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. "
+    "Стаб всегда возвращает 201, состояние не хранит; конкурентная реализация — #7.",
 )
 @example_from(_build_create_application)
 async def create_application(body: ApplicationCreate) -> ClientApplicationView:
-    return _build_create_application()
+    return _build_create_application(body)
 
 
 def _build_list_applications() -> list[ClientApplicationView]:
     return [_client_app()]
 
 
-@client_router.get("/applications", response_model=list[ClientApplicationView], responses=errors())
+@client_router.get(
+    "/applications",
+    response_model=list[ClientApplicationView],
+    responses=errors(E.COMPANY_NOT_BOUND, not_found=False, validation=False),
+)
 @example_from(_build_list_applications)
 async def list_applications() -> list[ClientApplicationView]:
     return _build_list_applications()
 
 
-def _build_get_application() -> ClientApplicationView:
-    return _client_app()
+def _build_get_application(
+    status: ApplicationStatus = ApplicationStatus.DRAFT,
+) -> ClientApplicationView:
+    return _client_app(status)
 
 
 @client_router.get(
-    "/applications/{application_id}", response_model=ClientApplicationView, responses=errors()
+    "/applications/{application_id}",
+    response_model=ClientApplicationView,
+    responses=errors(
+        E.COMPANY_NOT_BOUND,
+    ),
 )
 @example_from(_build_get_application)
 async def get_application(application_id: UUID) -> ClientApplicationView:
     return _build_get_application()
 
 
-def _build_patch_application() -> ClientApplicationView:
-    return _client_app()
+def _build_patch_application(body: ApplicationPatch) -> ClientApplicationView:
+    return _client_app().model_copy(update={"revision": body.revision + 1})
 
 
 @client_router.patch(
     "/applications/{application_id}",
     response_model=ClientApplicationView,
-    responses=errors(E.REVISION_CONFLICT, E.INVALID_STATUS_TRANSITION),
+    responses=errors(E.COMPANY_NOT_BOUND, E.REVISION_CONFLICT, E.INVALID_STATUS_TRANSITION),
+    description="Сохранение подтверждённых полей черновика, только DRAFT. "
+    "Пропуск поля оставляет значение, null очищает. terms_source вычисляет сервер. "
+    "Успех увеличивает revision; следующий запрос использует revision из ответа.",
 )
 @example_from(_build_patch_application)
 async def patch_application(application_id: UUID, body: ApplicationPatch) -> ClientApplicationView:
-    return _build_patch_application()
+    return _build_patch_application(body)
 
 
 def _build_interpret() -> InterpretResponse:
     return InterpretResponse(
         status=InterpretStatus.OK,
         suggestion=InterpretSuggestions(
+            purpose_code=PurposeSuggestion(
+                value=PurposeCode.EQUIPMENT, source=FieldSource.RULES, matched_text="печь"
+            ),
             requested_amount_rub=AmountSuggestion(
                 value=3_000_000, source=FieldSource.RULES, matched_text="3 млн"
-            )
+            ),
+            term_months=TermSuggestion(
+                value=36, source=FieldSource.RULES, matched_text="на 3 года"
+            ),
         ),
         clarification_question=None,
     )
@@ -397,34 +528,48 @@ def _build_interpret() -> InterpretResponse:
 @client_router.post(
     "/applications/{application_id}/interpret",
     response_model=InterpretResponse,
-    responses=errors(E.INVALID_STATUS_TRANSITION),
+    responses=errors(E.COMPANY_NOT_BOUND, E.INVALID_STATUS_TRANSITION),
+    description="Распознаёт потребность без записи в заявку и без revision. "
+    "RULES/LLM — источник каждого предложения. NEEDS_CLARIFICATION содержит вопрос; "
+    "UNAVAILABLE оставляет доступным ручной ввод. Сбой LLM — 200 с правилами либо UNAVAILABLE. "
+    "Сохранение — отдельный PATCH после явного подтверждения. UI #9 ограничивает ввод "
+    "1000 символами; API использует тот же предел.",
 )
 @example_from(_build_interpret)
 async def interpret(application_id: UUID, body: InterpretRequest) -> InterpretResponse:
     return _build_interpret()
 
 
-def _build_submit() -> ClientApplicationView:
-    return _client_app(ApplicationStatus.UNDER_REVIEW)
+def _build_submit(body: SubmitRequest) -> ClientApplicationView:
+    return _client_app(ApplicationStatus.UNDER_REVIEW).model_copy(
+        update={"revision": body.revision + 1}
+    )
 
 
 @client_router.post(
     "/applications/{application_id}/submit",
     response_model=ClientApplicationView,
     responses=errors(
+        E.COMPANY_NOT_BOUND,
         E.REVISION_CONFLICT,
         E.INVALID_STATUS_TRANSITION,
         E.IDEMPOTENCY_IN_PROGRESS,
         E.CONSENT_REQUIRED,
+        E.APPLICATION_INCOMPLETE,
+        E.PRODUCT_NOT_ELIGIBLE,
         E.IDEMPOTENCY_KEY_REUSED,
         E.PROVIDER_UNAVAILABLE,
     ),
+    description="DRAFT → UNDER_REVIEW. Только заполненная заявка с подходящим продуктом "
+    "и актуальным bki_consent_version после явного согласия. Синхронный сбор источников "
+    "и расчёт; AI-заключение в фоне. 503 PROVIDER_UNAVAILABLE сохраняет DRAFT: можно "
+    "повторить тот же запрос с тем же Idempotency-Key.",
 )
 @example_from(_build_submit)
 async def submit(
     application_id: UUID, body: SubmitRequest, idempotency_key: IdempotencyKey
 ) -> ClientApplicationView:
-    return _build_submit()
+    return _build_submit(body)
 
 
 _IDEMPOTENT_409_422 = (
@@ -435,52 +580,76 @@ _IDEMPOTENT_409_422 = (
 )
 
 
-def _build_info_response() -> ClientApplicationView:
-    return _client_app(ApplicationStatus.UNDER_REVIEW)
+def _build_info_response(body: InfoResponseRequest) -> ClientApplicationView:
+    view = _client_app(ApplicationStatus.NEED_INFO)
+    return view.model_copy(
+        update={
+            "revision": body.revision + 1,
+            "status": ApplicationStatus.UNDER_REVIEW,
+            "allowed_actions": [],
+            "info_request": ClientInfoRequest(
+                question_text="Подтвердите стоимость печи",
+                answer_text=body.answer_text,
+                answered_at=_NOW + timedelta(minutes=3),
+            ),
+            "timeline": [
+                *view.timeline,
+                TimelineEvent(
+                    from_status=ApplicationStatus.NEED_INFO,
+                    to_status=ApplicationStatus.UNDER_REVIEW,
+                    created_at=_NOW + timedelta(minutes=3),
+                ),
+            ],
+        }
+    )
 
 
 @client_router.post(
     "/applications/{application_id}/info-response",
     response_model=ClientApplicationView,
-    responses=errors(*_IDEMPOTENT_409_422),
+    responses=errors(E.COMPANY_NOT_BOUND, *_IDEMPOTENT_409_422),
 )
 @example_from(_build_info_response)
 async def info_response(
     application_id: UUID, body: InfoResponseRequest, idempotency_key: IdempotencyKey
 ) -> ClientApplicationView:
-    return _build_info_response()
+    return _build_info_response(body)
 
 
-def _build_offer_accept() -> ClientApplicationView:
-    return _client_app(ApplicationStatus.APPROVED)
+def _build_offer_accept(body: RevisionRequest) -> ClientApplicationView:
+    return _client_app(ApplicationStatus.APPROVED).model_copy(
+        update={"revision": body.revision + 1}
+    )
 
 
 @client_router.post(
     "/applications/{application_id}/offer/accept",
     response_model=ClientApplicationView,
-    responses=errors(*_IDEMPOTENT_409_422),
+    responses=errors(E.COMPANY_NOT_BOUND, *_IDEMPOTENT_409_422),
 )
 @example_from(_build_offer_accept)
 async def offer_accept(
     application_id: UUID, body: RevisionRequest, idempotency_key: IdempotencyKey
 ) -> ClientApplicationView:
-    return _build_offer_accept()
+    return _build_offer_accept(body)
 
 
-def _build_offer_decline() -> ClientApplicationView:
-    return _client_app(ApplicationStatus.DECLINED)
+def _build_offer_decline(body: RevisionRequest) -> ClientApplicationView:
+    return _client_app(ApplicationStatus.DECLINED).model_copy(
+        update={"revision": body.revision + 1}
+    )
 
 
 @client_router.post(
     "/applications/{application_id}/offer/decline",
     response_model=ClientApplicationView,
-    responses=errors(*_IDEMPOTENT_409_422),
+    responses=errors(E.COMPANY_NOT_BOUND, *_IDEMPOTENT_409_422),
 )
 @example_from(_build_offer_decline)
 async def offer_decline(
     application_id: UUID, body: RevisionRequest, idempotency_key: IdempotencyKey
 ) -> ClientApplicationView:
-    return _build_offer_decline()
+    return _build_offer_decline(body)
 
 
 def _build_contract() -> ContractView:
@@ -494,6 +663,10 @@ def _build_contract() -> ContractView:
         monthly_payment_rub=money_str(rows[0].payment_rub),
         overpayment_rub=money_str(sum((r.interest_rub for r in rows), Decimal(0))),
         account_masked="40702 •••• 0010",
+        key_terms_markdown=(
+            "## Основные условия\nСумма: 2 340 000 ₽. Срок: 36 месяцев. "
+            "Ставка: 24% годовых.\nПогашение ежемесячно по приложенному графику. Демо-договор."
+        ),
         schedule=[
             ScheduleItem(
                 number=r.number,
@@ -511,7 +684,11 @@ def _build_contract() -> ContractView:
 
 
 @client_router.get(
-    "/applications/{application_id}/contract", response_model=ContractView, responses=errors()
+    "/applications/{application_id}/contract",
+    response_model=ContractView,
+    responses=errors(
+        E.COMPANY_NOT_BOUND,
+    ),
 )
 @example_from(_build_contract)
 async def contract(application_id: UUID) -> ContractView:
@@ -521,12 +698,16 @@ async def contract(application_id: UUID) -> ContractView:
 SIGN_CHALLENGE_TTL = timedelta(minutes=5)  # design §3.5: TTL кода подписания 5 минут
 
 
-def _build_sign_challenge(settings: Settings, now: datetime) -> SignChallenge:
+def _build_sign_challenge(
+    settings: Settings, now: datetime, body: RevisionRequest
+) -> SignChallenge:
     """`now` передаёт вызывающий: endpoint — текущее время (challenge не должен быть
     просрочен в момент выдачи), генератор OpenAPI — фиксированное EXAMPLE_NOW."""
     return SignChallenge(
         challenge_id=_ID,
+        revision=body.revision + 1,
         expires_at=now + SIGN_CHALLENGE_TTL,
+        attempts_remaining=3,
         demo_code="123456" if settings.demo_auth_enabled else None,
     )
 
@@ -534,29 +715,56 @@ def _build_sign_challenge(settings: Settings, now: datetime) -> SignChallenge:
 @client_router.post(
     "/applications/{application_id}/sign/challenge",
     response_model=SignChallenge,
-    responses=errors(E.REVISION_CONFLICT, E.INVALID_STATUS_TRANSITION, E.TOO_MANY_ATTEMPTS),
+    response_model_exclude_none=True,
+    responses=errors(
+        E.COMPANY_NOT_BOUND,
+        E.REVISION_CONFLICT,
+        E.INVALID_STATUS_TRANSITION,
+        E.TOO_MANY_ATTEMPTS,
+        challenge=True,
+    ),
+    description="Только APPROVED; UI предварительно получает подтверждение ознакомления "
+    "с договором. Выдаёт новый код на 5 минут и инвалидирует предыдущий; максимум 3 попытки. "
+    "Не более 5 challenge на заявку за 15 минут: 429 scope CHALLENGE_ISSUE и Retry-After. "
+    "Не требует Idempotency-Key. В sign передать revision из этого ответа. "
+    "demo_code показывать только из ответа API; отсутствует при DEMO_AUTH_ENABLED=false.",
 )
 @example_from(_build_sign_challenge)
 async def sign_challenge(
     application_id: UUID, body: RevisionRequest, settings: AppSettings
 ) -> SignChallenge:
-    return _build_sign_challenge(settings, datetime.now(UTC))
+    return _build_sign_challenge(settings, datetime.now(UTC), body)
 
 
-def _build_sign() -> ClientApplicationView:
-    return _client_app(ApplicationStatus.SIGNED)
+def _build_sign(body: SignRequest) -> ClientApplicationView:
+    return _client_app(ApplicationStatus.SIGNED).model_copy(update={"revision": body.revision + 1})
 
 
 @client_router.post(
     "/applications/{application_id}/sign",
     response_model=ClientApplicationView,
-    responses=errors(*_IDEMPOTENT_409_422, E.SIGN_CODE_INVALID, E.TOO_MANY_ATTEMPTS),
+    responses=errors(
+        E.COMPANY_NOT_BOUND,
+        *_IDEMPOTENT_409_422,
+        E.SIGN_CODE_INVALID,
+        E.SIGN_CHALLENGE_EXPIRED,
+        E.TOO_MANY_ATTEMPTS,
+        signing=True,
+    ),
+    description="APPROVED → SIGNED с актуальной revision из challenge. Неверный код — "
+    "422 SIGN_CODE_INVALID с details.remaining_attempts; третья неверная попытка — "
+    "429 scope SIGN_ATTEMPTS без Retry-After, challenge недействителен. "
+    "Неизвестный, чужой, просроченный, использованный или заменённый challenge — "
+    "422 SIGN_CHALLENGE_EXPIRED. "
+    "Неуспешная попытка не меняет revision заявки. Успех запускает выдачу SYSTEM: "
+    "SIGNED → ISSUED через 3–5 с; опрашивать карточку каждые 2 с. Повтор успешного "
+    "запроса с тем же ключом возвращает сохранённый ответ.",
 )
 @example_from(_build_sign)
 async def sign(
     application_id: UUID, body: SignRequest, idempotency_key: IdempotencyKey
 ) -> ClientApplicationView:
-    return _build_sign()
+    return _build_sign(body)
 
 
 # --- Менеджер (#7, #8, #10) ------------------------------------------------------------
@@ -567,6 +775,8 @@ def _build_queue() -> list[QueueItem]:
         QueueItem(
             id=_ID,
             company_name="ООО «Пекарня Плюс»",
+            company_inn="0099020010",
+            product_id="investment",
             status=ApplicationStatus.UNDER_REVIEW,
             submitted_at=_NOW,
             requested_amount_rub="3000000.00",
@@ -577,7 +787,9 @@ def _build_queue() -> list[QueueItem]:
     ]
 
 
-@manager_router.get("/applications", response_model=list[QueueItem], responses=errors())
+@manager_router.get(
+    "/applications", response_model=list[QueueItem], responses=errors(not_found=False)
+)
 @example_from(_build_queue)
 async def queue(status: ApplicationStatus | None = None) -> list[QueueItem]:
     return _build_queue()
@@ -603,6 +815,7 @@ def _build_manager_card(application_id: UUID) -> ManagerApplicationView:
         revenue_change_pct="-8.00",
         existing_debt_payments_rub="100000.00",
         business_age_months=36,
+        account_history_months=12,
         monthly=[
             MonthlyFeature(
                 month=date(y, m, 1),
@@ -634,6 +847,9 @@ def _build_manager_card(application_id: UUID) -> ManagerApplicationView:
         status=ApplicationStatus.UNDER_REVIEW,
         company_name="ООО «Пекарня Плюс»",
         company_inn="0099020010",
+        legal_form="LLC",
+        okved_main="10.71",
+        registered_at=date(2023, 10, 21),
         purpose_text="Купить печь за 3 млн на 3 года",
         purpose_code=PurposeCode.EQUIPMENT,
         requested_amount_rub="3000000.00",
@@ -686,6 +902,12 @@ def _build_manager_card(application_id: UUID) -> ManagerApplicationView:
             ManagerAction.REQUEST_INFO,
             ManagerAction.REJECT,
         ],
+        offer_constraints=OfferConstraints(
+            min_amount_rub="100000.00",
+            max_amount_rub="5000000.00",
+            min_term_months=12,
+            max_term_months=60,
+        ),
         ai_report=_ai_report(),
         decisions=[],
         offers=[],
@@ -746,7 +968,8 @@ def _build_offer_preview() -> OfferPreviewResponse:
     "/applications/{application_id}/offer-preview",
     response_model=OfferPreviewResponse,
     responses=errors(E.INVALID_STATUS_TRANSITION),
-    description="Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; "
+    description="Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. "
+    "Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; "
     "вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED "
     "или невычислимых условиях все метрики null, valid=false и violations непустой. "
     "Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий "
@@ -791,9 +1014,17 @@ def _build_regenerate_ai_report() -> AiReportView:
     "/applications/{application_id}/ai-report",
     response_model=AiReportView,
     status_code=202,
-    responses=errors(E.INVALID_STATUS_TRANSITION),
+    responses={
+        200: {
+            "model": AiReportView,
+            "description": "Существующий READY/FALLBACK или свежий PENDING",
+        },
+        **errors(),
+    },
     description="Не меняет revision заявки. Сериализация по записи ai_reports; "
-    "свежий PENDING возвращается без повторного запуска. Новая генерация использует "
+    "свежий PENDING возвращается без повторного запуска (200), в том числе при regenerate. "
+    "READY/FALLBACK без regenerate — 200; иначе, включая зависший PENDING, — 202. "
+    "При 202 опрашивать GET каждые 3 секунды. Новая генерация использует "
     "generation_id и updated_at (design §3.6). Реализация — #8.",
 )
 @example_from(_build_regenerate_ai_report)
@@ -820,10 +1051,13 @@ def _build_stats() -> ManagerStats:
         suggested_action_distribution={SuggestedAction.COUNTER_OFFER_CANDIDATE: 1},
         decisions_matching_suggestion_share=None,
         ai_feedback_up_share={},
+        ai_feedback_groups=[],
     )
 
 
-@manager_router.get("/stats", response_model=ManagerStats, responses=errors())
+@manager_router.get(
+    "/stats", response_model=ManagerStats, responses=errors(not_found=False, validation=False)
+)
 @example_from(_build_stats)
 async def stats() -> ManagerStats:
     return _build_stats()

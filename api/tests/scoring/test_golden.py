@@ -19,7 +19,7 @@ from app.schemas.enums import BkiSummaryStatus, ManagerAction, RegistryStatus, R
 from app.schemas.enums import SuggestedAction as SA
 from app.scoring.categorization import StatementTransaction, categorize, load_rules
 from app.scoring.features import build_features
-from app.scoring.money import display_dscr
+from app.scoring.money import display_dscr, money_str
 from app.scoring.policy import allowed_actions, evaluate, stop_factors
 from app.scoring.risk import Product, assess
 from tests.scoring._data import AS_OF, INVESTMENT, WORKING_CAPITAL
@@ -36,6 +36,7 @@ class Golden:
     term: int
     action: SA
     blocking: tuple[StopFactor, ...] = ()
+    payment: str | None = None
     score: int | None = None
     dscr_display: str | None = None
     risk_level: RiskLevel | None = None
@@ -76,7 +77,7 @@ CASES = [
         revenue_change_pct="-8",
         debt="100000",
     ),
-    # P = 800 000 · A(2%, 12) = 75 647,68 → DSCR 3.9657…; P_max = 240 000 → 2 538 08x → 2 530 000
+    # Design 2.5: 25%; независимая формула A=0.09504420326390924568… (prec=50).
     Golden(
         "C3",
         "Соколова",
@@ -85,9 +86,10 @@ CASES = [
         12,
         SA.MANUAL_REVIEW,
         score=70,
-        dscr_display="3.96",
+        payment="76035.36",
+        dscr_display="3.94",
         risk_level=RiskLevel.MODERATE,
-        limit=2_530_000,
+        limit=2_520_000,
         cfads="300000",
         revenue_change_pct="3",
         debt="0",
@@ -109,6 +111,14 @@ CASES = [
         12,
         SA.BLOCKED_BY_RULE,
         blocking=(StopFactor.COMPANY_INACTIVE,),
+        payment="95044.20",
+        score=70,
+        dscr_display="1.05",
+        risk_level=RiskLevel.MODERATE,
+        limit=840_000,
+        cfads="100000",
+        revenue_change_pct="0",
+        debt="0",
     ),
     Golden(
         "C6",
@@ -118,6 +128,14 @@ CASES = [
         18,
         SA.BLOCKED_BY_RULE,
         blocking=(StopFactor.ACCOUNT_BLOCKED_BY_FNS,),
+        payment="100787.72",
+        score=60,
+        dscr_display="0.99",
+        risk_level=RiskLevel.HIGH,
+        limit=1_190_000,
+        cfads="100000",
+        revenue_change_pct="0",
+        debt="0",
     ),
     Golden(
         "C7",
@@ -213,6 +231,8 @@ def test_golden(case: Golden) -> None:
         assert features.cfads_monthly_rub == Decimal(case.cfads or "")
         assert features.revenue_change_pct == Decimal(case.revenue_change_pct or "")
         assert features.existing_debt_payments_rub == Decimal(case.debt or "")
+        if case.payment is not None:
+            assert money_str(risk.monthly_payment_rub) == case.payment
         assert risk.score == case.score
         assert display_dscr(risk.dscr) == Decimal(case.dscr_display or "")
         assert risk.risk_level is case.risk_level

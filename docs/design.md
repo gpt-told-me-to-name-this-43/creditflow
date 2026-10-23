@@ -1,10 +1,12 @@
-# Proposal: CreditFlow — MVP кредитного конвейера с AI-assist
+# Proposal: Alfa Smart Credit — MVP кредитного конвейера с AI-assist
+
+Ревизия: **2.5**
 
 Контекст: хакатон «Умный кредитный кабинет предпринимателя» (Альфа-Банк)
 
 ## 1. Abstract
 
-Предпринимателю трудно выбрать кредитный продукт и понять, почему банк отказал или предложил другие условия. Менеджер банка вручную собирает сведения из реестров, БКИ и выписок и сам интерпретирует риски. **CreditFlow** — веб-продукт из двух кабинетов, клиента и менеджера. Заявка действующего клиента банка проходит в нём весь путь: от свободного текста предпринимателя через решение менеджера до подписания договора и смоделированной выдачи. Сценарий один, сквозной, на синтетических данных.
+Предпринимателю трудно выбрать кредитный продукт и понять, почему банк отказал или предложил другие условия. Менеджер банка вручную собирает сведения из реестров, БКИ и выписок и сам интерпретирует риски. **Alfa Smart Credit** — веб-продукт из двух кабинетов, клиента и менеджера. Заявка действующего клиента банка проходит в нём весь путь: от свободного текста предпринимателя через решение менеджера до подписания договора и смоделированной выдачи. Сценарий один, сквозной, на синтетических данных.
 
 Ключевая идея — разделение трёх ролей:
 
@@ -60,7 +62,8 @@
 - PD/LGD;
 - реальные интеграции, данные и ЭП;
 - мобильное приложение (мобильная адаптация веба — по остаточному принципу);
-- назначение заявок менеджерам.
+- назначение заявок менеджерам;
+- новостная лента.
 
 ## 3. Proposal
 
@@ -151,8 +154,8 @@ flowchart LR
 ### 3.3. Клиентский кабинет
 
 - **Вход.** Клиент — действующий клиент банка, регистрации нет. `POST /auth/login` → JWT HS256; пароли — argon2. Экран входа показывает демо-учётки (`GET /auth/demo-accounts`, только при `DEMO_AUTH_ENABLED=true`). ИНН компании не служит средством входа.
-- **Привязка компании.** `POST /onboarding/company-binding {inn, pd_consent_version}`. 10 цифр → ЕГРЮЛ, 12 → ЕГРИП. Полномочия: ИНН **и** нормализованное ФИО (NFC, `ё→е`, нижний регистр, схлопнутые пробелы) руководителя или ИП совпадают с учёткой. Иначе `403 APPLICANT_NOT_AUTHORIZED`; компании нет в реестре — `422 COMPANY_NOT_IN_REGISTRY`. Один клиент — одна компания. Путь развития для бухгалтеров и сотрудников — МЧД.
-- **Заявка.** Поля черновика: `purpose_code` (`EQUIPMENT`, `RENOVATION`, `BUSINESS_EXPANSION`, `INVENTORY`, `SUPPLIERS`, `WORKING_CAPITAL`), `requested_amount_rub` (целые рубли), `term_months`, `product_id`, `purpose_text`. Единственный источник истины — `PATCH /applications/{id}`.
+- **Привязка компании.** `POST /onboarding/company-binding {inn, pd_consent_version}`. 10 цифр → ЕГРЮЛ, 12 → ЕГРИП. Полномочия: ИНН **и** нормализованное ФИО (NFC, `ё→е`, нижний регистр, схлопнутые пробелы) руководителя или ИП совпадают с учёткой. Иначе `403 APPLICANT_NOT_AUTHORIZED`; ИНН неверного формата или с неверной контрольной суммой — `422 INVALID_INN`; компании нет в реестре — `422 COMPANY_NOT_IN_REGISTRY`. Один клиент — одна компания: компания уже привязана к другому клиенту — `409 COMPANY_ALREADY_BOUND`, у клиента уже есть другая компания — `409 USER_ALREADY_BOUND`; повторная привязка той же компании тем же клиентом — `200`. Порядок проверок: формат ИНН → версия согласия → реестр → полномочия → уникальность. Статус компании при привязке не проверяется — это стоп-фактор Submit. Путь развития для бухгалтеров и сотрудников — МЧД.
+- **Заявка.** Поля черновика: `purpose_code` (`EQUIPMENT`, `RENOVATION`, `BUSINESS_EXPANSION`, `INVENTORY`, `SUPPLIERS`, `WORKING_CAPITAL`), `requested_amount_rub` (целые рубли), `term_months`, `product_id`, `purpose_text` (≤ 1000 символов, необязателен). Единственный источник истины — `PATCH /applications/{id}`. `POST /applications` создаёт черновик (`201`); если у клиента уже есть `DRAFT`, возвращает его (`200`). Повторный вызов тело не применяет. В реализации #7 второй черновик будет исключён частичным уникальным индексом: в новой миграции `CREATE UNIQUE INDEX uq_applications_one_draft ON applications (owner_user_id) WHERE status = 'DRAFT'` (в SQLAlchemy — `Index(..., unique=True, postgresql_where=text("status = 'DRAFT'"))`; ограничение `UNIQUE` с `WHERE` PostgreSQL не поддерживает). Вставка — `INSERT … ON CONFLICT (owner_user_id) WHERE status = 'DRAFT' DO NOTHING`, затем `SELECT`. Без привязанной компании доступны `auth/*`, `consents/texts`, `company-binding`, `credit-products`; `GET /company` и все `/applications*` отвечают `409 COMPANY_NOT_BOUND`, по этому коду фронт ведёт на привязку.
 - **Распознавание потребности.** `POST /applications/{id}/interpret {purpose_text}` возвращает `{status: OK | NEEDS_CLARIFICATION | UNAVAILABLE, suggestion: {field: {value, source: RULES | LLM, matched_text?}}, clarification_question}` и **не меняет заявку** (§3.6). Поля формы помечаются «распознано автоматически» (`RULES`) или «предложено ИИ» (`LLM`) и сохраняются только после «Подтвердить». Ручная форма доступна всегда.
 - **Источник условий.** В заявке хранится источник каждого поля — `terms_field_sources = {purpose_code, requested_amount_rub, term_months} → MANUAL | RULES | LLM`. Поле, исправленное клиентом, получает `MANUAL`. Сводный `terms_source` выводится из них:
   - `LLM_CONFIRMED` — хотя бы одно поле пришло от LLM;
@@ -160,20 +163,23 @@ flowchart LR
   - иначе `MANUAL`.
 
   Менеджер видит, какие поля и откуда были предложены.
-- **Выбор продукта.** `GET /credit-products?purpose=&amount=&term=`: продукт подходит, если цель входит в `allowed_purposes`, а сумма и срок — в его пределы. Ответ содержит ежемесячный платёж и оговорку «не является решением». Для неподходящих продуктов указаны невыполненные ограничения (`unmet_constraints`).
+- **Выбор продукта.** `GET /credit-products?purpose=&amount=&term=`: продукт подходит, если цель входит в `allowed_purposes`, а сумма и срок — в его пределы. Ответ содержит ежемесячный платёж и оговорку «не является решением». Для неподходящих продуктов указаны невыполненные ограничения `unmet_constraints: string[]` из одного enum `ProductConstraint`: `PURPOSE_NOT_ALLOWED`, `AMOUNT_BELOW_PRODUCT_MIN`, `AMOUNT_ABOVE_PRODUCT_MAX`, `TERM_BELOW_PRODUCT_MIN`, `TERM_ABOVE_PRODUCT_MAX`. Пределы продукта (`min/max_amount_rub`, `min/max_term_months`, `allowed_purposes`) уже есть в `CreditProduct`, поэтому `min`/`max`/`actual` в ограничение не дублируются.
 
 | `product_id` | Продукт (демо) | Цели | Сумма | Срок | Ставка |
 |---|---|---|---|---|---|
 | `investment` | Инвестиционный кредит | `EQUIPMENT`, `RENOVATION`, `BUSINESS_EXPANSION` | 100 тыс. – 5 млн ₽ | 12–60 мес. | 24% |
-| `working_capital` | Оборотный кредит | `INVENTORY`, `SUPPLIERS`, `WORKING_CAPITAL` | 100 тыс. – 3 млн ₽ | 3–24 мес. | 24% |
+| `working_capital` | Оборотный кредит | `INVENTORY`, `SUPPLIERS`, `WORKING_CAPITAL` | 100 тыс. – 3 млн ₽ | 3–24 мес. | 25% |
 
 - **Отправка.** `POST /applications/{id}/submit {revision, bki_consent_version}` с заголовком `Idempotency-Key`. Чекбокс согласия на запрос в БКИ обязателен и по умолчанию не отмечен.
 - **Статусы.** Таймлайн из `application_events`; причина отказа — шаблонный текст по `client_reason_code`.
 - **Встречное предложение.** Карточка «Вы просили → Банк предлагает»: сумма, срок, ставка, платёж. Если вырос срок, показывается и рост переплаты. Действия `POST /applications/{id}/offer/accept` и `/offer/decline`.
 - **Дозапрос.** Вопрос менеджера и ответ текстом ≤ 2000 символов: `POST /applications/{id}/info-response {revision, answer_text}`.
 - **Договор и подписание.** `GET /applications/{id}/contract` — условия, график, переплата. Подписание:
-  1. `POST …/sign/challenge` → `{challenge_id, expires_at, demo_code?}`; код из 6 цифр, хранится хешем, TTL 5 мин, ≤ 3 попыток. `demo_code` возвращается только при `DEMO_AUTH_ENABLED=true` и показывается в UI с пометкой «демо: вместо SMS»; на фронтенде код не хардкодится;
-  2. `POST …/sign {revision, challenge_id, code}` → `SIGNED`;
+  1. `POST …/sign/challenge` → `{challenge_id, expires_at, demo_code?}`; код из 6 цифр, хранится хешем, TTL 5 мин, ≤ 3 попыток. Новый challenge делает прежние недействительными. Не больше 5 challenge на заявку за 15 мин, сверх — `429 TOO_MANY_ATTEMPTS` с `Retry-After`: иначе ограничение в 3 попытки обходится выпуском новых кодов. `demo_code` возвращается только при `DEMO_AUTH_ENABLED=true` и показывается в UI с пометкой «демо: вместо SMS»; на фронтенде код не хардкодится;
+  2. `POST …/sign {revision, challenge_id, code}` → `SIGNED`. Ошибки:
+     - неверный код — `422 SIGN_CODE_INVALID`, `details.remaining_attempts`;
+     - третья неверная попытка — `429 TOO_MANY_ATTEMPTS`, challenge становится недействительным, нужен новый;
+     - challenge просрочен, использован или заменён новым — `422 SIGN_CHALLENGE_EXPIRED`;
   3. через 3–5 с заявка переходит в `ISSUED`, клиент видит экран «Средства зачислены».
 - **Не показывается клиенту ни до, ни после решения:** score, DSCR, лимит, коды, проект решения, AI-заключение, комментарий менеджера.
 
@@ -246,7 +252,9 @@ P_max не зависит от срока; при смене срока пере
 - Лимит округляется вниз до 10 000 ₽. При ставке 0% `P = S/n`.
 - Сумма ≤ 0 или дробная, сумма и срок вне продукта → `422` на API и `ValueError` в движке.
 
-**Ставки.** Тарифная сетка зафиксирована на `APP_AS_OF_DATE`. Ключевая ставка ЦБ — 14% (решение от 11.09.2026, действует на 21.10.2026). Для демонстрации обе ставки продуктов — 24%: ключевая ставка + 10 п.п. спреда за риск МСБ. Отдельный спред для оборотного кредита в MVP не вводится.
+**Ставки.** Тарифная сетка зафиксирована на `APP_AS_OF_DATE`. Ключевая ставка ЦБ — 14% (решение от 11.09.2026, действует на 21.10.2026). Ставки продуктов:
+- инвестиционный кредит — 24% (ключевая + 10 п.п. спреда за риск МСБ);
+- оборотный кредит — 25% (+11 п.п.: короткий срок и выше риск оборотного финансирования).
 
 Эталонные расчёты M1–M13 и C1–C7 сделаны строго под эти ставки. Изменение ставки означает новую версию каталога и пересчёт эталонов.
 
@@ -287,12 +295,13 @@ P_max не зависит от срока; при смене срока пере
   - баллы `10 + 30 + 8 + 15 = 63` → `MODERATE`;
   - `P_max = 92 000`, `limit_rub = 2 340 000`;
   - итог — `COUNTER_OFFER_CANDIDATE`.
-- **Встречное предложение:**
+- **Встречное предложение** (основной путь демо-сценария — по сумме; вариант по сроку проверяет M11):
   - **по сумме** 2 340 000 ₽ / 36 мес.: `P = 91 804,88`, DSCR `1.2512…`, score 83, `LOW`;
   - **по сроку** 3 000 000 ₽ / 54 мес. — минимальный подходящий срок: `P = 91 356,79`, DSCR `1.2542…`; на 53 мес. DSCR `1.2479…` уже не проходит; лимит на 60 мес. — 3 190 000 ₽.
 
 ### 3.5. Кабинет менеджера
 
+- **Поля контракта для UI.** Очередь содержит `company_inn`, `product_id`; карточка — `legal_form`, `okved_main`, `registered_at`, расчёт — `account_history_months` (h). История решений содержит `manager_full_name`, события — `actor_full_name` (null у SYSTEM). Договор содержит `key_terms_markdown` для безопасного отображения без raw HTML. Сводка дополнена `ai_feedback_groups[{prompt_version, model_id, source, total, up_count, up_share}]`, чтобы показать «Недостаточно оценок» при total < 5. Существующие имена полей API сохраняются.
 - **Очередь** `GET /manager/applications?status=`: все заявки, сортировка по `submitted_at`, колонки `suggested_action` и стоп-факторов.
 - **Сводка** `GET /manager/stats`:
   - заявки по статусам;
@@ -307,7 +316,8 @@ P_max не зависит от срока; при смене срока пере
   - проект решения (`suggested_action`, `blocking_codes`, `rule_trace`);
   - AI-заключение;
   - ответы клиента на дозапросы, история офферов, решений и подписания;
-  - `allowed_actions`.
+  - `allowed_actions: ManagerAction[]` — только список действий;
+  - `offer_constraints: OfferConstraints | null` — пределы продукта заявки для формы оффера. Строгая схема (`extra = forbid`, все поля обязательны): `min_amount_rub`, `max_amount_rub` — денежные строки `^\d+\.\d{2}$`, как все деньги в API; `min_term_months`, `max_term_months` — целые. Поле равно `null` тогда и только тогда, когда `COUNTER_OFFER` нет в `allowed_actions`. В `UNDER_REVIEW` продукт выбран всегда (Submit без `product_id` даёт `APPLICATION_INCOMPLETE`), поэтому случая «продукт не выбран» при доступном оффере нет; пределы берутся из продукта заявки на момент Submit. Допустимость конкретной пары сумма/срок (`limit_for_term`, DSCR) фронт не считает, а получает из `offer-preview`.
 - **Действия.** `POST /manager/applications/{id}/decisions` допустим только в статусе `UNDER_REVIEW` при совпадении `revision`; принимает заголовок `Idempotency-Key`. `allowed_actions` вычисляет одна функция `DecisionPolicy` и для `GET`, и для `POST`.
 
 | Действие | Когда разрешено | Обязательные поля | Результат |
@@ -317,7 +327,7 @@ P_max не зависит от срока; при смене срока пере
 | `REQUEST_INFO` | `blocking_codes = ∅` | `question_text` ≤ 1000 | `NEED_INFO` |
 | `REJECT` | Всегда | `client_reason_code`, `comment` | `REJECTED` |
 
-- **Предпросмотр оффера.** `POST /manager/applications/{id}/offer-preview {amount_rub, term_months}` → `{monthly_payment_rub, dscr, score, risk_level, limit_for_term_rub, valid, violations[]}`. В БД ничего не пишет и использует ту же валидацию, что `decisions`.
+- **Предпросмотр оффера.** `POST /manager/applications/{id}/offer-preview {amount_rub, term_months}` → `{monthly_payment_rub, dscr, score, risk_level, limit_for_term_rub, valid, violations[]}`. В БД ничего не пишет и использует ту же валидацию, что `decisions`. Бизнес-нарушения (лимит, DSCR, пределы продукта) возвращаются как `200` с `valid=false`. Вне `UNDER_REVIEW` — `409 INVALID_STATUS_TRANSITION`, как у `decisions`: так второй менеджер узнаёт, что его карточка устарела.
 - **Обратная связь по AI.** На AI-заключении кнопки 👍/👎 и необязательный комментарий: `POST /manager/applications/{id}/ai-feedback {ai_report_id, verdict: UP | DOWN, comment?}`. Повторная оценка того же менеджера заменяет предыдущую. Оценка не влияет на статус, расчёт и доступные действия.
 
 ### 3.6. AI-assist
@@ -374,8 +384,9 @@ P_max не зависит от срока; при смене срока пере
     - `recover_stale_ai_reports()` при старте (`lifespan`) и раз в 15 с (тот же периодический цикл, что и выдача) под `SELECT … FOR UPDATE SKIP LOCKED` переводит такие записи в `FALLBACK` с `fallback_reason = TIMEOUT` и шаблоном и сбрасывает `generation_id`;
     - UI видит зависший `PENDING` (скелетон) не дольше порога плюс интервал цикла: около 75–90 с при настройках по умолчанию. Если процесс перезапустился, запись закрывается сразу при старте.
   - **Перегенерация.** `POST` (в том числе `?regenerate=true`) берёт `SELECT … FOR UPDATE` на запись:
-    - `PENDING` моложе порога — возвращает его без нового запуска;
-    - иначе ставит `PENDING` с новым `generation_id` и `updated_at` и после `COMMIT` запускает задачу.
+    - `PENDING` моложе порога — возвращает его без нового запуска (`200`);
+    - без `regenerate` при наличии `READY` или `FALLBACK` — возвращает его (`200`);
+    - иначе ставит `PENDING` с новым `generation_id` и `updated_at` и после `COMMIT` запускает задачу (`202`). Код `202` означает для фронта «опрашивай `GET`».
 
     Параллельные генерации возможны только для устаревших версий, а их результаты отбрасываются условным обновлением.
   - **Карточка.** Открытие карточки никогда не ждёт провайдера.
@@ -415,7 +426,7 @@ stateDiagram-v2
 **Переходы:**
 - Все остальные переходы → `409 INVALID_STATUS_TRANSITION`. Таблица переходов живёт в коде; `docs/state-machine.md` генерируется из неё и проверяется в CI.
 - Ответ на дозапрос не меняет данные расчёта, поэтому повторного скоринга нет.
-- При принятии оффера сумма и срок заявки и текущий расчёт заменяются оффером.
+- При принятии оффера исходные `requested_amount_rub` и `term_months` заявки сохраняются. Принятый оффер и договор содержат согласованные условия; текущий расчёт ссылается на расчёт оффера. Главный C2 — 2 340 000 / 36; 3 000 000 / 54 — отдельный M11.
 - Договор создаётся при переходе в `APPROVED`.
 
 **Выдача:**
@@ -425,7 +436,7 @@ stateDiagram-v2
 
 **Submit** (`DRAFT` → `UNDER_REVIEW`, синхронно):
 
-1. **Проверки:** запись `Idempotency-Key` (`IN_PROGRESS`, отдельная короткая транзакция), владелец заявки, статус `DRAFT`, `revision`, поля заполнены, продукт подходит, версия согласия БКИ актуальна.
+1. **Проверки:** запись `Idempotency-Key` (`IN_PROGRESS`, отдельная короткая транзакция), владелец заявки, статус `DRAFT`, `revision`, поля заполнены (иначе `422 APPLICATION_INCOMPLETE` со списком полей), продукт подходит (иначе `422 PRODUCT_NOT_ELIGIBLE` с `unmet_constraints`), версия согласия БКИ актуальна (иначе `422 CONSENT_REQUIRED`).
 2. **Фиксация согласия БКИ — отдельная короткая транзакция до внешнего вызова.** Создаётся или переиспользуется `consents (BKI_REQUEST)`, уникальный по `(application_id, type, text_version)`. Его `id` передаётся в БКИ как `consent_id`. Согласие — юридический факт, который клиент уже совершил, поэтому оно не откатывается при сбое Submit, а повтор использует ту же запись.
 3. **Внешние данные — только в память, без записи в БД:**
    - `ext-sim` вызывается параллельно (реестр, ФНС, БКИ с `consent_id`, выписка);
@@ -488,28 +499,34 @@ stateDiagram-v2
 | Онбординг | `GET /consents/texts`, `POST /onboarding/company-binding`, `GET /company` |
 | Клиент | `GET /credit-products`, `POST /applications`, `GET /applications`, `GET /applications/{id}`, `PATCH /applications/{id}`, `POST /applications/{id}/interpret`, `POST /applications/{id}/submit`, `POST /applications/{id}/info-response`, `POST /applications/{id}/offer/accept`, `POST /applications/{id}/offer/decline`, `GET /applications/{id}/contract`, `POST /applications/{id}/sign/challenge`, `POST /applications/{id}/sign` |
 | Менеджер | `GET /manager/applications`, `GET /manager/applications/{id}`, `POST /manager/applications/{id}/decisions`, `POST /manager/applications/{id}/offer-preview`, `GET /manager/applications/{id}/ai-report`, `POST /manager/applications/{id}/ai-report`, `POST /manager/applications/{id}/ai-feedback`, `GET /manager/stats` |
-| Служебные | `GET /health` → `{status, db, ext_sim, llm}` (значения ниже); `POST /_test/reset?mode=clean\|demo` — только вне production, см. §4 |
+| Служебные | `GET /api/v1/health` → `HealthResponse {status, db, ext_sim, llm: ok \| replay \| disabled \| degraded \| not_configured}`; `503` только при недоступной БД, сбой `ext-sim` или LLM отражается в полях при `200`; `POST /_test/reset?mode=clean\|demo` — только вне production, см. §4 |
 
-**`GET /health`:**
-- `db`, `ext_sim` — `ok` или `unavailable`;
-- `llm` — `ok`, `replay`, `disabled`, `degraded` или `not_configured`;
-- `status`:
-  - `ok` — БД и `ext-sim` доступны;
-  - `degraded` — недоступен `ext-sim`: API работает, Submit и привязка отвечают `503`;
-  - `unavailable` — недоступна БД.
-- HTTP `200` при `ok` и `degraded`, `503` при `unavailable`. Healthcheck контейнера `api` падает только без БД.
-- `status` от `llm` не зависит.
+**Коды ответов.** Каждая операция документирует в OpenAPI только применимые к ней статусы с конкретным `ErrorCode`, схемой и условием. Ожидаемая матрица задаётся вручную в декларативном файле `api/contract/http_matrix.yaml` и не выводится из OpenAPI: иначе ошибка в OpenAPI автоматически попала бы в эталон. `test_http_policy.py` сверяет с ней OpenAPI в обе стороны; `docs/api-matrix.md` рендерится из того же YAML, CI проверяет, что он не устарел. `ErrorEnvelope.error.code` согласован с HTTP-статусом.
 
-**Коды ответов:**
-
-| Код | Когда |
+| Код | `ErrorCode` и когда |
 |---|---|
-| `401` / `403` | аутентификация и роль |
-| `404` | чужой или несуществующий объект |
-| `409` | `REVISION_CONFLICT`, `INVALID_STATUS_TRANSITION`, `IDEMPOTENCY_IN_PROGRESS`, `COMPANY_ALREADY_BOUND` |
-| `422` | валидация, `ACTION_NOT_ALLOWED`, `AMOUNT_ABOVE_LIMIT`, `CONSENT_REQUIRED`, `SIGN_CODE_INVALID`, `IDEMPOTENCY_KEY_REUSED` |
-| `429` | `TOO_MANY_ATTEMPTS` |
-| `503` | только сбой `ext-sim` |
+| `401` | `UNAUTHORIZED` — нет или невалиден Bearer; `INVALID_CREDENTIALS` — неверный логин или пароль |
+| `403` | `FORBIDDEN` — не та роль; `APPLICANT_NOT_AUTHORIZED` — не руководитель или ИП при привязке |
+| `404` | `NOT_FOUND` — чужой или несуществующий объект (договор до `APPROVED`, отчёт до Submit). Отличается от 404 незарегистрированного маршрута |
+| `409` | `REVISION_CONFLICT`, `INVALID_STATUS_TRANSITION` (в том числе `interpret` вне `DRAFT` и `offer-preview` вне `UNDER_REVIEW`), `IDEMPOTENCY_IN_PROGRESS`, `COMPANY_ALREADY_BOUND`, `USER_ALREADY_BOUND`, `COMPANY_NOT_BOUND` |
+| `422` | `VALIDATION_ERROR`, `INVALID_INN`, `COMPANY_NOT_IN_REGISTRY`, `CONSENT_REQUIRED`, `APPLICATION_INCOMPLETE`, `PRODUCT_NOT_ELIGIBLE`, `ACTION_NOT_ALLOWED`, `AMOUNT_ABOVE_LIMIT`, `SIGN_CODE_INVALID`, `SIGN_CHALLENGE_EXPIRED`, `IDEMPOTENCY_KEY_REUSED` |
+| `429` | `TOO_MANY_ATTEMPTS` — login и выдача challenge с `Retry-After`; третья неверная попытка подписания без `Retry-After` |
+| `503` | `PROVIDER_UNAVAILABLE` — сбой `ext-sim`, только у `company-binding` и `submit`; `SERVICE_UNAVAILABLE` — инфраструктура (БД) у любой операции; у `/health` — `HealthResponse` |
+
+**Формат `error.details`** — объект с именованными полями, не массив:
+
+| Код | `details` |
+|---|---|
+| `VALIDATION_ERROR` | `fields: [{field, code, message}]`; `field` — источник и путь через точку: `body.requested_amount_rub`, `body.items.0.code`, `query.amount`, `path.application_id`, `header.Idempotency-Key` (имя заголовка в каноническом написании) |
+| `APPLICATION_INCOMPLETE` | `missing_fields: string[]` |
+| `PRODUCT_NOT_ELIGIBLE` | `product_id`, `unmet_constraints: ProductConstraint[]` |
+| `REVISION_CONFLICT` | `current_revision` |
+| `SIGN_CODE_INVALID` | `remaining_attempts` (0–2) |
+| `TOO_MANY_ATTEMPTS` | `scope` (`LOGIN` \| `SIGN_ATTEMPTS` \| `CHALLENGE_ISSUE`), `retry_after_seconds?`; заголовок `Retry-After` — целые секунды |
+
+Третья неверная попытка кода — `429` со `scope = SIGN_ATTEMPTS` без `Retry-After`: новый challenge можно запросить сразу. Чужой или неизвестный `challenge_id` — `422 SIGN_CHALLENGE_EXPIRED` без раскрытия причины.
+
+Общие ошибки — `400`, `405` (с `Allow`), `500 INTERNAL_ERROR`, инфраструктурный `503` — описаны один раз в `docs/api.md`. Сбой LLM не даёт ошибок HTTP: `interpret` возвращает правила или `UNAVAILABLE`, заключение — `FALLBACK`.
 
 Swagger — `/api/docs` у `api` и `/docs` у `ext-sim`. Экспорт: `docs/openapi.json`, `docs/openapi-ext-sim.json`. Коллекция Bruno: `docs/api-collection/`, экспорт `docs/api-collection.json`.
 
@@ -542,6 +559,7 @@ Swagger — `/api/docs` у `api` и `/docs` у `ext-sim`. Экспорт: `docs/
   - JWT HS256, TTL 8 ч, без refresh.
   - Приложение не стартует со слабым `APP_SECRET_KEY` вне демо-режима.
   - Rate limit на `/auth/login`: 10 запросов в минуту на IP и 5 неудачных подряд на логин → `429`.
+  - Выдача кода подписания: не больше 5 challenge на заявку за 15 мин → `429`; три неверных кода подряд закрывают challenge.
   - При `LOAD_TEST_ENABLED=true` (только локальный и тестовый контур) лимит по IP отключён.
 - **Синтетические данные.**
   - Реальных банковских интеграций нет.
@@ -568,10 +586,10 @@ Swagger — `/api/docs` у `api` и `/docs` у `ext-sim`. Экспорт: `docs/
 - **Тестовые эндпоинты.** `POST /_test/reset` существует только вне production:
   - при `TEST_RESET_ENABLED=false` роутер не монтируется (404, нет в OpenAPI);
   - при `APP_ENV=production` включённый флаг блокирует старт приложения;
-  - в `local` и `test` запрос требует заголовка `X-Test-Reset-Token`, равного `TEST_RESET_TOKEN` (≥ 32 байт, сравнение за постоянное время). Иначе ответ `404` без раскрытия эндпоинта;
+  - в `local` и `test` запрос требует заголовка `X-Test-Reset-Token`, равного `TEST_RESET_TOKEN` (≥ 32 байт, сравнение за постоянное время). Иначе ответ `404` без раскрытия эндпоинта: токен проверяется раньше параметров запроса, и ответ байт в байт совпадает с 404 незарегистрированного маршрута (в том числе при неверном `mode`), что проверяет тест;
   - nginx в облачном профиле отвечает `404` на `/api/v1/_test/*`, даже если запрос дошёл бы до `api`;
   - все вызовы логируются с `request_id`.
-- **Цепочка поставки.** `pip-audit`, `pnpm audit`, `gitleaks` и проверка лицензий в CI. Зависимости обновляются вручную.
+- **Цепочка поставки.** `pip-audit`, `pnpm audit`, `gitleaks` и проверка лицензий в CI; Dependabot.
 - **SLO (p95, стенд):**
 
   | Операция | Цель |
@@ -587,15 +605,15 @@ Swagger — `/api/docs` у `api` и `/docs` у `ext-sim`. Экспорт: `docs/
 
 ## 5. Implementation Plan & Verification
 
-Работа ведётся по задачам #4–#10: #4 — платформа и сдача, #5 — доступ, безопасность и SLO, #6 — контракт API, данные и финансовое ядро, #7 — кредитный процесс, #8 — AI-assist, #9 — кабинет клиента, #10 — кабинет менеджера и E2E. Этапы:
+Работа ведётся по 7 задачам (CF-01…CF-07, эпик CF-00) и пяти чекпоинтам:
 
-| Этап | Результат |
+| Чекпоинт | Результат |
 |---|---|
-| 1. Старт | Репозиторий, `docker compose up`, CI, тег `contract-v1` (OpenAPI со стабами), спецификация демо-компаний, исследование и вайрфреймы, фронт на моках |
-| 2. Core MVP | Миграции, базовый seed, demo-auth, привязка и согласия, ручная форма, Submit, категоризация, `FeatureBuilder`, `RiskEngine`, `DecisionPolicy`, оба кабинета, четыре действия, оффер и дозапрос; `LLM_MODE=disabled`; тесты M1–M10 и golden C1–C7 |
-| 3. AI | OpenAI-совместимый клиент, правила + `extract_intent`, фоновое `explain_risk`, валидаторы, шаблоны, replay, eval и injection-кейсы, 👍/👎 |
-| 4. Сквозной путь | Договор и график, подписание кодом, выдача, оффер со сменой срока и предпросмотр, сводка, Idempotency-Key, rate limit, CSP, тесты M11–M13, системные тесты полного пути, SLO |
-| 5. Сдача | Демо-seed, Bruno-коллекция, E2E (Playwright), README, ADR, path-to-production, `THIRD_PARTY_NOTICES`, облачный стенд, прогон на чистой машине, тег релиза |
+| K1 · Старт | Репозиторий, `docker compose up`, CI, тег `contract-v1` (OpenAPI со стабами), спецификация демо-компаний, исследование и вайрфреймы, фронт на моках |
+| K2 · Core MVP | Миграции, базовый seed, demo-auth, привязка и согласия, ручная форма, Submit, категоризация, `FeatureBuilder`, `RiskEngine`, `DecisionPolicy`, оба кабинета, четыре действия, оффер и дозапрос; `LLM_MODE=disabled`; тесты M1–M10 и golden C1–C7 |
+| K3 · AI | OpenAI-совместимый клиент, правила + `extract_intent`, фоновое `explain_risk`, валидаторы, шаблоны, replay, eval и injection-кейсы, 👍/👎 |
+| K4 · Сквозной путь | Договор и график, подписание кодом, выдача, оффер со сменой срока и предпросмотр, сводка, Idempotency-Key, rate limit, CSP, тесты M11–M13, системные тесты полного пути, SLO |
+| K5 · Сдача | Демо-seed, Bruno-коллекция, E2E (Playwright), README, ADR, path-to-production, `THIRD_PARTY_NOTICES`, облачный стенд, прогон на чистой машине, тег релиза |
 
 **Тесты критических формул** (unit, обязательны):
 
@@ -614,3 +632,18 @@ Swagger — `/api/docs` у `api` и `/docs` у `ext-sim`. Экспорт: `docs/
 | M11 | Пекарня, оффер 3 000 000 / 54 и / 53 | 54: `P = 91356.79`, DSCR `1.25420…` → валиден; 53: `P = 92321.76`, DSCR `1.24790…` → `AMOUNT_ABOVE_LIMIT` |
 | M12 | График 2 340 000 / 36 / 24% | Платёж `91804.88` × 35, последний `91804.63`; сумма процентов `964975.43`; Σ тела = 2 340 000.00; остаток 0.00 |
 | M13 | График, ставка 0%, срок 1 мес.; дата выдачи 31.01 | Один платёж = сумме; дата первого платежа — последний день февраля |
+
+Владельцы эталонов:
+- **M1–M10** — финансовое ядро (CF-03): `annuity`, DSCR, score, `limit_rub`, `FeatureBuilder`, валидация входов, `limit_for_term`;
+- **M11** — оффер со сменой срока и `offer-preview` (CF-04 D);
+- **M12–M13** — генерация графика платежей (CF-04 E).
+
+Кроме формул:
+- **property-тесты (hypothesis):** монотонность DSCR и score, кратность и граница лимита, свойства графика;
+- **табличный тест FSM;**
+- **тесты конкурентности и идемпотентности.** Критерий — ровно один бизнес-эффект: одна запись `scoring_results`, одно событие, `revision` вырос на 1. HTTP-ответы проверяются отдельно:
+  - один `Idempotency-Key` — второй запрос получает `409 IDEMPOTENCY_IN_PROGRESS` или сохранённый `200`;
+  - разные ключи — второй запрос получает `409` (`REVISION_CONFLICT` или `INVALID_STATUS_TRANSITION`);
+- **системные тесты C1–C7 + T1** через HTTP после `reset?mode=clean`;
+- **E2E** s1–s12. Playwright запускается последовательно (`workers: 1`, `fullyParallel: false`), потому что все сценарии делят одну БД и reset одного теста иначе стёр бы состояние другого. Фикстура reset передаёт `X-Test-Reset-Token` из переменной окружения;
+- **eval** распознавания и injection-кейсы.

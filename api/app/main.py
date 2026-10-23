@@ -40,7 +40,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
     app = FastAPI(
         title="CreditFlow API",
+        version="1.0.0",
         summary="MVP кредитного конвейера с AI-assist",
+        description=(
+            "Контракт API v1 для клиентского и менеджерского кабинетов (design.md §3.7, #9). "
+            "Все пути уже включают /api/v1: baseUrl клиента — origin без этого суффикса. "
+            "Деньги и DSCR в ответах — десятичные строки, входные суммы — целые рубли. "
+            "Время — UTC, отображение в Europe/Moscow. Ошибки — ErrorEnvelope, кроме health. "
+            "PATCH и команды состояния передают revision; при 409 REVISION_CONFLICT "
+            "нужно перечитать заявку, сохранив ввод. Idempotency-Key обязателен только там, "
+            "где объявлен: новый на действие, тот же при сетевом повторе; ошибки не кешируются. "
+            "Interpret и preview не сохраняют данные. GET никогда не меняет состояние. "
+            "Кнопки клиента определяет allowed_actions; polling каждые 5 с, в SIGNED — 2 с, "
+            "завершается при ISSUED/REJECTED/DECLINED. "
+            "Сейчас маршруты контракта — фиксированные стабы #6 в local/test: проверяют "
+            "только наличие Bearer. JWT/RBAC и владение — #5, бизнес-операции — #7, AI — #8. "
+            "В production до реализации этих проверок доступен только health. "
+            "Тестовый reset не входит в публикуемый контракт."
+        ),
+        servers=[{"url": "/", "description": "Текущий origin: SPA и API за nginx"}],
+        openapi_tags=[
+            {"name": "auth", "description": "Вход и текущий пользователь; me требует Bearer"},
+            {"name": "onboarding", "description": "Согласия публичны; компания — роль CLIENT"},
+            {"name": "client", "description": "Кабинет CLIENT; свои заявки, чужие — 404"},
+            {"name": "manager", "description": "Очередь, решения и AI; роль MANAGER"},
+        ],
         docs_url="/api/docs",
         redoc_url=None,
         openapi_url="/api/openapi.json",

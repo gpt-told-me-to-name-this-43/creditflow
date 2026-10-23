@@ -12,7 +12,7 @@ AS_OF = date(2026, 10, 21)
 # Каталог из design §3.3. В проде продукты приходят из credit_products (seed).
 INVESTMENT = Product("investment", Decimal(24), Decimal(100_000), Decimal(5_000_000), 12, 60)
 WORKING_CAPITAL = Product(
-    "working_capital", Decimal(24), Decimal(100_000), Decimal(3_000_000), 3, 24
+    "working_capital", Decimal(25), Decimal(100_000), Decimal(3_000_000), 3, 24
 )
 # Для M4–M6: ставка 0% и широкие пределы, чтобы проверить ровно формулу.
 ZERO_RATE = Product("zero", Decimal(0), Decimal(1), Decimal(10_000_000), 1, 60)

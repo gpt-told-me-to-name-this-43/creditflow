@@ -1,0 +1,909 @@
+# Независимый эталон Design 2.5. Поддерживается вручную, НЕ из OpenAPI.
+design: '2.5'
+operations:
+- method: POST
+  path: /api/v1/auth/login
+  access: public
+  responses:
+    200:
+      model: TokenResponse
+    401:
+      model: ErrorEnvelope
+      codes:
+      - INVALID_CREDENTIALS
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    429:
+      model: ErrorEnvelope
+      codes:
+      - TOO_MANY_ATTEMPTS
+      retry_after: true
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/auth/me
+  access: Bearer
+  responses:
+    200:
+      model: Me
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/auth/demo-accounts
+  access: public
+  responses:
+    200:
+      model: list[DemoAccount]
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/consents/texts
+  access: public
+  responses:
+    200:
+      model: list[ConsentText]
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/onboarding/company-binding
+  access: CLIENT
+  responses:
+    200:
+      model: Company
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - APPLICANT_NOT_AUTHORIZED
+      - FORBIDDEN
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_ALREADY_BOUND
+      - USER_ALREADY_BOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_IN_REGISTRY
+      - CONSENT_REQUIRED
+      - INVALID_INN
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - PROVIDER_UNAVAILABLE
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/company
+  access: CLIENT
+  responses:
+    200:
+      model: Company
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/credit-products
+  access: CLIENT
+  responses:
+    200:
+      model: list[CreditProduct]
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    201:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/applications
+  access: CLIENT
+  responses:
+    200:
+      model: list[ClientApplicationView]
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/applications/{application_id}
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: PATCH
+  path: /api/v1/applications/{application_id}
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/interpret
+  access: CLIENT
+  responses:
+    200:
+      model: InterpretResponse
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - INVALID_STATUS_TRANSITION
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/submit
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - IDEMPOTENCY_IN_PROGRESS
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - APPLICATION_INCOMPLETE
+      - CONSENT_REQUIRED
+      - IDEMPOTENCY_KEY_REUSED
+      - PRODUCT_NOT_ELIGIBLE
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - PROVIDER_UNAVAILABLE
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/info-response
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - IDEMPOTENCY_IN_PROGRESS
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - IDEMPOTENCY_KEY_REUSED
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/offer/accept
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - IDEMPOTENCY_IN_PROGRESS
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - IDEMPOTENCY_KEY_REUSED
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/offer/decline
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - IDEMPOTENCY_IN_PROGRESS
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - IDEMPOTENCY_KEY_REUSED
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/applications/{application_id}/contract
+  access: CLIENT
+  responses:
+    200:
+      model: ContractView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/sign/challenge
+  access: CLIENT
+  responses:
+    200:
+      model: SignChallenge
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    429:
+      model: ErrorEnvelope
+      codes:
+      - TOO_MANY_ATTEMPTS
+      retry_after: true
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/applications/{application_id}/sign
+  access: CLIENT
+  responses:
+    200:
+      model: ClientApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - COMPANY_NOT_BOUND
+      - IDEMPOTENCY_IN_PROGRESS
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - IDEMPOTENCY_KEY_REUSED
+      - SIGN_CHALLENGE_EXPIRED
+      - SIGN_CODE_INVALID
+      - VALIDATION_ERROR
+    429:
+      model: ErrorEnvelope
+      codes:
+      - TOO_MANY_ATTEMPTS
+      retry_after: false
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/manager/applications
+  access: MANAGER
+  responses:
+    200:
+      model: list[QueueItem]
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/manager/applications/{application_id}
+  access: MANAGER
+  responses:
+    200:
+      model: ManagerApplicationView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/manager/applications/{application_id}/decisions
+  access: MANAGER
+  responses:
+    201:
+      model: DecisionResponse
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - IDEMPOTENCY_IN_PROGRESS
+      - INVALID_STATUS_TRANSITION
+      - REVISION_CONFLICT
+    422:
+      model: ErrorEnvelope
+      codes:
+      - ACTION_NOT_ALLOWED
+      - AMOUNT_ABOVE_LIMIT
+      - IDEMPOTENCY_KEY_REUSED
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/manager/applications/{application_id}/offer-preview
+  access: MANAGER
+  responses:
+    200:
+      model: OfferPreviewResponse
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    409:
+      model: ErrorEnvelope
+      codes:
+      - INVALID_STATUS_TRANSITION
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/manager/applications/{application_id}/ai-report
+  access: MANAGER
+  responses:
+    200:
+      model: AiReportView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/manager/applications/{application_id}/ai-report
+  access: MANAGER
+  responses:
+    200:
+      model: AiReportView
+    202:
+      model: AiReportView
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/manager/applications/{application_id}/ai-feedback
+  access: MANAGER
+  responses:
+    204:
+      model: null
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/manager/stats
+  access: MANAGER
+  responses:
+    200:
+      model: ManagerStats
+    401:
+      model: ErrorEnvelope
+      codes:
+      - UNAUTHORIZED
+    403:
+      model: ErrorEnvelope
+      codes:
+      - FORBIDDEN
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: 'local/test; production: health only'
+- method: GET
+  path: /api/v1/health
+  access: public
+  responses:
+    200:
+      model: HealthResponse
+    503:
+      model: HealthResponse
+  condition: 'local/test; production: health only'
+- method: POST
+  path: /api/v1/_test/reset
+  access: TestResetToken
+  responses:
+    200:
+      model: TestResetResult
+    404:
+      model: ErrorEnvelope
+      codes:
+      - NOT_FOUND
+    422:
+      model: ErrorEnvelope
+      codes:
+      - VALIDATION_ERROR
+    500:
+      model: ErrorEnvelope
+      codes:
+      - INTERNAL_ERROR
+    503:
+      model: ErrorEnvelope
+      codes:
+      - SERVICE_UNAVAILABLE
+  condition: local/test + TEST_RESET_ENABLED

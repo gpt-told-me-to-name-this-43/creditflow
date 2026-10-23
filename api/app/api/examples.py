@@ -16,6 +16,7 @@ import inspect
 from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
@@ -29,20 +30,26 @@ from app.schemas.auth import CompanyBindingRequest, LoginRequest
 from app.schemas.client import (
     ApplicationCreate,
     ApplicationPatch,
+    ClientApplicationView,
     ContractView,
     InfoResponseRequest,
     InterpretRequest,
+    InterpretResponse,
     RevisionRequest,
     SignRequest,
     SubmitRequest,
 )
+from app.schemas.enums import ApplicationStatus
 from app.schemas.manager import (
     AiFeedbackRequest,
+    AiReportView,
     DecisionRequest,
     ManagerApplicationView,
     OfferPreviewRequest,
     OfferPreviewResponse,
 )
+from app.scoring.money import money_str
+from app.scoring.schedule import build_schedule
 
 EXAMPLE_ID = "7f3e2a10-0000-4000-8000-000000000001"
 EXAMPLE_NOW = datetime(2026, 10, 21, 9, 0, tzinfo=UTC)  # = APP_AS_OF_DATE, примеры стабильны
@@ -146,16 +153,17 @@ def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str,
         {
             "revision": 7,
             "status": "ISSUED",
-            # Запрос клиента не переписывается встречным предложением: 3 000 000 остаётся
-            # в заявке, 2 340 000 — в offers[] и в договоре (design §3.5, insert-only история).
+            # Исходный запрос C2 сохраняется; принятый оффер и договор — отдельно.
             "scoring": offer_scoring,
             "ai_report": {**card["ai_report"], "scoring_result_id": offer_id},
             "allowed_actions": [],
+            "offer_constraints": None,
             "decisions": [
                 {
                     "id": info_decision_id,
                     "proposal_id": EXAMPLE_ID,
                     "manager_user_id": manager_id,
+                    "manager_full_name": "Анна Менеджерова",
                     "action": "REQUEST_INFO",
                     "client_reason_code": None,
                     "comment": None,
@@ -165,6 +173,7 @@ def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str,
                     "id": decision_id,
                     "proposal_id": EXAMPLE_ID,
                     "manager_user_id": manager_id,
+                    "manager_full_name": "Анна Менеджерова",
                     "action": "COUNTER_OFFER",
                     "client_reason_code": "HIGH_DEBT_LOAD",
                     "comment": "Уменьшаем сумму до лимита на 36 месяцев",
@@ -217,6 +226,11 @@ def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str,
                 {
                     "id": ids[i],
                     "actor_user_id": actor,
+                    "actor_full_name": (
+                        "Анна Менеджерова" if actor == manager_id else "Кузнецова Анна Михайловна"
+                    )
+                    if actor is not None
+                    else None,
                     "from_status": before,
                     "to_status": after,
                     "created_at": timestamp,
@@ -242,16 +256,15 @@ def _issued_example(card: dict[str, Any], contract: dict[str, Any]) -> dict[str,
 def check_history(card: dict[str, Any], issued: dict[str, Any]) -> None:
     """Согласованность сценария «оффер → выдача»; нарушение роняет импорт, а не уходит фронту.
 
-    - запрошенные условия заявки не меняются оффером;
+    - исходные условия заявки сохраняются после accept;
     - договор = принятый оффер (сумма, срок, платёж);
     - timeline — непрерывная цепочка от статуса карточки до текущего статуса,
       время не убывает;
     - offers и info_requests ссылаются на существующие решения нужного типа.
     """
     problems = []
-    for field in ("requested_amount_rub", "term_months", "product_id"):
-        if issued[field] != card[field]:
-            problems.append(f"{field}: {card[field]} → {issued[field]}")
+    if issued["product_id"] != card["product_id"]:
+        problems.append("product_id изменился")
     accepted = [o for o in issued["offers"] if o["status"] == "ACCEPTED"]
     if len(accepted) != 1:
         problems.append(f"ожидается один ACCEPTED-оффер, найдено {len(accepted)}")
@@ -264,7 +277,10 @@ def check_history(card: dict[str, Any], issued: dict[str, Any]) -> None:
         ):
             if offer[o_field] != contract[c_field]:
                 problems.append(f"оффер.{o_field} ≠ договор.{c_field}")
-        if offer["amount_rub"] == issued["requested_amount_rub"]:
+        for app_field in ("requested_amount_rub", "term_months"):
+            if issued[app_field] != card[app_field]:
+                problems.append(f"{app_field} изменился относительно исходного запроса")
+        if offer["amount_rub"] == card["requested_amount_rub"]:
             problems.append("встречное предложение не отличается от запроса")
     timeline = issued["timeline"]
     status = card["status"]
@@ -316,6 +332,68 @@ def attach_examples(routers: tuple[APIRouter, ...]) -> None:
             if status != 204:
                 value = jsonable_encoder(_build_example(route, body))
                 content: dict[str, Any] = {"example": value}
+                if (
+                    route.response_model is ClientApplicationView
+                    and route.path == ("/applications/{application_id}")
+                    and "GET" in (route.methods or ())
+                ):
+                    builder = getattr(route.endpoint, _BUILDER_ATTR)
+                    cases = {
+                        state.value.lower(): jsonable_encoder(builder(status=state))
+                        for state in ApplicationStatus
+                    }
+                    # Сценарий offer_term из #9: сумма прежняя, срок больше;
+                    # платёж меньше, но переплата выше. Все деньги считает backend.
+                    rows = build_schedule(Decimal(3_000_000), Decimal(24), 54, EXAMPLE_NOW.date())
+                    cases["counter_offer_term"] = {
+                        **cases["counter_offer"],
+                        "offer": {
+                            "amount_rub": "3000000.00",
+                            "term_months": 54,
+                            "annual_rate_pct": "24.00",
+                            "monthly_payment_rub": money_str(rows[0].payment_rub),
+                            "overpayment_rub": money_str(
+                                sum((r.interest_rub for r in rows), Decimal(0))
+                            ),
+                        },
+                    }
+                    content = {
+                        "examples": {
+                            name: {
+                                "value": ClientApplicationView.model_validate(case).model_dump(
+                                    mode="json"
+                                )
+                            }
+                            for name, case in cases.items()
+                        }
+                    }
+                if route.response_model is InterpretResponse:
+                    llm = deepcopy(value)
+                    llm["suggestion"]["purpose_code"]["source"] = "LLM"
+                    cases = {
+                        "rules": value,
+                        "llm": llm,
+                        "needs_clarification": {
+                            "status": "NEEDS_CLARIFICATION",
+                            "suggestion": {},
+                            "clarification_question": "Какая сумма и на какой срок вам нужна?",
+                        },
+                        "unavailable": {
+                            "status": "UNAVAILABLE",
+                            "suggestion": {},
+                            "clarification_question": None,
+                        },
+                    }
+                    content = {
+                        "examples": {
+                            name: {
+                                "value": InterpretResponse.model_validate(case).model_dump(
+                                    mode="json"
+                                )
+                            }
+                            for name, case in cases.items()
+                        }
+                    }
                 if route.response_model is ManagerApplicationView and contract is not None:
                     content = {
                         "examples": {
@@ -356,7 +434,48 @@ def attach_examples(routers: tuple[APIRouter, ...]) -> None:
                             for name, case in cases.items()
                         }
                     }
+                ai_cases = None
+                if route.response_model is AiReportView:
+                    report = {
+                        "summary": "Заявка требует рассмотрения менеджером",
+                        "risk_factors": [{"code": "REVENUE_DECLINE", "text": "Снижение выручки"}],
+                        "positive_factors": [],
+                        "manager_questions": [],
+                    }
+                    ai_cases = {
+                        "pending": {"value": value},
+                        "ready": {
+                            "value": AiReportView.model_validate(
+                                {
+                                    **value,
+                                    "status": "READY",
+                                    "report": report,
+                                    "model_id": "demo-open-weights",
+                                    "fallback_reason": None,
+                                }
+                            ).model_dump(mode="json")
+                        },
+                        "fallback": {
+                            "value": AiReportView.model_validate(
+                                {
+                                    **value,
+                                    "status": "FALLBACK",
+                                    "report": report,
+                                    "llm_mode": "disabled",
+                                    "fallback_reason": "DISABLED",
+                                }
+                            ).model_dump(mode="json")
+                        },
+                    }
+                    if status == 200:
+                        content = {"examples": ai_cases}
                 extra["responses"] = {str(status): {"content": {"application/json": content}}}
+                for alternate in (200, 201, 202):
+                    if alternate != status and alternate in route.responses:
+                        alternate_content = {"examples": ai_cases} if ai_cases else content
+                        extra["responses"][str(alternate)] = {
+                            "content": {"application/json": alternate_content}
+                        }
             route.openapi_extra = {**(route.openapi_extra or {}), **extra}
 
 

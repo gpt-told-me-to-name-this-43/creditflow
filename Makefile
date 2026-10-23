@@ -14,7 +14,7 @@ TEST_DATABASE_URL ?= postgresql+psycopg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@
 
 .PHONY: help up down dev up-llm \
 	test test-api test-ext-sim test-web lint lint-api lint-ext-sim lint-web \
-	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi er demo-data \
+	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi api-matrix er demo-data \
 	demo-reset llm-check llm-record eval-intent eval-injection e2e load
 
 help: ## Список целей
@@ -56,7 +56,7 @@ test-web: ## Тесты web
 lint: lint-api lint-ext-sim lint-web ## Все линтеры и проверка типов
 
 lint-api:
-	cd api && uv run ruff check . ../scripts && uv run ruff format --check . ../scripts && uv run mypy app tests alembic ../scripts
+	cd api && uv run ruff check . ../scripts && uv run ruff format --check . ../scripts && uv run mypy app tests alembic contract ../scripts
 
 lint-ext-sim:
 	cd ext-sim && uv run ruff check . && uv run ruff format --check . && uv run mypy app tests
@@ -80,6 +80,9 @@ fmt-web:
 openapi: ## docs/openapi.json и docs/openapi-ext-sim.json
 	cd api && uv run python ../scripts/export_openapi.py app.main:app ../docs/openapi.json
 	cd ext-sim && uv run python ../scripts/export_openapi.py app.main:app ../docs/openapi-ext-sim.json
+
+api-matrix: ## docs/api-matrix.md из независимого api/contract/http_matrix.yaml
+	cd api && uv run python ../scripts/gen_api_matrix.py
 
 er: ## docs/er.md из метаданных SQLAlchemy
 	# app.db.models:Base — тот же Base, но импорт модуля регистрирует все таблицы в metadata

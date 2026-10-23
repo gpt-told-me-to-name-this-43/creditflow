@@ -91,7 +91,8 @@ def test_signing_code_only_in_demo(make_settings: Callable[..., Settings], enabl
     after = datetime.now(UTC)
     assert response.status_code == 200
     value = response.json()
-    assert value["demo_code"] == ("123456" if enabled else None)
+    assert value.get("demo_code") == ("123456" if enabled else None)
+    assert ("demo_code" in value) == enabled
     # challenge живёт 5 минут от момента выдачи, а не от фиксированной даты демо-данных
     expires = datetime.fromisoformat(value["expires_at"])
     assert before + timedelta(minutes=5) <= expires <= after + timedelta(minutes=5)

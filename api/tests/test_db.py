@@ -153,3 +153,33 @@ def test_required_unique_constraints(db: sa.Connection, table: str, columns: lis
         {"t": table},
     ).scalars()
     assert sorted(columns) in [list(u) for u in uniques]
+
+
+def test_catalog_v2_migrates_seeded_v1(alembic_config: Config) -> None:
+    from decimal import Decimal
+
+    from sqlalchemy.dialects.postgresql import insert
+
+    command.upgrade(alembic_config, "head")
+    command.downgrade(alembic_config, "0001")
+    engine = sa.create_engine(SYNC_URL)
+    try:
+        with engine.begin() as conn:
+            conn.execute(
+                insert(seed.CreditProduct)
+                .values({**seed.PRODUCTS[1], "annual_rate_pct": Decimal(24)})
+                .on_conflict_do_update(index_elements=["id"], set_={"annual_rate_pct": Decimal(24)})
+            )
+        command.upgrade(alembic_config, "head")
+        with engine.connect() as conn:
+            assert conn.execute(
+                sa.text("SELECT annual_rate_pct FROM credit_products WHERE id='working_capital'")
+            ).scalar_one() == Decimal(25)
+        command.downgrade(alembic_config, "0001")
+        with engine.connect() as conn:
+            assert conn.execute(
+                sa.text("SELECT annual_rate_pct FROM credit_products WHERE id='working_capital'")
+            ).scalar_one() == Decimal(24)
+    finally:
+        engine.dispose()
+        command.upgrade(alembic_config, "head")

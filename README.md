@@ -68,3 +68,10 @@ docker compose down
 - [ext-sim/fixtures/README.md](ext-sim/fixtures/README.md) — формат фикстур внешних систем
 - [.env.example](.env.example) — все переменные окружения с комментариями
 - [CONTRIBUTING.md](CONTRIBUTING.md) — разработка, проверки, правила веток и PR
+
+### API Contract v1 / frontend
+
+Целевая спецификация — Design 2.5. Инструкция frontend: [docs/frontend-handoff.md](docs/frontend-handoff.md).
+Контрактные стабы доступны только в local/test, production до #5 содержит лишь health.
+`make openapi api-matrix` обновляет артефакты; `cd web && pnpm generate:api && pnpm typecheck && pnpm test`
+проверяет генерацию типов и MSW smoke без реализации экранов. Тег contract-v1 появится после merge и CI master.

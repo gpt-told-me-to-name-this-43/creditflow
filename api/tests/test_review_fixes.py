@@ -102,7 +102,7 @@ def _card_examples(app: FastAPI) -> dict[str, Any]:
     return {name: case["value"] for name, case in examples.items()}
 
 
-def test_issued_example_keeps_requested_amount(app: FastAPI) -> None:
+def test_issued_example_preserves_requested_terms(app: FastAPI) -> None:
     issued = _card_examples(app)["issued"]
     assert issued["requested_amount_rub"] == "3000000.00"
     assert [o["amount_rub"] for o in issued["offers"]] == ["2340000.00"]

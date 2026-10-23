@@ -13,10 +13,10 @@ from uuid import UUID
 
 from pydantic import Field
 
-from app.schemas.common import AmountRub, Money, Revision, Schema
+from app.schemas.common import AmountRub, Money, ProductConstraint, Revision, Schema
 from app.schemas.enums import ApplicationStatus, ClientReasonCode, PurposeCode, TermsSource
 
-PurposeText = Annotated[str, Field(max_length=2000)]
+PurposeText = Annotated[str, Field(max_length=1000)]
 TermMonths = Annotated[int, Field(ge=1, le=120)]
 
 
@@ -32,6 +32,20 @@ class FieldSource(StrEnum):
     LLM = "LLM"
 
 
+class ClientAction(StrEnum):
+    """Разрешения от сервера; UI не выводит их из статуса самостоятельно."""
+
+    EDIT = "EDIT"
+    INTERPRET = "INTERPRET"
+    SUBMIT = "SUBMIT"
+    RESPOND_INFO = "RESPOND_INFO"
+    ACCEPT_OFFER = "ACCEPT_OFFER"
+    DECLINE_OFFER = "DECLINE_OFFER"
+    VIEW_CONTRACT = "VIEW_CONTRACT"
+    REQUEST_SIGN_CODE = "REQUEST_SIGN_CODE"
+    SIGN = "SIGN"
+
+
 class CreditProduct(Schema):
     id: str
     name: str
@@ -43,7 +57,7 @@ class CreditProduct(Schema):
     annual_rate_pct: str = Field(examples=["24.00"])
     suitable: bool
     monthly_payment_rub: Money | None = Field(description="Только для подходящего продукта")
-    unmet_constraints: list[str] = Field(examples=[["AMOUNT_ABOVE_PRODUCT_MAX"]])
+    unmet_constraints: list[ProductConstraint] = Field(examples=[["AMOUNT_ABOVE_PRODUCT_MAX"]])
     disclaimer: str = "Расчёт предварительный и не является решением банка"
 
 
@@ -52,7 +66,12 @@ class ApplicationCreate(Schema):
 
 
 class ApplicationPatch(Schema):
-    """PATCH — единственный источник истины для черновика; все поля, кроме revision, опциональны."""
+    """PATCH сохраняет только явно переданные поля; null очищает поле, пропуск сохраняет его.
+
+    terms_source вычисляет сервер из terms_field_sources: LLM_CONFIRMED при наличии LLM,
+    иначе RULES_CONFIRMED при наличии RULES, иначе MANUAL. Ручная правка помечается MANUAL.
+    Интерпретация сама ничего не сохраняет: PATCH вызывается после подтверждения клиентом.
+    """
 
     revision: Revision
     purpose_text: PurposeText | None = None
@@ -96,6 +115,16 @@ class ClientApplicationView(Schema):
     product_id: str | None
     terms_source: TermsSource
     terms_field_sources: dict[TermsField, FieldSource]
+    allowed_actions: list[ClientAction] = Field(
+        description="Единственный источник разрешённых кнопок. Пустой список — нет действий."
+    )
+    annual_rate_pct: str | None = Field(description="Ставка выбранного продукта, иначе null")
+    monthly_payment_rub: Money | None = Field(
+        description="Платёж по текущим условиям заявки; null, пока условия не заполнены"
+    )
+    overpayment_rub: Money | None = Field(
+        description="Переплата по графику текущих условий; для сравнения с offer.overpayment_rub"
+    )
     submitted_at: datetime | None
     client_reason_code: ClientReasonCode | None = Field(description="Причина отказа (шаблон)")
     offer: ClientOffer | None
@@ -180,6 +209,7 @@ class ContractView(Schema):
     monthly_payment_rub: Money
     overpayment_rub: Money
     account_masked: str
+    key_terms_markdown: str = Field(description="Условия договора для отображения; без raw HTML")
     schedule: list[ScheduleItem]
     signed_at: datetime | None
     issued_at: datetime | None
@@ -187,8 +217,12 @@ class ContractView(Schema):
 
 class SignChallenge(Schema):
     challenge_id: UUID
+    revision: Revision = Field(description="Актуальная revision после выдачи кода; передать в sign")
     expires_at: datetime
-    demo_code: str | None = Field(description="Только при DEMO_AUTH_ENABLED=true")
+    attempts_remaining: int = Field(ge=0, le=3, description="Оставшиеся попытки ввода кода")
+    demo_code: str | None = Field(
+        default=None, description="Присутствует только при DEMO_AUTH_ENABLED=true"
+    )
 
 
 class SignRequest(Schema):

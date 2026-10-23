@@ -37,6 +37,7 @@ class Me(Schema):
 
 class DemoAccount(Schema):
     login: str
+    password: str = Field(description="Демо-пароль; маршрут доступен только с DEMO_AUTH_ENABLED")
     role: Role
     label: str = Field(description="Подпись на экране входа")
     scenario: str = Field(description="Ожидаемый сценарий: C1…C7, бухгалтер, менеджер")

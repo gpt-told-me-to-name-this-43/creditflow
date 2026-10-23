@@ -14,7 +14,7 @@ from uuid import UUID
 from pydantic import ConfigDict, Field, JsonValue, StringConstraints, model_validator
 
 from app.schemas.client import ContractView, FieldSource, TermsField
-from app.schemas.common import AmountRub, Dscr, Money, Revision, Schema
+from app.schemas.common import AmountRub, Dscr, Money, MoneyStr, Revision, Schema
 from app.schemas.enums import (
     AiReportStatus,
     ApplicationStatus,
@@ -34,6 +34,8 @@ from app.schemas.enums import (
 class QueueItem(Schema):
     id: UUID
     company_name: str
+    company_inn: str
+    product_id: str | None
     status: ApplicationStatus
     submitted_at: datetime | None
     requested_amount_rub: Money | None
@@ -73,6 +75,7 @@ class Scoring(Schema):
     revenue_change_pct: str | None
     existing_debt_payments_rub: Money
     business_age_months: int
+    account_history_months: int = Field(ge=0, le=12, description="h: месяцы доступной истории")
     monthly: list[MonthlyFeature]
 
 
@@ -92,12 +95,32 @@ class ExternalSource(Schema):
     )
 
 
+class OfferConstraints(Schema):
+    min_amount_rub: MoneyStr
+    max_amount_rub: MoneyStr
+    min_term_months: int = Field(strict=True, ge=1)
+    max_term_months: int = Field(strict=True, ge=1)
+
+    @model_validator(mode="after")
+    def _bounds(self) -> Self:
+        from decimal import Decimal
+
+        if Decimal(self.min_amount_rub) > Decimal(self.max_amount_rub):
+            raise ValueError("min_amount_rub > max_amount_rub")
+        if self.min_term_months > self.max_term_months:
+            raise ValueError("min_term_months > max_term_months")
+        return self
+
+
 class ManagerApplicationView(Schema):
     id: UUID
     revision: Revision
     status: ApplicationStatus
     company_name: str
     company_inn: str
+    legal_form: Literal["LLC", "IE"]
+    okved_main: str
+    registered_at: date
     purpose_text: str | None
     purpose_code: PurposeCode | None
     requested_amount_rub: Money | None
@@ -110,6 +133,7 @@ class ManagerApplicationView(Schema):
     scoring: Scoring | None  # None — до Submit
     proposal: Proposal | None
     allowed_actions: list[ManagerAction]  # из policy.allowed_actions — одна функция с POST
+    offer_constraints: OfferConstraints | None
     ai_report: AiReportView | None
     decisions: list[DecisionHistoryItem]
     offers: list[OfferHistoryItem]
@@ -117,6 +141,14 @@ class ManagerApplicationView(Schema):
     contract: ManagerContractView | None
     sign_challenges: list[SignChallengeHistoryItem]
     timeline: list[ManagerTimelineEvent]
+
+    @model_validator(mode="after")
+    def _offer_constraints(self) -> Self:
+        if (self.offer_constraints is not None) != (
+            ManagerAction.COUNTER_OFFER in self.allowed_actions
+        ):
+            raise ValueError("offer_constraints присутствует только при COUNTER_OFFER")
+        return self
 
 
 NonEmptyComment = Annotated[
@@ -283,18 +315,32 @@ class AiFeedbackRequest(Schema):
     comment: str | None = Field(default=None, max_length=1000)
 
 
+class AiFeedbackGroup(Schema):
+    prompt_version: str
+    model_id: str | None
+    source: Literal["openai", "replay", "disabled"]
+    total: int = Field(ge=0)
+    up_count: int = Field(ge=0)
+    up_share: str | None = Field(description="null при total=0; доля 0..1")
+
+
 class ManagerStats(Schema):
     applications_by_status: dict[ApplicationStatus, int]
     median_time_to_decision_seconds: int | None
     suggested_action_distribution: dict[SuggestedAction, int]
     decisions_matching_suggestion_share: str | None = Field(examples=["0.75"])
     ai_feedback_up_share: dict[str, str] = Field(description="Ключ: prompt_version|model|source")
+    ai_feedback_groups: list[AiFeedbackGroup] = Field(
+        description="Типизированные группы с размером выборки; "
+        "при total<5 UI показывает недостаточно оценок"
+    )
 
 
 class DecisionHistoryItem(Schema):
     id: UUID
     proposal_id: UUID
     manager_user_id: UUID
+    manager_full_name: str
     action: ManagerAction
     client_reason_code: ClientReasonCode | None
     comment: str | None
@@ -342,6 +388,7 @@ class SignChallengeHistoryItem(Schema):
 class ManagerTimelineEvent(Schema):
     id: UUID
     actor_user_id: UUID | None = Field(description="null — SYSTEM")
+    actor_full_name: str | None = Field(description="null — SYSTEM")
     from_status: ApplicationStatus | None
     to_status: ApplicationStatus
     created_at: datetime
