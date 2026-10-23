@@ -13,6 +13,7 @@ from app.api.examples import attach_examples, check_history, example_from
 from app.core.config import Settings
 from app.core.errors import install_error_handlers
 from app.main import create_app
+from app.schemas.common import ERROR_STATUS, ErrorCode
 from tests.test_contract import APP_ID, AUTH
 
 
@@ -196,21 +197,37 @@ def raising_app() -> FastAPI:
 
 
 @pytest.mark.parametrize(
-    ("status", "code"),
+    ("raised", "status", "code"),
     [
-        (400, "BAD_REQUEST"),
-        (405, "METHOD_NOT_ALLOWED"),
-        (418, "BAD_REQUEST"),
-        (429, "TOO_MANY_ATTEMPTS"),
-        (500, "INTERNAL_ERROR"),
-        (502, "INTERNAL_ERROR"),
-        (503, "SERVICE_UNAVAILABLE"),
+        (400, 400, "BAD_REQUEST"),
+        (405, 405, "METHOD_NOT_ALLOWED"),
+        (418, 400, "BAD_REQUEST"),  # неизвестный 4xx → статус своего кода
+        (429, 429, "TOO_MANY_ATTEMPTS"),
+        (500, 500, "INTERNAL_ERROR"),
+        (502, 500, "INTERNAL_ERROR"),  # неизвестный 5xx → статус своего кода
+        (503, 503, "SERVICE_UNAVAILABLE"),
     ],
 )
-def test_http_status_gets_matching_code(raising_app: FastAPI, status: int, code: str) -> None:
-    response = TestClient(raising_app).get(f"/http/{status}")
+def test_http_status_gets_matching_code(
+    raising_app: FastAPI, raised: int, status: int, code: str
+) -> None:
+    response = TestClient(raising_app).get(f"/http/{raised}")
     assert response.status_code == status
     assert response.json()["error"]["code"] == code
+
+
+@pytest.mark.parametrize("raised", range(400, 600))
+def test_envelope_code_always_matches_http_status(raising_app: FastAPI, raised: int) -> None:
+    """Инвариант для любого статуса: ERROR_STATUS[code] == фактический HTTP-статус."""
+    response = TestClient(raising_app).get(f"/http/{raised}")
+    code = ErrorCode(response.json()["error"]["code"])
+    assert ERROR_STATUS[code] == response.status_code
+
+
+def test_http_exception_headers_are_kept(raising_app: FastAPI) -> None:
+    response = TestClient(raising_app).post("/http/405")  # маршрут только GET
+    assert response.status_code == 405
+    assert response.headers["allow"] == "GET"
 
 
 def test_unhandled_exception_is_enveloped_without_details(raising_app: FastAPI) -> None:

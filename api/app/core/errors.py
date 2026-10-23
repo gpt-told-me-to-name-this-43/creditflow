@@ -6,6 +6,7 @@
 """
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -50,13 +51,14 @@ class AppError(Exception):
         return ERROR_STATUS[self.code]
 
 
-def error_response(status_code: int, body: ErrorBody) -> JSONResponse:
+def error_response(
+    status_code: int, body: ErrorBody, headers: Mapping[str, str] | None = None
+) -> JSONResponse:
     content = ErrorEnvelope(error=body).model_dump(mode="json", exclude_none=True)
-    return JSONResponse(
-        status_code=status_code,
-        content=content,
-        headers={"WWW-Authenticate": "Bearer"} if status_code == 401 else None,
-    )
+    merged = dict(headers or {})
+    if status_code == 401:
+        merged.setdefault("WWW-Authenticate", "Bearer")
+    return JSONResponse(status_code=status_code, content=content, headers=merged or None)
 
 
 def install_error_handlers(app: FastAPI) -> None:
@@ -79,8 +81,16 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(StarletteHTTPException)
     async def _http(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+        # Инвариант контракта: HTTP-статус ответа == ERROR_STATUS[code]. Неизвестный статус
+        # нормализуется к статусу своего кода (418 → 400 BAD_REQUEST, 502 → 500
+        # INTERNAL_ERROR), исходный — в лог. Заголовки (Allow у 405, Retry-After у 429)
+        # сохраняются.
         code = http_error_code(exc.status_code)
-        return error_response(exc.status_code, ErrorBody(code=code, message=str(exc.detail)))
+        status = ERROR_STATUS[code]
+        if status != exc.status_code:
+            logger.warning("HTTP %s без кода в контракте → %s %s", exc.status_code, status, code)
+        body = ErrorBody(code=code, message=str(exc.detail))
+        return error_response(status, body, getattr(exc, "headers", None))
 
     @app.exception_handler(Exception)
     async def _unhandled(_: Request, exc: Exception) -> JSONResponse:
