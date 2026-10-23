@@ -1,7 +1,9 @@
 """Граничные случаи ядра: строгие типы, валидация правил, хеш входов, редкие ветки."""
 
+import dataclasses
+from collections.abc import Callable
 from dataclasses import replace
-from decimal import Decimal
+from decimal import Decimal, localcontext
 
 import pytest
 from pydantic import ValidationError
@@ -12,9 +14,15 @@ from app.schemas.enums import ReasonCode as RC
 from app.scoring.categorization import RuleSet
 from app.scoring.features import build_features
 from app.scoring.hashing import canonical_json, inputs_hash
-from app.scoring.money import money_str, to_decimal
+from app.scoring.money import DECIMAL_CONTEXT, display_dscr, money_str, round_money, to_decimal
 from app.scoring.policy import allowed_actions
-from app.scoring.risk import ScoringInputError, annuity_factor, assess, monthly_payment
+from app.scoring.risk import (
+    ScoringInputError,
+    annuity_factor,
+    assess,
+    limit_for_term,
+    monthly_payment,
+)
 from tests.scoring._data import AS_OF, BAKERY, INVESTMENT, features
 
 
@@ -100,3 +108,77 @@ def test_sharp_decline_and_young_business_codes() -> None:
     edge_features = features("400000", "0", "-15", 12)
     edge = assess(INVESTMENT, Decimal(1_000_000), 36, edge_features, Bki.UNKNOWN)
     assert edge.factor_points["revenue"] == 8 and edge.factor_points["age"] == 8
+
+
+# --- issue #6: невалидные ставки и финансовые входы, включая вложенные float ---------------
+
+
+@pytest.mark.parametrize("rate", [Decimal(-1), Decimal(-1200), Decimal("100.01")])
+def test_invalid_rate_is_rejected(rate: Decimal) -> None:
+    with pytest.raises(ScoringInputError) as exc:
+        annuity_factor(rate, 12)
+    assert exc.value.code == "RATE_INVALID"
+
+
+@pytest.mark.parametrize("rate", ["NaN", "Infinity"])
+def test_non_finite_rate_is_rejected(rate: str) -> None:
+    with pytest.raises(ValueError):
+        annuity_factor(Decimal(rate), 12)
+
+
+def test_rate_bounds_are_inclusive() -> None:
+    with localcontext(DECIMAL_CONTEXT):  # ядро считает в prec=34, а не в глобальном 28
+        assert annuity_factor(Decimal(0), 12) == Decimal(1) / 12
+    assert annuity_factor(Decimal(100), 12) > annuity_factor(Decimal(24), 12)
+
+
+def test_invalid_product_rate_blocks_assess() -> None:
+    bad = dataclasses.replace(INVESTMENT, annual_rate_pct=Decimal(-5))
+    with pytest.raises(ScoringInputError, match="RATE_INVALID"):
+        assess(bad, Decimal(1_000_000), 36, BAKERY, Bki.CLEAN)
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        lambda: annuity_factor(24.0, 12),  # type: ignore[arg-type]
+        lambda: monthly_payment(
+            dataclasses.replace(INVESTMENT, max_amount_rub=5_000_000.0),  # type: ignore[arg-type]
+            Decimal(1_000_000),
+            36,
+        ),
+        lambda: assess(
+            INVESTMENT,
+            Decimal(1_000_000),
+            36,
+            dataclasses.replace(BAKERY, cfads_monthly_rub=240000.0),  # type: ignore[arg-type]
+            Bki.CLEAN,
+        ),
+        lambda: limit_for_term(INVESTMENT, Decimal(1), Decimal(0), 36.0),  # type: ignore[arg-type]
+        lambda: round_money(1.005),  # type: ignore[arg-type]
+        lambda: display_dscr(1.2487),  # type: ignore[arg-type]
+    ],
+    ids=["rate", "nested-product", "nested-features", "term", "round_money", "display_dscr"],
+)
+def test_float_anywhere_in_input_is_type_error(call: Callable[[], object]) -> None:
+    with pytest.raises(TypeError, match="float"):
+        call()
+
+
+def test_nested_float_in_monthly_series_is_type_error() -> None:
+    point = dataclasses.replace(BAKERY.monthly[0], revenue=1.0)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match=r"monthly\[0\]"):
+        assess(
+            INVESTMENT,
+            Decimal(1_000_000),
+            36,
+            dataclasses.replace(BAKERY, monthly=(point, *BAKERY.monthly[1:])),
+            Bki.CLEAN,
+        )
+
+
+def test_negative_existing_debt_is_rejected() -> None:
+    with pytest.raises(ScoringInputError, match="FEATURES_INVALID"):
+        assess(INVESTMENT, Decimal(1_000_000), 36, features("240000", "-1"), Bki.CLEAN)
+    with pytest.raises(ScoringInputError, match="FEATURES_INVALID"):
+        limit_for_term(INVESTMENT, Decimal(240_000), Decimal(-1), 36)

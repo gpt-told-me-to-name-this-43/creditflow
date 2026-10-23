@@ -13,12 +13,14 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from app.core.config import Settings
+from app.core.health import HealthResponse
 from app.main import create_app
 from app.schemas import client as client_schemas
 from app.schemas.common import ErrorCode
 
 APP_ID = "7f3e2a10-0000-4000-8000-000000000001"
 IDEM = {"Idempotency-Key": "test-key-0001"}
+AUTH = {"Authorization": "Bearer contract-stub-token"}
 
 # (method, path, body, headers) — ровно таблица эндпоинтов #6 (кроме /health и /_test/reset).
 ENDPOINTS: list[tuple[str, str, dict[str, Any] | None, dict[str, str]]] = [
@@ -88,7 +90,7 @@ FORBIDDEN_CLIENT_FIELDS = re.compile(
 
 @pytest.fixture
 def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings())
+    return create_app(make_settings(demo_auth_enabled=True))
 
 
 def _template(path: str) -> str:
@@ -109,12 +111,14 @@ def test_stub_passes_response_model(
     app: FastAPI, method: str, path: str, body: dict[str, Any] | None, headers: dict[str, str]
 ) -> None:
     # TestClient без контекстного менеджера: lifespan (БД, ext-sim) стабам не нужен.
-    response = TestClient(app).request(method, "/api/v1" + path, json=body, headers=headers)
+    response = TestClient(app).request(
+        method, "/api/v1" + path, json=body, headers={**AUTH, **headers}
+    )
     assert response.status_code < 300, response.text  # response_model валидирует ответ стаба
 
 
 def test_idempotency_key_is_required(app: FastAPI) -> None:
-    r = TestClient(app).post(
+    r = TestClient(app, headers=AUTH).post(
         f"/api/v1/applications/{APP_ID}/submit",
         json={"revision": 1, "bki_consent_version": "bki-v1"},
     )
@@ -123,7 +127,7 @@ def test_idempotency_key_is_required(app: FastAPI) -> None:
 
 
 def test_errors_use_envelope(app: FastAPI) -> None:
-    client = TestClient(app)
+    client = TestClient(app, headers=AUTH)
     assert (
         client.get("/api/v1/applications/not-a-uuid").json()["error"]["code"] == "VALIDATION_ERROR"
     )
@@ -160,3 +164,25 @@ def test_error_codes_documented() -> None:
     doc = (Path(__file__).resolve().parents[2] / "docs" / "api.md").read_text(encoding="utf-8")
     missing = [c.value for c in ErrorCode if f"`{c.value}`" not in doc]
     assert not missing
+
+
+def test_every_operation_has_examples(app: FastAPI) -> None:
+    """issue #6: «Все эндпоинты в Swagger с примерами» — и для запроса, и для 2xx-ответа."""
+    missing = []
+    for path, ops in app.openapi()["paths"].items():
+        for method, op in ops.items():
+            body = op.get("requestBody", {}).get("content", {}).get("application/json")
+            if body is not None and "example" not in body:
+                missing.append(f"{method.upper()} {path}: request")
+            for status, response in op["responses"].items():
+                if status.startswith("2") and status != "204":
+                    content = response.get("content", {}).get("application/json", {})
+                    if not ({"example", "examples"} & content.keys()) or "schema" not in content:
+                        missing.append(f"{method.upper()} {path}: {status}")
+    assert missing == []
+
+
+def test_health_examples_match_model(app: FastAPI) -> None:
+    responses = app.openapi()["paths"]["/api/v1/health"]["get"]["responses"]
+    for status in ("200", "503"):
+        HealthResponse.model_validate(responses[status]["content"]["application/json"]["example"])

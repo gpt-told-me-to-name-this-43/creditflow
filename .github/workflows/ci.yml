@@ -50,8 +50,13 @@ jobs:
       - run: uv run ruff check . ../scripts
       - run: uv run ruff format --check . ../scripts
       - run: uv run mypy app tests alembic ../scripts
-      # issue #6: покрытие app/scoring ≥ 95% (строки и ветки вместе)
-      - run: uv run pytest --cov=app/scoring --cov-branch --cov-report=term-missing --cov-fail-under=95
+      # issue #6: покрытие app/scoring — строки ≥ 95% и ветки ≥ 90%, каждое отдельно.
+      # --cov-fail-under при --cov-branch проверяет только общий процент, поэтому пороги
+      # сверяет scripts/check_coverage.py по JSON-отчёту.
+      - run: >-
+          uv run pytest --cov=app/scoring --cov-branch --cov-report=term-missing
+          --cov-report=json:coverage.json
+      - run: uv run python ../scripts/check_coverage.py coverage.json --lines 95 --branches 90
 
   ext-sim:
     runs-on: ubuntu-latest

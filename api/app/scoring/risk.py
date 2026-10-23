@@ -34,7 +34,11 @@ RISK_LEVELS = ((80, RiskLevel.LOW), (60, RiskLevel.MODERATE), (40, RiskLevel.HIG
 
 
 class ScoringInputError(ValueError):
-    """Невалидный вход движка. `code` совпадает с кодом ошибки API (422)."""
+    """Невалидный вход движка: нарушен инвариант, который API обязан проверить раньше.
+
+    `code` — внутренний машинный код для логов и тестов (`AMOUNT_OUT_OF_PRODUCT`, `RATE_INVALID`…),
+    а не член `ErrorCode`: наружу такая ошибка уходит как 422 `VALIDATION_ERROR` (#7).
+    """
 
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f"{code}: {message}")
@@ -80,11 +84,33 @@ def _validate_amount(product: Product, amount: Decimal) -> Decimal:
     return value
 
 
+MAX_ANNUAL_RATE_PCT = Decimal(100)
+
+
+def _validate_rate(annual_rate_pct: Decimal) -> Decimal:
+    """Ставка в процентах годовых, 0 ≤ rate ≤ 100. Отрицательная ставка даёт платёж меньше
+    S/n, а −1200% — деление на ноль в формуле аннуитета; в каталоге (design §3.3) — 24%."""
+    rate = to_decimal(annual_rate_pct)  # float/bool → TypeError, NaN/Infinity → ValueError
+    if not ZERO <= rate <= MAX_ANNUAL_RATE_PCT:
+        raise ScoringInputError("RATE_INVALID", f"ставка {rate}% вне [0; 100]")
+    return rate
+
+
+def _validate_debt(existing_debt: Decimal) -> Decimal:
+    """Отрицательный текущий долг завысил бы DSCR и лимит."""
+    debt = to_decimal(existing_debt)
+    if debt < 0:
+        raise ScoringInputError("FEATURES_INVALID", "existing_debt_payments_rub < 0")
+    return debt
+
+
 @exact
 def annuity_factor(annual_rate_pct: Decimal, term: int) -> Decimal:
+    if isinstance(term, bool) or not isinstance(term, int):
+        raise TypeError("term_months должен быть int")
     if term < 1:
         raise ScoringInputError("TERM_OUT_OF_PRODUCT", "срок должен быть ≥ 1")
-    r = to_decimal(annual_rate_pct) / 1200
+    r = _validate_rate(annual_rate_pct) / 1200
     if r == 0:
         return Decimal(1) / term
     return r / (1 - (1 + r) ** -term)
@@ -104,7 +130,7 @@ def limit_for_term(
     """Максимальная сумма на сроке `term`, при которой DSCR ≥ 1.25. Нужна и для оффера (#7)."""
     if not product.min_term_months <= term <= product.max_term_months:
         return None
-    p_max = max(ZERO, to_decimal(cfads) / TARGET_DSCR - to_decimal(existing_debt))
+    p_max = max(ZERO, to_decimal(cfads) / TARGET_DSCR - _validate_debt(existing_debt))
     raw = min(p_max / annuity_factor(product.annual_rate_pct, term), product.max_amount_rub)
     limit = floor_to(raw, LIMIT_STEP)
     return limit if limit >= product.min_amount_rub else None
@@ -137,7 +163,8 @@ def assess(
     bki = BkiSummaryStatus(bki_status)  # неизвестный статус → ValueError, а не 0 баллов
 
     payment = monthly_payment(product, amount, term)
-    cfads, debt = features.cfads_monthly_rub, features.existing_debt_payments_rub
+    cfads = to_decimal(features.cfads_monthly_rub)  # может быть < 0 (убыток) — это не ошибка
+    debt = _validate_debt(features.existing_debt_payments_rub)
     dscr = cfads / (debt + payment)  # payment > 0 после валидации → знаменатель > 0
 
     points = {

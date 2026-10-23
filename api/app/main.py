@@ -5,10 +5,15 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.core.config import Settings
+from app.api import test_reset
+from app.api.examples import preserve_nullable_examples
+from app.api.stubs import ROUTERS as CONTRACT_ROUTERS
+from app.core.config import AppEnv, Settings
 from app.core.db import create_engine
+from app.core.errors import install_error_handlers
 from app.core.health import router as health_router
 from app.extsim_client import ExtSimClient
+from app.scoring.categorization import load_rules
 
 API_PREFIX = "/api/v1"
 
@@ -16,6 +21,9 @@ API_PREFIX = "/api/v1"
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings: Settings = app.state.settings
+    # Правила категоризации валидируются при старте (design §3.4): битый YAML роняет
+    # запуск api, а не первый Submit. Делаем это до открытия пула БД и клиента ext-sim.
+    app.state.categorization_rules = load_rules()
     app.state.engine = create_engine(settings.database_url)
     app.state.ext_sim = ExtSimClient(settings.ext_sim_base_url)
     try:
@@ -37,7 +45,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = settings
+    install_error_handlers(app)
     app.include_router(health_router, prefix=API_PREFIX)
+    # Стабы контракта v1 (#6); реализации заменяют их по модулям в #5/#7/#8.
+    for router in CONTRACT_ROUTERS:
+        app.include_router(router, prefix=API_PREFIX)
+    # design §4: при TEST_RESET_ENABLED=false роутер не монтируется вовсе → 404
+    if settings.app_env in {AppEnv.LOCAL, AppEnv.TEST} and settings.test_reset_enabled:
+        app.include_router(test_reset.router, prefix=API_PREFIX)
+    preserve_nullable_examples(app, CONTRACT_ROUTERS, API_PREFIX)
     return app
 
 

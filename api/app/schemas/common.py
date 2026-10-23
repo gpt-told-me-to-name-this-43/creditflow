@@ -13,8 +13,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 Money = Annotated[str, Field(pattern=r"^-?\d+\.\d{2}$", examples=["117698.56"])]
 Dscr = Annotated[str, Field(pattern=r"^-?\d+\.\d{2}$", examples=["1.10"])]  # ROUND_DOWN
-AmountRub = Annotated[int, Field(gt=0, examples=[3000000])]  # вход: целые рубли
-Revision = Annotated[int, Field(ge=0, description="Текущая revision заявки (409 при расхождении)")]
+AmountRub = Annotated[int, Field(strict=True, gt=0, examples=[3000000])]  # вход: целые рубли
+Revision = Annotated[
+    int, Field(strict=True, ge=0, description="Текущая revision заявки (409 при расхождении)")
+]
 
 
 class Schema(BaseModel):
