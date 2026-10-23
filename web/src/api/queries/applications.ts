@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
-import { isFinal, POLL_INTERVAL_MS } from '@/lib/polling.ts'
+import { applicationRefetchInterval, isFinal, POLL_INTERVAL_MS } from '@/lib/polling.ts'
 import { api, unwrap } from '../client.ts'
 import { queryKeys } from './keys.ts'
 
@@ -12,4 +12,33 @@ export const applicationsQuery = () =>
       query.state.data?.some((item) => item.status !== 'DRAFT' && !isFinal(item.status))
         ? POLL_INTERVAL_MS
         : false,
+  })
+
+export const applicationQuery = (id: string) =>
+  queryOptions({
+    queryKey: queryKeys.applications.detail(id),
+    queryFn: ({ signal }) =>
+      unwrap(
+        api.GET('/api/v1/applications/{application_id}', {
+          params: { path: { application_id: id } },
+          signal,
+        }),
+      ),
+    // Черновик меняет только сам клиент — опрашивать нечего; дальше решение приходит с бэка.
+    refetchInterval: (query) => {
+      const status = query.state.data?.status
+      return status === 'DRAFT' ? false : applicationRefetchInterval(status)
+    },
+  })
+
+export const contractQuery = (id: string) =>
+  queryOptions({
+    queryKey: queryKeys.applications.contract(id),
+    queryFn: ({ signal }) =>
+      unwrap(
+        api.GET('/api/v1/applications/{application_id}/contract', {
+          params: { path: { application_id: id } },
+          signal,
+        }),
+      ),
   })

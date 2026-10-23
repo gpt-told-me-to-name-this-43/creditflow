@@ -45,3 +45,39 @@ export function formatMoney(value: string, { kopecks = true }: { kopecks?: boole
   const fraction = kopecks || rest !== '00' ? `,${rest}` : ''
   return `${total < 0n ? MINUS : ''}${rubles}${fraction}${NBSP}₽`
 }
+
+// Ввод суммы в мастере — целые рубли (design §3.3: `requested_amount_rub` в целых рублях).
+// В форме сумма живёт строкой цифр, числом становится только в теле запроса.
+const MAX_RUBLE_DIGITS = 12
+
+/** Ввод в поле суммы: только цифры без ведущих нулей, «3 000 000 ₽» → «3000000». */
+export function normalizeRubles(input: string): string {
+  return input.replace(/\D/g, '').replace(/^0+/, '').slice(0, MAX_RUBLE_DIGITS)
+}
+
+/** «3000000» → «3 000 000» для поля ввода (без знака ₽ и копеек). */
+export function groupRubles(digits: string): string {
+  return groupThousands(digits)
+}
+
+/** Сумма из API → строка цифр для формы: «3000000.00» → «3000000». Копейки отбрасываются. */
+export function wholeRubles(value: string): string {
+  const total = toKopecks(value)
+  return (total / 100n).toString()
+}
+
+/**
+ * Целые рубли из формы → число для тела запроса: контракт принимает `requested_amount_rub`
+ * и `amount` как integer. Не больше 12 цифр — число точное (меньше 2^53), копеек нет.
+ */
+export function rublesToNumber(digits: string): number {
+  if (!/^\d{1,12}$/.test(digits)) throw new Error(`Некорректная сумма в рублях: ${digits}`)
+  return parseInt(digits, 10)
+}
+
+/** Ставка из API строкой: «24.00» → «24 % годовых», «24.50» → «24,5 % годовых». */
+export function formatRate(pct: string): string {
+  const [whole = '0', fraction = ''] = pct.trim().split('.')
+  const trimmed = fraction.replace(/0+$/, '')
+  return `${whole}${trimmed ? `,${trimmed}` : ''}${NBSP}%${NBSP}годовых`
+}

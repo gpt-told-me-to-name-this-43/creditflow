@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { compareMoney, formatMoney, fromKopecks, subtractMoney, toKopecks } from './money.ts'
+import {
+  compareMoney,
+  formatMoney,
+  formatRate,
+  fromKopecks,
+  groupRubles,
+  normalizeRubles,
+  rublesToNumber,
+  subtractMoney,
+  toKopecks,
+  wholeRubles,
+} from './money.ts'
 
 const nbsp = (s: string) => s.replaceAll(' ', ' ')
 
@@ -50,5 +61,39 @@ describe('арифметика в копейках', () => {
   it('subtractMoney считает разницу двух сумм', () => {
     expect(subtractMoney('1288852.44', '1237145.04')).toBe('51707.40')
     expect(subtractMoney('0.10', '0.30')).toBe('-0.20')
+  })
+})
+
+describe('ввод суммы в рублях', () => {
+  it('normalizeRubles оставляет только цифры без ведущих нулей', () => {
+    expect(normalizeRubles('3 000 000 ₽')).toBe('3000000')
+    expect(normalizeRubles('007')).toBe('7')
+    expect(normalizeRubles('abc')).toBe('')
+    expect(normalizeRubles('1234567890123456')).toBe('123456789012')
+  })
+
+  it('groupRubles разбивает на разряды неразрывными пробелами', () => {
+    expect(groupRubles('3000000')).toBe(nbsp('3 000 000'))
+    expect(groupRubles('999')).toBe('999')
+  })
+
+  it('wholeRubles переводит сумму API в цифры формы', () => {
+    expect(wholeRubles('3000000.00')).toBe('3000000')
+    expect(wholeRubles('2340000')).toBe('2340000')
+  })
+
+  it('rublesToNumber — точное целое для тела запроса', () => {
+    expect(rublesToNumber('3000000')).toBe(3_000_000)
+    expect(rublesToNumber('999999999999')).toBe(999_999_999_999)
+    expect(() => rublesToNumber('')).toThrow()
+    expect(() => rublesToNumber('1.5')).toThrow()
+  })
+})
+
+describe('formatRate', () => {
+  it('убирает нулевые знаки после запятой', () => {
+    expect(formatRate('24.00')).toBe(nbsp('24 % годовых'))
+    expect(formatRate('24.50')).toBe(nbsp('24,5 % годовых'))
+    expect(formatRate('25')).toBe(nbsp('25 % годовых'))
   })
 })
