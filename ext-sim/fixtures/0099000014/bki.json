@@ -1,6 +1,11 @@
 {
-  "inn": "0099000014",
-  "score": 80,
-  "monthly_payments": 0,
-  "status": "CLEAN"
+  "summary_status": "CLEAN",
+  "monthly_payments_total_rub": "45000.00",
+  "obligations": [
+    {
+      "creditor_name": "Банк Образец",
+      "monthly_payment_rub": "45000.00",
+      "outstanding_rub": "900000.00"
+    }
+  ]
 }

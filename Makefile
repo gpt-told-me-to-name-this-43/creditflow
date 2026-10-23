@@ -14,7 +14,7 @@ TEST_DATABASE_URL ?= postgresql+psycopg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@
 
 .PHONY: help up down dev up-llm \
 	test test-api test-ext-sim test-web lint lint-api lint-ext-sim lint-web \
-	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi er \
+	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi er demo-data \
 	demo-reset llm-check llm-record eval-intent eval-injection e2e load
 
 help: ## Список целей
@@ -82,7 +82,12 @@ openapi: ## docs/openapi.json и docs/openapi-ext-sim.json
 	cd ext-sim && uv run python ../scripts/export_openapi.py app.main:app ../docs/openapi-ext-sim.json
 
 er: ## docs/er.md из метаданных SQLAlchemy
-	cd api && uv run python ../scripts/gen_er.py app.core.db:Base ../docs/er.md
+	# app.db.models:Base — тот же Base, но импорт модуля регистрирует все таблицы в metadata
+	cd api && uv run python ../scripts/gen_er.py app.db.models:Base ../docs/er.md
+
+demo-data: ## Перегенерировать фикстуры ext-sim (реестр, ФНС, БКИ, выписки) — детерминированно
+	python3 scripts/gen_registry_ids.py
+	python3 scripts/gen_statements.py
 
 ## --- Ещё не реализовано: цели падают, чтобы не создавать видимость работы ---
 

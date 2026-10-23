@@ -1,4 +1,8 @@
-"""ext-sim: детерминированный симулятор ЕГРЮЛ, ЕГРИП, ФНС, БКИ и банковской выписки."""
+"""ext-sim: детерминированный симулятор ЕГРЮЛ, ЕГРИП, ФНС, БКИ и банковской выписки.
+
+Контракт — design.md §3.4. Ответы берутся из `fixtures/<inn>/`. Сбои моделируются
+заголовками `X-Sim-Fail` / `X-Sim-Latency-Ms` и полем `fail_mode` в фикстуре.
+"""
 
 import asyncio
 import logging
@@ -30,6 +34,7 @@ from app.schemas import (
 
 logger = logging.getLogger("ext_sim")
 
+# Режим `timeout` держит соединение заметно дольше таймаута ExtSimClient (3 с).
 TIMEOUT_SLEEP_SECONDS = 30.0
 MAX_LATENCY_MS = 30_000
 _BKI_NAMESPACE = uuid.UUID("6f1d8a52-3a5e-4f0b-9a0e-6c2f1d1b7e40")
@@ -54,13 +59,17 @@ def _error(status_code: int, body: ErrorBody) -> JSONResponse:
 
 
 async def _fail(kind: FailKind) -> None:
-    await asyncio.sleep(TIMEOUT_SLEEP_SECONDS)
-    raise SimError(504, "SIMULATED_TIMEOUT", f"Смоделированный таймаут ({kind.value})")
+    if kind is FailKind.TIMEOUT:
+        await asyncio.sleep(TIMEOUT_SLEEP_SECONDS)
+        raise SimError(504, "SIMULATED_TIMEOUT", "Смоделированный таймаут")
+    if kind is FailKind.HTTP_500:
+        raise SimError(500, "SIMULATED_ERROR", "Смоделированная внутренняя ошибка")
+    raise SimError(503, "SIMULATED_UNAVAILABLE", "Смоделированная недоступность")
 
 
 async def sim_controls(
     x_sim_fail: Annotated[
-        FailKind | None, Header(description="Смоделировать сбой: bki_timeout, fns_timeout и т.д.")
+        FailKind | None, Header(description="Смоделировать сбой: timeout, 500 или 503")
     ] = None,
     x_sim_latency_ms: Annotated[
         int | None, Header(ge=0, le=MAX_LATENCY_MS, description="Задержка ответа, мс")
@@ -83,7 +92,7 @@ def create_app(fixtures_dir: Path = DEFAULT_FIXTURES_DIR) -> FastAPI:
 
     app = FastAPI(
         title="CreditFlow ext-sim",
-        summary="Симулятор внешних систем",
+        summary="Симулятор внешних систем: ЕГРЮЛ, ЕГРИП, ФНС, БКИ, банковская выписка",
         description="Синтетические данные. Контракт — docs/design.md §3.4.",
     )
 
@@ -125,14 +134,8 @@ def create_app(fixtures_dir: Path = DEFAULT_FIXTURES_DIR) -> FastAPI:
         return found
 
     async def apply_fixture_fail(fixture: CompanyFixture, source: Source) -> None:
-        if not fixture.fail_mode:
-            return
-        try:
-            kind = FailKind(fixture.fail_mode)
-            if kind.value.startswith(source.value.lower() + "_"):
-                await _fail(kind)
-        except ValueError:
-            pass
+        if fixture.fail_mode is not None and fixture.fail_mode[0] is source:
+            await _fail(fixture.fail_mode[1])
 
     def not_found() -> SimError:
         return SimError(404, "NOT_FOUND", "Нет данных по ИНН")
@@ -201,10 +204,8 @@ def create_app(fixtures_dir: Path = DEFAULT_FIXTURES_DIR) -> FastAPI:
         await apply_fixture_fail(fixture, Source.BKI)
         if fixture.bki is None:
             raise not_found()
-
         report_id = uuid.uuid5(_BKI_NAMESPACE, f"{body.inn}:{body.consent_id}")
-        # Pydantic v2: создаем копию модели с обновленным полем
-        return fixture.bki.model_copy(update={"report_id": str(report_id)})
+        return BkiReport(report_id=str(report_id), **fixture.bki.model_dump())
 
     @app.get(
         "/bank/v1/statements",
@@ -224,18 +225,13 @@ def create_app(fixtures_dir: Path = DEFAULT_FIXTURES_DIR) -> FastAPI:
         await apply_fixture_fail(fixture, Source.BANK)
         if fixture.statement is None:
             raise not_found()
-
-        # fixture.statement теперь строго типизирован как BankStatement
-        filtered_transactions = [
-            t for t in fixture.statement.transactions if from_ <= t.booked_at <= to
-        ]
-
+        transactions = [t for t in fixture.statement.transactions if from_ <= t.booked_at <= to]
         return BankStatement(
             inn=inn,
             account_masked=fixture.statement.account_masked,
             from_=from_,
             to=to,
-            transactions=filtered_transactions,
+            transactions=transactions,
         )
 
     return app

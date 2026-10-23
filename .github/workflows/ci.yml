@@ -50,7 +50,8 @@ jobs:
       - run: uv run ruff check . ../scripts
       - run: uv run ruff format --check . ../scripts
       - run: uv run mypy app tests alembic ../scripts
-      - run: uv run pytest
+      # issue #6: покрытие app/scoring ≥ 95% (строки и ветки вместе)
+      - run: uv run pytest --cov=app/scoring --cov-branch --cov-report=term-missing --cov-fail-under=95
 
   ext-sim:
     runs-on: ubuntu-latest
@@ -107,6 +108,12 @@ jobs:
       - run: uv sync --locked --directory api
       - run: uv sync --locked --directory ext-sim
       - run: make openapi er
+      # issue #6: «повторный запуск генератора побайтно совпадает — проверяется в CI»
+      - run: make demo-data
+      - name: ext-sim/fixtures совпадают с генераторами
+        run: |
+          git diff --exit-code ext-sim/fixtures/
+          test -z "$(git status --porcelain ext-sim/fixtures/)"
       - name: docs/ совпадает с кодом
         run: |
           git status --porcelain docs/
