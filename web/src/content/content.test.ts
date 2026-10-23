@@ -5,7 +5,14 @@ import {
   ERROR_CODES,
   PURPOSE_CODES,
 } from '@/api/enums.ts'
-import { errorMessages, networkErrorMessage, pageErrors, unknownErrorMessage } from './errors.ts'
+import { demoScenarioTexts, demoTexts } from './demo.ts'
+import {
+  bindingErrors,
+  errorMessages,
+  networkErrorMessage,
+  pageErrors,
+  unknownErrorMessage,
+} from './errors.ts'
 import { glossary } from './glossary.ts'
 import { purposeTexts } from './purposes.ts'
 import { reasonTexts } from './reasons.ts'
@@ -40,6 +47,9 @@ describe('тексты для клиента', () => {
     purposeTexts,
     errorMessages,
     pageErrors,
+    bindingErrors,
+    demoScenarioTexts,
+    demoTexts,
     glossary,
     networkErrorMessage,
     unknownErrorMessage,

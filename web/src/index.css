@@ -26,6 +26,9 @@
   --accent-foreground: #1f1f22;
   --destructive: #b42318;
   --destructive-foreground: #ffffff;
+  /* Деньги зачислены: белый текст на зелёном ≈ 5.9:1. */
+  --success: #12733a;
+  --success-foreground: #ffffff;
   --border: #e3e4e6;
   --input: #d5d7da;
   --ring: #ef3124;
@@ -49,6 +52,8 @@
   --accent-foreground: #f2f2f3;
   --destructive: #ff8a80;
   --destructive-foreground: #1c1c1e;
+  --success: #5cd68a;
+  --success-foreground: #1c1c1e;
   --border: #3a3a40;
   --input: #4a4a50;
   --ring: #ef3124;
@@ -72,6 +77,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

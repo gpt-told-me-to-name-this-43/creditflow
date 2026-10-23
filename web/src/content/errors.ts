@@ -38,6 +38,12 @@ export const errorMessages = {
 export const networkErrorMessage = 'Нет связи с сервером. Проверьте интернет и повторите'
 export const unknownErrorMessage = 'Что-то пошло не так. Повторите ещё раз'
 
+// Привязка компании: 503 означает, что не ответил реестр, а не наш сервис.
+export const bindingErrors = {
+  registryUnavailable: 'Реестр компаний сейчас не отвечает. Повторите через минуту',
+  retry: 'Повторить',
+} as const
+
 // Тексты экранов ошибок (errorComponent, notFoundComponent).
 export const pageErrors = {
   unexpected: {

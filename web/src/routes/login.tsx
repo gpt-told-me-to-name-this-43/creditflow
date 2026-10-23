@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
+import { LoginForm } from '@/features/auth/login-form.tsx'
 import { homeFor } from '@/lib/auth.ts'
 
 const searchSchema = z.object({
@@ -20,11 +21,16 @@ export const Route = createFileRoute('/login')({
   component: LoginPage,
 })
 
-// Форма входа и демо-доступ — фаза 4 плана, когда в контракте появится /auth/login.
 function LoginPage() {
   return (
-    <section className="mx-auto max-w-md">
-      <h1 className="text-3xl font-bold">Вход в кабинет</h1>
+    <section className="grid gap-8">
+      <div className="grid gap-2">
+        <h1 className="text-3xl font-bold">Вход в кабинет</h1>
+        <p className="text-muted-foreground">
+          Войдите, чтобы подать заявку на кредит для бизнеса или узнать, что с текущей
+        </p>
+      </div>
+      <LoginForm />
     </section>
   )
 }

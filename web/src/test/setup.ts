@@ -8,6 +8,13 @@ import { server } from './server.ts'
 // jsdom не умеет scrollTo, а роутер вызывает его при восстановлении прокрутки.
 window.scrollTo = () => {}
 
+// jsdom без ResizeObserver, а Radix (чекбокс, тултип) измеряет им размеры.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 // Запрос без обработчика роняет тест: значит, мок забыли добавить.
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 

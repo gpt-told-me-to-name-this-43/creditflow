@@ -15,7 +15,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthClientRouteImport } from './routes/_auth/client'
 import { Route as AuthManagerRouteImport } from './routes/_auth/manager'
 import { Route as AuthClientIndexRouteImport } from './routes/_auth/client/index'
+import { Route as AuthClientOnboardingRouteImport } from './routes/_auth/client/onboarding'
 import { Route as AuthManagerIndexRouteImport } from './routes/_auth/manager/index'
+import { Route as AuthClientApplicationsApplicationIdRouteImport } from './routes/_auth/client/applications/$applicationId'
+import { Route as AuthClientApplicationsNewRouteImport } from './routes/_auth/client/applications/new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,25 +49,48 @@ const AuthClientIndexRoute = AuthClientIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthClientRoute,
 } as any)
+const AuthClientOnboardingRoute = AuthClientOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthClientRoute,
+} as any)
 const AuthManagerIndexRoute = AuthManagerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthManagerRoute,
 } as any)
+const AuthClientApplicationsApplicationIdRoute =
+  AuthClientApplicationsApplicationIdRouteImport.update({
+    id: '/applications/$applicationId',
+    path: '/applications/$applicationId',
+    getParentRoute: () => AuthClientRoute,
+  } as any)
+const AuthClientApplicationsNewRoute =
+  AuthClientApplicationsNewRouteImport.update({
+    id: '/applications/new',
+    path: '/applications/new',
+    getParentRoute: () => AuthClientRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/client': typeof AuthClientRouteWithChildren
   '/manager': typeof AuthManagerRouteWithChildren
+  '/client/onboarding': typeof AuthClientOnboardingRoute
   '/client/': typeof AuthClientIndexRoute
   '/manager/': typeof AuthManagerIndexRoute
+  '/client/applications/$applicationId': typeof AuthClientApplicationsApplicationIdRoute
+  '/client/applications/new': typeof AuthClientApplicationsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/client/onboarding': typeof AuthClientOnboardingRoute
   '/client': typeof AuthClientIndexRoute
   '/manager': typeof AuthManagerIndexRoute
+  '/client/applications/$applicationId': typeof AuthClientApplicationsApplicationIdRoute
+  '/client/applications/new': typeof AuthClientApplicationsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -73,14 +99,33 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_auth/client': typeof AuthClientRouteWithChildren
   '/_auth/manager': typeof AuthManagerRouteWithChildren
+  '/_auth/client/onboarding': typeof AuthClientOnboardingRoute
   '/_auth/client/': typeof AuthClientIndexRoute
   '/_auth/manager/': typeof AuthManagerIndexRoute
+  '/_auth/client/applications/$applicationId': typeof AuthClientApplicationsApplicationIdRoute
+  '/_auth/client/applications/new': typeof AuthClientApplicationsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/client' | '/manager' | '/client/' | '/manager/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/client'
+    | '/manager'
+    | '/client/onboarding'
+    | '/client/'
+    | '/manager/'
+    | '/client/applications/$applicationId'
+    | '/client/applications/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/client' | '/manager'
+  to:
+    | '/'
+    | '/login'
+    | '/client/onboarding'
+    | '/client'
+    | '/manager'
+    | '/client/applications/$applicationId'
+    | '/client/applications/new'
   id:
     | '__root__'
     | '/'
@@ -88,8 +133,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/_auth/client'
     | '/_auth/manager'
+    | '/_auth/client/onboarding'
     | '/_auth/client/'
     | '/_auth/manager/'
+    | '/_auth/client/applications/$applicationId'
+    | '/_auth/client/applications/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthClientIndexRouteImport
       parentRoute: typeof AuthClientRoute
     }
+    '/_auth/client/onboarding': {
+      id: '/_auth/client/onboarding'
+      path: '/onboarding'
+      fullPath: '/client/onboarding'
+      preLoaderRoute: typeof AuthClientOnboardingRouteImport
+      parentRoute: typeof AuthClientRoute
+    }
     '/_auth/manager/': {
       id: '/_auth/manager/'
       path: '/'
@@ -149,15 +204,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthManagerIndexRouteImport
       parentRoute: typeof AuthManagerRoute
     }
+    '/_auth/client/applications/$applicationId': {
+      id: '/_auth/client/applications/$applicationId'
+      path: '/applications/$applicationId'
+      fullPath: '/client/applications/$applicationId'
+      preLoaderRoute: typeof AuthClientApplicationsApplicationIdRouteImport
+      parentRoute: typeof AuthClientRoute
+    }
+    '/_auth/client/applications/new': {
+      id: '/_auth/client/applications/new'
+      path: '/applications/new'
+      fullPath: '/client/applications/new'
+      preLoaderRoute: typeof AuthClientApplicationsNewRouteImport
+      parentRoute: typeof AuthClientRoute
+    }
   }
 }
 
 interface AuthClientRouteChildren {
+  AuthClientOnboardingRoute: typeof AuthClientOnboardingRoute
   AuthClientIndexRoute: typeof AuthClientIndexRoute
+  AuthClientApplicationsApplicationIdRoute: typeof AuthClientApplicationsApplicationIdRoute
+  AuthClientApplicationsNewRoute: typeof AuthClientApplicationsNewRoute
 }
 
 const AuthClientRouteChildren: AuthClientRouteChildren = {
+  AuthClientOnboardingRoute: AuthClientOnboardingRoute,
   AuthClientIndexRoute: AuthClientIndexRoute,
+  AuthClientApplicationsApplicationIdRoute:
+    AuthClientApplicationsApplicationIdRoute,
+  AuthClientApplicationsNewRoute: AuthClientApplicationsNewRoute,
 }
 
 const AuthClientRouteWithChildren = AuthClientRoute._addFileChildren(

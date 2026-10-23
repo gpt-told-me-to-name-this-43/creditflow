@@ -1,4 +1,4 @@
-import type { QueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Link, Outlet, useRouter } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button.tsx'
 import { EmptyState } from '@/components/ui/empty-state.tsx'
@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/sonner.tsx'
 import { ThemeToggle } from '@/components/ui/theme-toggle.tsx'
 import { TooltipProvider } from '@/components/ui/tooltip.tsx'
 import { pageErrors } from '@/content/errors.ts'
-import type { Auth } from '@/lib/auth.ts'
+import { type Auth, auth, signOut } from '@/lib/auth.ts'
 import type { ReactNode } from 'react'
 
 interface RouterContext {
@@ -31,13 +31,28 @@ function Shell({ children }: { children: ReactNode }) {
             <Link to="/" className="text-xl font-bold tracking-tight">
               CreditFlow
             </Link>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <SignOutButton />
+              <ThemeToggle />
+            </div>
           </div>
         </header>
         <main className="mx-auto w-full max-w-screen-2xl flex-1 px-8 py-10">{children}</main>
       </div>
       <Toaster />
     </TooltipProvider>
+  )
+}
+
+// Сессия читается при каждом рендере: после входа/выхода router.invalidate() перерисует шапку.
+function SignOutButton() {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  if (!auth.getSession()) return null
+  return (
+    <Button variant="ghost" onClick={() => void signOut({ router, queryClient })}>
+      Выйти
+    </Button>
   )
 }
 
