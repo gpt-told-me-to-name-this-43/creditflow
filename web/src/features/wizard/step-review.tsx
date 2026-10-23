@@ -192,7 +192,7 @@ export function StepReview({ form, application, onEdit }: StepReviewProps) {
           {(consentGiven) => (
             <div className="flex gap-3">
               <Button type="button" variant="outline" size="lg" onClick={() => onEdit(3)}>
-                {reviewTexts.edit}
+                {reviewTexts.back}
               </Button>
               <Button
                 type="button"

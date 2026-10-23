@@ -18,6 +18,8 @@ interface FormFieldProps {
   hint?: string
   /** Ошибка показывается после blur — решает вызывающий. */
   error?: string
+  /** Рядом с подписью, например метка «Предложено ИИ». */
+  addon?: React.ReactNode
   className?: string
   /** Поле получает `id`, `aria-describedby` и `aria-invalid` из `field`. */
   children: (field: {
@@ -27,13 +29,20 @@ interface FormFieldProps {
   }) => React.ReactNode
 }
 
-export function FormField({ id, label, hint, error, className, children }: FormFieldProps) {
+export function FormField({ id, label, hint, error, addon, className, children }: FormFieldProps) {
   const hintId = hint ? `${id}-hint` : undefined
   const errorId = error ? `${id}-error` : undefined
   const describedBy = [errorId, hintId].filter(Boolean).join(' ') || undefined
   return (
     <div className={cn('grid gap-2', className)}>
-      <Label htmlFor={id}>{label}</Label>
+      {addon ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <Label htmlFor={id}>{label}</Label>
+          {addon}
+        </div>
+      ) : (
+        <Label htmlFor={id}>{label}</Label>
+      )}
       {children({ id, 'aria-describedby': describedBy, 'aria-invalid': error ? true : undefined })}
       {hint && (
         <p id={hintId} className="text-sm text-muted-foreground">

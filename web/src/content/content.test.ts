@@ -13,10 +13,13 @@ import {
   pageErrors,
   unknownErrorMessage,
 } from './errors.ts'
+import * as applicationContent from './application.ts'
+import * as contractContent from './contract.ts'
 import { glossary } from './glossary.ts'
 import { purposeTexts } from './purposes.ts'
 import { reasonTexts } from './reasons.ts'
 import { statusTexts } from './statuses.ts'
+import * as wizardContent from './wizard.ts'
 
 describe('полнота content/ против перечислений контракта', () => {
   it.each([
@@ -53,6 +56,9 @@ describe('тексты для клиента', () => {
     glossary,
     networkErrorMessage,
     unknownErrorMessage,
+    wizardContent,
+    applicationContent,
+    contractContent,
   ])
 
   it.each(texts)('без внутренних терминов и кодов: %s', (text) => {

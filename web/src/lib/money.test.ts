@@ -8,6 +8,7 @@ import {
   normalizeRubles,
   rublesToNumber,
   subtractMoney,
+  sumMoney,
   toKopecks,
   wholeRubles,
 } from './money.ts'
@@ -95,5 +96,13 @@ describe('formatRate', () => {
     expect(formatRate('24.00')).toBe(nbsp('24 % годовых'))
     expect(formatRate('24.50')).toBe(nbsp('24,5 % годовых'))
     expect(formatRate('25')).toBe(nbsp('25 % годовых'))
+  })
+})
+
+describe('sumMoney', () => {
+  it('складывает до копейки', () => {
+    expect(sumMoney(['0.10', '0.20', '0.30'])).toBe('0.60')
+    expect(sumMoney(['117698.56', '117698.56', '117698.59'])).toBe('353095.71')
+    expect(sumMoney([])).toBe('0.00')
   })
 })

@@ -110,15 +110,17 @@ export function StepTerms({ form, saving, onBack, onConfirm }: StepTermsProps) {
               >
                 {(field) => (
                   <div className="grid content-start gap-2">
-                    {sources.requested_amount_rub && (
-                      <SourceLabel
-                        source={sources.requested_amount_rub}
-                        matched={matched.requested_amount_rub}
-                      />
-                    )}
                     <FormField
                       id="amount"
                       label={termsTexts.amountLabel}
+                      addon={
+                        sources.requested_amount_rub && (
+                          <SourceLabel
+                            source={sources.requested_amount_rub}
+                            matched={matched.requested_amount_rub}
+                          />
+                        )
+                      }
                       hint={
                         range
                           ? termsTexts.amountHint(rubles(range.minAmount), rubles(range.maxAmount))
@@ -147,12 +149,14 @@ export function StepTerms({ form, saving, onBack, onConfirm }: StepTermsProps) {
               <form.Field name="term" validators={{ onBlur: validateTerm, onSubmit: validateTerm }}>
                 {(field) => (
                   <div className="grid content-start gap-2">
-                    {sources.term_months && (
-                      <SourceLabel source={sources.term_months} matched={matched.term_months} />
-                    )}
                     <FormField
                       id="term"
                       label={termsTexts.termLabel}
+                      addon={
+                        sources.term_months && (
+                          <SourceLabel source={sources.term_months} matched={matched.term_months} />
+                        )
+                      }
                       hint={range ? termsTexts.termHint(range.minTerm, range.maxTerm) : undefined}
                       error={
                         field.state.meta.isTouched ? firstError(field.state.meta.errors) : undefined

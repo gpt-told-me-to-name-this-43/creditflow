@@ -197,7 +197,7 @@ describe('мастер заявки', () => {
 
     setScenario('default')
     await user.click(screen.getByRole('button', { name: 'Отправить заявку' }))
-    await screen.findByRole('heading', { name: 'Заявка' })
+    await screen.findByRole('heading', { name: 'Оборудование', level: 1 })
     expect(draft.status).toBe('UNDER_REVIEW')
   })
 })

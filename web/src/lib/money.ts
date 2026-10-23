@@ -81,3 +81,8 @@ export function formatRate(pct: string): string {
   const trimmed = fraction.replace(/0+$/, '')
   return `${whole}${trimmed ? `,${trimmed}` : ''}${NBSP}%${NBSP}годовых`
 }
+
+/** Сумма строк из API, например итог графика платежей: копейки складываются точно. */
+export function sumMoney(values: readonly string[]): string {
+  return fromKopecks(values.reduce((total, value) => total + toKopecks(value), 0n))
+}

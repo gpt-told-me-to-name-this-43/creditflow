@@ -123,6 +123,7 @@ export const reviewTexts = {
   payment: 'Платёж в месяц',
   overpayment: 'Переплата за весь срок',
   edit: 'Изменить',
+  back: 'Назад',
   estimate: 'Расчёт предварительный и не является решением банка',
   nextTitle: 'Что будет дальше',
   nextSteps: [

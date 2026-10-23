@@ -37,3 +37,14 @@ export function formatDate(value: string): string {
 export function formatDateTime(value: string): string {
   return dateTimeFormat.format(new Date(value))
 }
+
+/** Сколько целых секунд осталось до момента из API; прошедший момент — 0. */
+export function secondsUntil(value: string, now: number = Date.now()): number {
+  return Math.max(0, Math.ceil((Date.parse(value) - now) / 1000))
+}
+
+/** 299 → «4:59» — таймер действия кода подтверждения. */
+export function formatCountdown(seconds: number): string {
+  const safe = Math.max(0, Math.floor(seconds))
+  return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, '0')}`
+}
