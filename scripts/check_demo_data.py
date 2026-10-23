@@ -8,9 +8,7 @@ from app.scoring.policy import DecisionPolicy
 from app.scoring.risk import RiskEngine
 
 # Инициализация движка: ставка 24%, макс 5 млн, мин 100 тыс (из design.md)
-ENGINE = RiskEngine(
-    rate_pct=Decimal(24), max_amount=Decimal(5000000), min_amount=Decimal(100000)
-)
+ENGINE = RiskEngine(rate_pct=Decimal(24), max_amount=Decimal(5000000), min_amount=Decimal(100000))
 POLICY = DecisionPolicy()
 
 

@@ -266,8 +266,7 @@ def build_company(c: dict) -> dict:
     out = {
         k: v
         for k, v in c.items()
-        if k
-        not in ("inn_base9", "inn_base10", "ogrn_base12", "ogrn_base14", "director")
+        if k not in ("inn_base9", "inn_base10", "ogrn_base12", "ogrn_base14", "director")
     }
     if c["legal_form"] == "LLC":
         out["inn"] = gen_inn_ll(c["inn_base9"])
@@ -315,9 +314,7 @@ def generate_ext_sim_fixtures():
                     "inn": company["director_inn"],
                 },
             }
-            (company_dir / "egrul.json").write_text(
-                json.dumps(egrul, ensure_ascii=False, indent=2)
-            )
+            (company_dir / "egrul.json").write_text(json.dumps(egrul, ensure_ascii=False, indent=2))
         else:
             egrip = {
                 "inn": inn,
@@ -329,9 +326,7 @@ def generate_ext_sim_fixtures():
                 "registered_at": c["registered_at"],
                 "entrepreneur": {"full_name": c["director"]["full_name"], "inn": inn},
             }
-            (company_dir / "egrip.json").write_text(
-                json.dumps(egrip, ensure_ascii=False, indent=2)
-            )
+            (company_dir / "egrip.json").write_text(json.dumps(egrip, ensure_ascii=False, indent=2))
 
         # ФНС
         fns = {
@@ -339,9 +334,7 @@ def generate_ext_sim_fixtures():
             "bankruptcy": c.get("bankruptcy", False),
             "fns_blocks": c.get("fns_blocks", 0),
         }
-        (company_dir / "fns.json").write_text(
-            json.dumps(fns, ensure_ascii=False, indent=2)
-        )
+        (company_dir / "fns.json").write_text(json.dumps(fns, ensure_ascii=False, indent=2))
 
         # БКИ
         bki = {
@@ -349,9 +342,7 @@ def generate_ext_sim_fixtures():
             "summary_status": c["bki_status"],
             "monthly_payments_total_rub": c.get("monthly_payments_bki", 0),
         }
-        (company_dir / "bki.json").write_text(
-            json.dumps(bki, ensure_ascii=False, indent=2)
-        )
+        (company_dir / "bki.json").write_text(json.dumps(bki, ensure_ascii=False, indent=2))
 
         print(f"[OK] {c['code']} (ИНН {inn}): фикстуры ext-sim созданы")
 
