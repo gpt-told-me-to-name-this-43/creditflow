@@ -9,6 +9,8 @@ from fastapi import FastAPI
 from app.api import test_reset
 from app.api.examples import preserve_nullable_examples
 from app.api.stubs import ROUTERS as CONTRACT_ROUTERS
+from app.applications.router_client import router as client_router
+from app.applications.router_manager import router as manager_router
 from app.core.config import AppEnv, Settings
 from app.core.db import create_engine
 from app.core.errors import install_error_handlers
@@ -73,6 +75,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     install_error_handlers(app)
     app.include_router(health_router, prefix=API_PREFIX)
+    app.include_router(client_router, prefix=API_PREFIX)
+    app.include_router(manager_router, prefix=API_PREFIX)
     # Стабы контракта v1 (#6); реализации заменяют их по модулям в #5/#7/#8.
     # Стабы контракта #6 не проверяют токен (только наличие Bearer, app/core/security.py)
     # и отдают фиксированные данные. В production их не монтируем вовсе: до #5 маршруты
