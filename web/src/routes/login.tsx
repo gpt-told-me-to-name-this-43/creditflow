@@ -23,14 +23,8 @@ export const Route = createFileRoute('/login')({
 
 function LoginPage() {
   return (
-    <section className="grid gap-8">
-      <div className="grid gap-2">
-        <h1 className="text-3xl font-bold">Вход в кабинет</h1>
-        <p className="text-muted-foreground">
-          Войдите, чтобы подать заявку на кредит для бизнеса или узнать, что с текущей
-        </p>
-      </div>
+    <div className="py-4">
       <LoginForm />
-    </section>
+    </div>
   )
 }
