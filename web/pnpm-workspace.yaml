@@ -1,0 +1,3 @@
+# Node/Vitest MSW не требует install-script/browser worker; подключение worker — #9/#10.
+allowBuilds:
+  msw: false

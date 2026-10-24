@@ -1,13 +1,18 @@
-"""Стартовая последовательность контейнера: `alembic upgrade head` и базовый seed."""
+"""Стартовая последовательность: `alembic upgrade head`, базовый seed, загрузка правил."""
 
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 from alembic.config import Config
+from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from alembic import command
-from app import seed
+from app import main, seed
+from app.core.config import Settings
 from app.core.db import create_engine
+from app.scoring import categorization
 
 from .conftest import TEST_DATABASE_URL
 
@@ -36,3 +41,20 @@ async def test_seed_entrypoint_runs_twice(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.setenv("DATABASE_URL", TEST_DATABASE_URL)
     await seed.main()
     await seed.main()
+
+
+def test_invalid_categorization_rules_abort_startup(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, make_settings: Callable[..., Settings]
+) -> None:
+    """issue #6: невалидный YAML правил останавливает старт api (lifespan), а не Submit."""
+    broken = tmp_path / "categorization-v1.yaml"
+    broken.write_text("version: v1\nrules:\n  - id: Bad-Id\n    category: NOPE\n", "utf-8")
+    monkeypatch.setattr(main, "load_rules", lambda: categorization.load_rules(broken))
+    with pytest.raises(ValidationError), TestClient(main.create_app(make_settings())):
+        pass
+
+
+def test_startup_loads_categorization_rules(make_settings: Callable[..., Settings]) -> None:
+    with TestClient(main.create_app(make_settings())) as client:
+        rules = client.app.state.categorization_rules  # type: ignore[attr-defined]
+    assert rules is categorization.load_rules()

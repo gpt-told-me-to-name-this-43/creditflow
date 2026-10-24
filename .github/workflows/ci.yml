@@ -49,8 +49,14 @@ jobs:
       - run: uv sync --locked
       - run: uv run ruff check . ../scripts
       - run: uv run ruff format --check . ../scripts
-      - run: uv run mypy app tests alembic ../scripts
-      - run: uv run pytest
+      - run: uv run mypy app tests alembic contract ../scripts
+      # issue #6: покрытие app/scoring — строки ≥ 95% и ветки ≥ 90%, каждое отдельно.
+      # --cov-fail-under при --cov-branch проверяет только общий процент, поэтому пороги
+      # сверяет scripts/check_coverage.py по JSON-отчёту.
+      - run: >-
+          uv run pytest --cov=app/scoring --cov-branch --cov-report=term-missing
+          --cov-report=json:coverage.json
+      - run: uv run python ../scripts/check_coverage.py coverage.json --lines 95 --branches 90
 
   ext-sim:
     runs-on: ubuntu-latest
@@ -88,6 +94,8 @@ jobs:
           cache: pnpm
           cache-dependency-path: web/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - run: pnpm generate:api
+      - run: git diff --exit-code -- src/api/schema.d.ts
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
@@ -106,7 +114,13 @@ jobs:
           cache-dependency-glob: "**/uv.lock"
       - run: uv sync --locked --directory api
       - run: uv sync --locked --directory ext-sim
-      - run: make openapi er
+      - run: make openapi er api-matrix
+      # issue #6: «повторный запуск генератора побайтно совпадает — проверяется в CI»
+      - run: make demo-data
+      - name: ext-sim/fixtures совпадают с генераторами
+        run: |
+          git diff --exit-code ext-sim/fixtures/
+          test -z "$(git status --porcelain ext-sim/fixtures/)"
       - name: docs/ совпадает с кодом
         run: |
           git status --porcelain docs/

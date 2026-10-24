@@ -5,21 +5,26 @@ description = "CreditFlow: backend — модульный монолит на Fa
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "alembic>=1.20.1",
+    "argon2-cffi>=25.1.0",
     "fastapi>=0.159.1",
     "httpx>=0.28.1",
     "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.1",
+    "pyyaml>=6.0.3",
     "sqlalchemy[asyncio]>=2.1.6",
     "uvicorn>=0.54.0",
 ]
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.170.8",
     "mypy>=2.4.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
     "respx>=0.23.1",
     "ruff>=0.17.1",
+    "types-pyyaml>=6.0.12.20260906",
 ]
 
 [tool.uv]
@@ -30,9 +35,30 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF", "DTZ"]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF", "DTZ", "TID"]
 # Кириллица в строках и комментариях — норма для проекта.
 ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.isort]
+# Явно: иначе ruff определяет «свои» модули по наличию файлов, и порядок импортов
+# в тестах меняется, пока модуль ещё не написан.
+known-first-party = ["app", "tests"]
+
+# issue #6: финансовое ядро — чистые функции. В app/scoring/ запрещены БД, сеть,
+# текущее время и случайность; правило TID251 действует только там (см. per-file-ignores).
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"sqlalchemy".msg = "app/scoring — чистые функции, без БД"
+"httpx".msg = "app/scoring — без сети"
+"random".msg = "app/scoring детерминирован: random запрещён"
+"datetime.datetime.now".msg = "используйте as_of_date из входов"
+"datetime.datetime.utcnow".msg = "используйте as_of_date из входов"
+"datetime.date.today".msg = "используйте as_of_date из входов"
+
+[tool.ruff.lint.per-file-ignores]
+# Запрет banned-api — только для ядра; остальному коду (и scripts/) эти модули нужны.
+"!app/scoring/**" = ["TID251"]
+# Миграции генерирует autogenerate: длинные CHECK/FK-строки там нормальны.
+"alembic/versions/*" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"
