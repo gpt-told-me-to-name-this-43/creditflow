@@ -36,7 +36,7 @@ from app.scoring.risk import assess, Product, limit_for_term
 from app.scoring.policy import evaluate, stop_factors, allowed_actions
 from app.scoring.hashing import inputs_hash
 from app.scoring.versions import ENGINE_VERSION, POLICY_VERSION
-from app.extsim_client import ExtSimClient, ExtSimUnavailableError
+from app.extsim_client import ExtSimClient, ProviderUnavailableError
 from app.scoring.money import to_decimal
 
 
@@ -114,7 +114,7 @@ class ApplicationService:
                 ext_data = await self.ext_sim.fetch_all_for_submit(
                     inn=company_inn, consent_id=str(consent_id)
                 )
-            except ExtSimUnavailableError:
+            except ProviderUnavailableError:
                 await self.db.execute(
                     delete(IdempotencyKey).where(
                         IdempotencyKey.user_id == user_id,
