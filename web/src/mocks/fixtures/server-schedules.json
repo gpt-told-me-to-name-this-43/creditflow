@@ -1,0 +1,1329 @@
+[
+  {
+    "amount": "464106",
+    "term": 12,
+    "rate": "25",
+    "start": "2026-01-31",
+    "overpayment": "65221.03",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2026-02-28",
+        "payment_rub": "44110.58",
+        "principal_rub": "34441.71",
+        "interest_rub": "9668.87",
+        "balance_after_rub": "429664.29"
+      },
+      {
+        "number": 2,
+        "due_date": "2026-03-31",
+        "payment_rub": "44110.58",
+        "principal_rub": "35159.24",
+        "interest_rub": "8951.34",
+        "balance_after_rub": "394505.05"
+      },
+      {
+        "number": 3,
+        "due_date": "2026-04-30",
+        "payment_rub": "44110.58",
+        "principal_rub": "35891.72",
+        "interest_rub": "8218.86",
+        "balance_after_rub": "358613.33"
+      },
+      {
+        "number": 4,
+        "due_date": "2026-05-31",
+        "payment_rub": "44110.58",
+        "principal_rub": "36639.47",
+        "interest_rub": "7471.11",
+        "balance_after_rub": "321973.86"
+      },
+      {
+        "number": 5,
+        "due_date": "2026-06-30",
+        "payment_rub": "44110.58",
+        "principal_rub": "37402.79",
+        "interest_rub": "6707.79",
+        "balance_after_rub": "284571.07"
+      },
+      {
+        "number": 6,
+        "due_date": "2026-07-31",
+        "payment_rub": "44110.58",
+        "principal_rub": "38182.02",
+        "interest_rub": "5928.56",
+        "balance_after_rub": "246389.05"
+      },
+      {
+        "number": 7,
+        "due_date": "2026-08-31",
+        "payment_rub": "44110.58",
+        "principal_rub": "38977.47",
+        "interest_rub": "5133.11",
+        "balance_after_rub": "207411.58"
+      },
+      {
+        "number": 8,
+        "due_date": "2026-09-30",
+        "payment_rub": "44110.58",
+        "principal_rub": "39789.51",
+        "interest_rub": "4321.07",
+        "balance_after_rub": "167622.07"
+      },
+      {
+        "number": 9,
+        "due_date": "2026-10-31",
+        "payment_rub": "44110.58",
+        "principal_rub": "40618.45",
+        "interest_rub": "3492.13",
+        "balance_after_rub": "127003.62"
+      },
+      {
+        "number": 10,
+        "due_date": "2026-11-30",
+        "payment_rub": "44110.58",
+        "principal_rub": "41464.67",
+        "interest_rub": "2645.91",
+        "balance_after_rub": "85538.95"
+      },
+      {
+        "number": 11,
+        "due_date": "2026-12-31",
+        "payment_rub": "44110.58",
+        "principal_rub": "42328.52",
+        "interest_rub": "1782.06",
+        "balance_after_rub": "43210.43"
+      },
+      {
+        "number": 12,
+        "due_date": "2027-01-31",
+        "payment_rub": "44110.65",
+        "principal_rub": "43210.43",
+        "interest_rub": "900.22",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  },
+  {
+    "amount": "100000",
+    "term": 1,
+    "rate": "12",
+    "start": "2026-01-15",
+    "overpayment": "1000.00",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2026-02-15",
+        "payment_rub": "101000.00",
+        "principal_rub": "100000.00",
+        "interest_rub": "1000.00",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  },
+  {
+    "amount": "3000000",
+    "term": 36,
+    "rate": "18.5",
+    "start": "2024-01-29",
+    "overpayment": "931601.14",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2024-02-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "62961.14",
+        "interest_rub": "46250.00",
+        "balance_after_rub": "2937038.86"
+      },
+      {
+        "number": 2,
+        "due_date": "2024-03-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "63931.79",
+        "interest_rub": "45279.35",
+        "balance_after_rub": "2873107.07"
+      },
+      {
+        "number": 3,
+        "due_date": "2024-04-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "64917.41",
+        "interest_rub": "44293.73",
+        "balance_after_rub": "2808189.66"
+      },
+      {
+        "number": 4,
+        "due_date": "2024-05-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "65918.22",
+        "interest_rub": "43292.92",
+        "balance_after_rub": "2742271.44"
+      },
+      {
+        "number": 5,
+        "due_date": "2024-06-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "66934.46",
+        "interest_rub": "42276.68",
+        "balance_after_rub": "2675336.98"
+      },
+      {
+        "number": 6,
+        "due_date": "2024-07-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "67966.36",
+        "interest_rub": "41244.78",
+        "balance_after_rub": "2607370.62"
+      },
+      {
+        "number": 7,
+        "due_date": "2024-08-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "69014.18",
+        "interest_rub": "40196.96",
+        "balance_after_rub": "2538356.44"
+      },
+      {
+        "number": 8,
+        "due_date": "2024-09-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "70078.14",
+        "interest_rub": "39133.00",
+        "balance_after_rub": "2468278.30"
+      },
+      {
+        "number": 9,
+        "due_date": "2024-10-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "71158.52",
+        "interest_rub": "38052.62",
+        "balance_after_rub": "2397119.78"
+      },
+      {
+        "number": 10,
+        "due_date": "2024-11-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "72255.54",
+        "interest_rub": "36955.60",
+        "balance_after_rub": "2324864.24"
+      },
+      {
+        "number": 11,
+        "due_date": "2024-12-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "73369.48",
+        "interest_rub": "35841.66",
+        "balance_after_rub": "2251494.76"
+      },
+      {
+        "number": 12,
+        "due_date": "2025-01-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "74500.60",
+        "interest_rub": "34710.54",
+        "balance_after_rub": "2176994.16"
+      },
+      {
+        "number": 13,
+        "due_date": "2025-02-28",
+        "payment_rub": "109211.14",
+        "principal_rub": "75649.15",
+        "interest_rub": "33561.99",
+        "balance_after_rub": "2101345.01"
+      },
+      {
+        "number": 14,
+        "due_date": "2025-03-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "76815.40",
+        "interest_rub": "32395.74",
+        "balance_after_rub": "2024529.61"
+      },
+      {
+        "number": 15,
+        "due_date": "2025-04-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "77999.64",
+        "interest_rub": "31211.50",
+        "balance_after_rub": "1946529.97"
+      },
+      {
+        "number": 16,
+        "due_date": "2025-05-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "79202.14",
+        "interest_rub": "30009.00",
+        "balance_after_rub": "1867327.83"
+      },
+      {
+        "number": 17,
+        "due_date": "2025-06-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "80423.17",
+        "interest_rub": "28787.97",
+        "balance_after_rub": "1786904.66"
+      },
+      {
+        "number": 18,
+        "due_date": "2025-07-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "81663.03",
+        "interest_rub": "27548.11",
+        "balance_after_rub": "1705241.63"
+      },
+      {
+        "number": 19,
+        "due_date": "2025-08-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "82922.00",
+        "interest_rub": "26289.14",
+        "balance_after_rub": "1622319.63"
+      },
+      {
+        "number": 20,
+        "due_date": "2025-09-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "84200.38",
+        "interest_rub": "25010.76",
+        "balance_after_rub": "1538119.25"
+      },
+      {
+        "number": 21,
+        "due_date": "2025-10-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "85498.47",
+        "interest_rub": "23712.67",
+        "balance_after_rub": "1452620.78"
+      },
+      {
+        "number": 22,
+        "due_date": "2025-11-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "86816.57",
+        "interest_rub": "22394.57",
+        "balance_after_rub": "1365804.21"
+      },
+      {
+        "number": 23,
+        "due_date": "2025-12-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "88154.99",
+        "interest_rub": "21056.15",
+        "balance_after_rub": "1277649.22"
+      },
+      {
+        "number": 24,
+        "due_date": "2026-01-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "89514.05",
+        "interest_rub": "19697.09",
+        "balance_after_rub": "1188135.17"
+      },
+      {
+        "number": 25,
+        "due_date": "2026-02-28",
+        "payment_rub": "109211.14",
+        "principal_rub": "90894.06",
+        "interest_rub": "18317.08",
+        "balance_after_rub": "1097241.11"
+      },
+      {
+        "number": 26,
+        "due_date": "2026-03-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "92295.34",
+        "interest_rub": "16915.80",
+        "balance_after_rub": "1004945.77"
+      },
+      {
+        "number": 27,
+        "due_date": "2026-04-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "93718.23",
+        "interest_rub": "15492.91",
+        "balance_after_rub": "911227.54"
+      },
+      {
+        "number": 28,
+        "due_date": "2026-05-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "95163.05",
+        "interest_rub": "14048.09",
+        "balance_after_rub": "816064.49"
+      },
+      {
+        "number": 29,
+        "due_date": "2026-06-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "96630.15",
+        "interest_rub": "12580.99",
+        "balance_after_rub": "719434.34"
+      },
+      {
+        "number": 30,
+        "due_date": "2026-07-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "98119.86",
+        "interest_rub": "11091.28",
+        "balance_after_rub": "621314.48"
+      },
+      {
+        "number": 31,
+        "due_date": "2026-08-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "99632.54",
+        "interest_rub": "9578.60",
+        "balance_after_rub": "521681.94"
+      },
+      {
+        "number": 32,
+        "due_date": "2026-09-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "101168.54",
+        "interest_rub": "8042.60",
+        "balance_after_rub": "420513.40"
+      },
+      {
+        "number": 33,
+        "due_date": "2026-10-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "102728.23",
+        "interest_rub": "6482.91",
+        "balance_after_rub": "317785.17"
+      },
+      {
+        "number": 34,
+        "due_date": "2026-11-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "104311.95",
+        "interest_rub": "4899.19",
+        "balance_after_rub": "213473.22"
+      },
+      {
+        "number": 35,
+        "due_date": "2026-12-29",
+        "payment_rub": "109211.14",
+        "principal_rub": "105920.09",
+        "interest_rub": "3291.05",
+        "balance_after_rub": "107553.13"
+      },
+      {
+        "number": 36,
+        "due_date": "2027-01-29",
+        "payment_rub": "109211.24",
+        "principal_rub": "107553.13",
+        "interest_rub": "1658.11",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  },
+  {
+    "amount": "1000000",
+    "term": 60,
+    "rate": "0",
+    "start": "2024-01-30",
+    "overpayment": "0.00",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2024-02-29",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "983333.33"
+      },
+      {
+        "number": 2,
+        "due_date": "2024-03-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "966666.66"
+      },
+      {
+        "number": 3,
+        "due_date": "2024-04-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "949999.99"
+      },
+      {
+        "number": 4,
+        "due_date": "2024-05-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "933333.32"
+      },
+      {
+        "number": 5,
+        "due_date": "2024-06-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "916666.65"
+      },
+      {
+        "number": 6,
+        "due_date": "2024-07-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "899999.98"
+      },
+      {
+        "number": 7,
+        "due_date": "2024-08-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "883333.31"
+      },
+      {
+        "number": 8,
+        "due_date": "2024-09-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "866666.64"
+      },
+      {
+        "number": 9,
+        "due_date": "2024-10-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "849999.97"
+      },
+      {
+        "number": 10,
+        "due_date": "2024-11-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "833333.30"
+      },
+      {
+        "number": 11,
+        "due_date": "2024-12-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "816666.63"
+      },
+      {
+        "number": 12,
+        "due_date": "2025-01-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "799999.96"
+      },
+      {
+        "number": 13,
+        "due_date": "2025-02-28",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "783333.29"
+      },
+      {
+        "number": 14,
+        "due_date": "2025-03-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "766666.62"
+      },
+      {
+        "number": 15,
+        "due_date": "2025-04-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "749999.95"
+      },
+      {
+        "number": 16,
+        "due_date": "2025-05-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "733333.28"
+      },
+      {
+        "number": 17,
+        "due_date": "2025-06-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "716666.61"
+      },
+      {
+        "number": 18,
+        "due_date": "2025-07-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "699999.94"
+      },
+      {
+        "number": 19,
+        "due_date": "2025-08-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "683333.27"
+      },
+      {
+        "number": 20,
+        "due_date": "2025-09-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "666666.60"
+      },
+      {
+        "number": 21,
+        "due_date": "2025-10-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "649999.93"
+      },
+      {
+        "number": 22,
+        "due_date": "2025-11-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "633333.26"
+      },
+      {
+        "number": 23,
+        "due_date": "2025-12-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "616666.59"
+      },
+      {
+        "number": 24,
+        "due_date": "2026-01-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "599999.92"
+      },
+      {
+        "number": 25,
+        "due_date": "2026-02-28",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "583333.25"
+      },
+      {
+        "number": 26,
+        "due_date": "2026-03-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "566666.58"
+      },
+      {
+        "number": 27,
+        "due_date": "2026-04-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "549999.91"
+      },
+      {
+        "number": 28,
+        "due_date": "2026-05-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "533333.24"
+      },
+      {
+        "number": 29,
+        "due_date": "2026-06-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "516666.57"
+      },
+      {
+        "number": 30,
+        "due_date": "2026-07-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "499999.90"
+      },
+      {
+        "number": 31,
+        "due_date": "2026-08-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "483333.23"
+      },
+      {
+        "number": 32,
+        "due_date": "2026-09-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "466666.56"
+      },
+      {
+        "number": 33,
+        "due_date": "2026-10-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "449999.89"
+      },
+      {
+        "number": 34,
+        "due_date": "2026-11-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "433333.22"
+      },
+      {
+        "number": 35,
+        "due_date": "2026-12-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "416666.55"
+      },
+      {
+        "number": 36,
+        "due_date": "2027-01-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "399999.88"
+      },
+      {
+        "number": 37,
+        "due_date": "2027-02-28",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "383333.21"
+      },
+      {
+        "number": 38,
+        "due_date": "2027-03-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "366666.54"
+      },
+      {
+        "number": 39,
+        "due_date": "2027-04-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "349999.87"
+      },
+      {
+        "number": 40,
+        "due_date": "2027-05-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "333333.20"
+      },
+      {
+        "number": 41,
+        "due_date": "2027-06-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "316666.53"
+      },
+      {
+        "number": 42,
+        "due_date": "2027-07-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "299999.86"
+      },
+      {
+        "number": 43,
+        "due_date": "2027-08-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "283333.19"
+      },
+      {
+        "number": 44,
+        "due_date": "2027-09-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "266666.52"
+      },
+      {
+        "number": 45,
+        "due_date": "2027-10-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "249999.85"
+      },
+      {
+        "number": 46,
+        "due_date": "2027-11-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "233333.18"
+      },
+      {
+        "number": 47,
+        "due_date": "2027-12-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "216666.51"
+      },
+      {
+        "number": 48,
+        "due_date": "2028-01-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "199999.84"
+      },
+      {
+        "number": 49,
+        "due_date": "2028-02-29",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "183333.17"
+      },
+      {
+        "number": 50,
+        "due_date": "2028-03-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "166666.50"
+      },
+      {
+        "number": 51,
+        "due_date": "2028-04-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "149999.83"
+      },
+      {
+        "number": 52,
+        "due_date": "2028-05-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "133333.16"
+      },
+      {
+        "number": 53,
+        "due_date": "2028-06-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "116666.49"
+      },
+      {
+        "number": 54,
+        "due_date": "2028-07-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "99999.82"
+      },
+      {
+        "number": 55,
+        "due_date": "2028-08-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "83333.15"
+      },
+      {
+        "number": 56,
+        "due_date": "2028-09-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "66666.48"
+      },
+      {
+        "number": 57,
+        "due_date": "2028-10-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "49999.81"
+      },
+      {
+        "number": 58,
+        "due_date": "2028-11-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "33333.14"
+      },
+      {
+        "number": 59,
+        "due_date": "2028-12-30",
+        "payment_rub": "16666.67",
+        "principal_rub": "16666.67",
+        "interest_rub": "0.00",
+        "balance_after_rub": "16666.47"
+      },
+      {
+        "number": 60,
+        "due_date": "2029-01-30",
+        "payment_rub": "16666.47",
+        "principal_rub": "16666.47",
+        "interest_rub": "0.00",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  },
+  {
+    "amount": "999999.99",
+    "term": 7,
+    "rate": "33.33",
+    "start": "2024-01-31",
+    "overpayment": "114141.81",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2024-02-29",
+        "payment_rub": "159163.12",
+        "principal_rub": "131388.12",
+        "interest_rub": "27775.00",
+        "balance_after_rub": "868611.87"
+      },
+      {
+        "number": 2,
+        "due_date": "2024-03-31",
+        "payment_rub": "159163.12",
+        "principal_rub": "135037.43",
+        "interest_rub": "24125.69",
+        "balance_after_rub": "733574.44"
+      },
+      {
+        "number": 3,
+        "due_date": "2024-04-30",
+        "payment_rub": "159163.12",
+        "principal_rub": "138788.09",
+        "interest_rub": "20375.03",
+        "balance_after_rub": "594786.35"
+      },
+      {
+        "number": 4,
+        "due_date": "2024-05-31",
+        "payment_rub": "159163.12",
+        "principal_rub": "142642.93",
+        "interest_rub": "16520.19",
+        "balance_after_rub": "452143.42"
+      },
+      {
+        "number": 5,
+        "due_date": "2024-06-30",
+        "payment_rub": "159163.12",
+        "principal_rub": "146604.84",
+        "interest_rub": "12558.28",
+        "balance_after_rub": "305538.58"
+      },
+      {
+        "number": 6,
+        "due_date": "2024-07-31",
+        "payment_rub": "159163.12",
+        "principal_rub": "150676.79",
+        "interest_rub": "8486.33",
+        "balance_after_rub": "154861.79"
+      },
+      {
+        "number": 7,
+        "due_date": "2024-08-31",
+        "payment_rub": "159163.08",
+        "principal_rub": "154861.79",
+        "interest_rub": "4301.29",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  },
+  {
+    "amount": "50000",
+    "term": 24,
+    "rate": "0.01",
+    "start": "2026-03-31",
+    "overpayment": "5.21",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2026-04-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.13",
+        "interest_rub": "0.42",
+        "balance_after_rub": "47916.87"
+      },
+      {
+        "number": 2,
+        "due_date": "2026-05-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.15",
+        "interest_rub": "0.40",
+        "balance_after_rub": "45833.72"
+      },
+      {
+        "number": 3,
+        "due_date": "2026-06-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.17",
+        "interest_rub": "0.38",
+        "balance_after_rub": "43750.55"
+      },
+      {
+        "number": 4,
+        "due_date": "2026-07-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.19",
+        "interest_rub": "0.36",
+        "balance_after_rub": "41667.36"
+      },
+      {
+        "number": 5,
+        "due_date": "2026-08-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.20",
+        "interest_rub": "0.35",
+        "balance_after_rub": "39584.16"
+      },
+      {
+        "number": 6,
+        "due_date": "2026-09-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.22",
+        "interest_rub": "0.33",
+        "balance_after_rub": "37500.94"
+      },
+      {
+        "number": 7,
+        "due_date": "2026-10-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.24",
+        "interest_rub": "0.31",
+        "balance_after_rub": "35417.70"
+      },
+      {
+        "number": 8,
+        "due_date": "2026-11-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.25",
+        "interest_rub": "0.30",
+        "balance_after_rub": "33334.45"
+      },
+      {
+        "number": 9,
+        "due_date": "2026-12-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.27",
+        "interest_rub": "0.28",
+        "balance_after_rub": "31251.18"
+      },
+      {
+        "number": 10,
+        "due_date": "2027-01-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.29",
+        "interest_rub": "0.26",
+        "balance_after_rub": "29167.89"
+      },
+      {
+        "number": 11,
+        "due_date": "2027-02-28",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.31",
+        "interest_rub": "0.24",
+        "balance_after_rub": "27084.58"
+      },
+      {
+        "number": 12,
+        "due_date": "2027-03-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.32",
+        "interest_rub": "0.23",
+        "balance_after_rub": "25001.26"
+      },
+      {
+        "number": 13,
+        "due_date": "2027-04-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.34",
+        "interest_rub": "0.21",
+        "balance_after_rub": "22917.92"
+      },
+      {
+        "number": 14,
+        "due_date": "2027-05-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.36",
+        "interest_rub": "0.19",
+        "balance_after_rub": "20834.56"
+      },
+      {
+        "number": 15,
+        "due_date": "2027-06-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.38",
+        "interest_rub": "0.17",
+        "balance_after_rub": "18751.18"
+      },
+      {
+        "number": 16,
+        "due_date": "2027-07-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.39",
+        "interest_rub": "0.16",
+        "balance_after_rub": "16667.79"
+      },
+      {
+        "number": 17,
+        "due_date": "2027-08-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.41",
+        "interest_rub": "0.14",
+        "balance_after_rub": "14584.38"
+      },
+      {
+        "number": 18,
+        "due_date": "2027-09-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.43",
+        "interest_rub": "0.12",
+        "balance_after_rub": "12500.95"
+      },
+      {
+        "number": 19,
+        "due_date": "2027-10-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.45",
+        "interest_rub": "0.10",
+        "balance_after_rub": "10417.50"
+      },
+      {
+        "number": 20,
+        "due_date": "2027-11-30",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.46",
+        "interest_rub": "0.09",
+        "balance_after_rub": "8334.04"
+      },
+      {
+        "number": 21,
+        "due_date": "2027-12-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.48",
+        "interest_rub": "0.07",
+        "balance_after_rub": "6250.56"
+      },
+      {
+        "number": 22,
+        "due_date": "2028-01-31",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.50",
+        "interest_rub": "0.05",
+        "balance_after_rub": "4167.06"
+      },
+      {
+        "number": 23,
+        "due_date": "2028-02-29",
+        "payment_rub": "2083.55",
+        "principal_rub": "2083.52",
+        "interest_rub": "0.03",
+        "balance_after_rub": "2083.54"
+      },
+      {
+        "number": 24,
+        "due_date": "2028-03-31",
+        "payment_rub": "2083.56",
+        "principal_rub": "2083.54",
+        "interest_rub": "0.02",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  },
+  {
+    "amount": "123456.78",
+    "term": 18,
+    "rate": "21.9",
+    "start": "2023-12-31",
+    "overpayment": "22499.21",
+    "schedule": [
+      {
+        "number": 1,
+        "due_date": "2024-01-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "5855.57",
+        "interest_rub": "2253.09",
+        "balance_after_rub": "117601.21"
+      },
+      {
+        "number": 2,
+        "due_date": "2024-02-29",
+        "payment_rub": "8108.66",
+        "principal_rub": "5962.44",
+        "interest_rub": "2146.22",
+        "balance_after_rub": "111638.77"
+      },
+      {
+        "number": 3,
+        "due_date": "2024-03-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "6071.25",
+        "interest_rub": "2037.41",
+        "balance_after_rub": "105567.52"
+      },
+      {
+        "number": 4,
+        "due_date": "2024-04-30",
+        "payment_rub": "8108.66",
+        "principal_rub": "6182.05",
+        "interest_rub": "1926.61",
+        "balance_after_rub": "99385.47"
+      },
+      {
+        "number": 5,
+        "due_date": "2024-05-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "6294.88",
+        "interest_rub": "1813.78",
+        "balance_after_rub": "93090.59"
+      },
+      {
+        "number": 6,
+        "due_date": "2024-06-30",
+        "payment_rub": "8108.66",
+        "principal_rub": "6409.76",
+        "interest_rub": "1698.90",
+        "balance_after_rub": "86680.83"
+      },
+      {
+        "number": 7,
+        "due_date": "2024-07-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "6526.73",
+        "interest_rub": "1581.93",
+        "balance_after_rub": "80154.10"
+      },
+      {
+        "number": 8,
+        "due_date": "2024-08-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "6645.85",
+        "interest_rub": "1462.81",
+        "balance_after_rub": "73508.25"
+      },
+      {
+        "number": 9,
+        "due_date": "2024-09-30",
+        "payment_rub": "8108.66",
+        "principal_rub": "6767.13",
+        "interest_rub": "1341.53",
+        "balance_after_rub": "66741.12"
+      },
+      {
+        "number": 10,
+        "due_date": "2024-10-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "6890.63",
+        "interest_rub": "1218.03",
+        "balance_after_rub": "59850.49"
+      },
+      {
+        "number": 11,
+        "due_date": "2024-11-30",
+        "payment_rub": "8108.66",
+        "principal_rub": "7016.39",
+        "interest_rub": "1092.27",
+        "balance_after_rub": "52834.10"
+      },
+      {
+        "number": 12,
+        "due_date": "2024-12-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "7144.44",
+        "interest_rub": "964.22",
+        "balance_after_rub": "45689.66"
+      },
+      {
+        "number": 13,
+        "due_date": "2025-01-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "7274.82",
+        "interest_rub": "833.84",
+        "balance_after_rub": "38414.84"
+      },
+      {
+        "number": 14,
+        "due_date": "2025-02-28",
+        "payment_rub": "8108.66",
+        "principal_rub": "7407.59",
+        "interest_rub": "701.07",
+        "balance_after_rub": "31007.25"
+      },
+      {
+        "number": 15,
+        "due_date": "2025-03-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "7542.78",
+        "interest_rub": "565.88",
+        "balance_after_rub": "23464.47"
+      },
+      {
+        "number": 16,
+        "due_date": "2025-04-30",
+        "payment_rub": "8108.66",
+        "principal_rub": "7680.43",
+        "interest_rub": "428.23",
+        "balance_after_rub": "15784.04"
+      },
+      {
+        "number": 17,
+        "due_date": "2025-05-31",
+        "payment_rub": "8108.66",
+        "principal_rub": "7820.60",
+        "interest_rub": "288.06",
+        "balance_after_rub": "7963.44"
+      },
+      {
+        "number": 18,
+        "due_date": "2025-06-30",
+        "payment_rub": "8108.77",
+        "principal_rub": "7963.44",
+        "interest_rub": "145.33",
+        "balance_after_rub": "0.00"
+      }
+    ]
+  }
+]

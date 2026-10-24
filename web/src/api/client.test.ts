@@ -1,125 +1,180 @@
-import { readFileSync } from 'node:fs'
-import { http, HttpResponse } from 'msw'
-import { setupServer } from 'msw/node'
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { createApiClient } from './client'
-import { missingFields } from './contract-smoke'
-import type { components } from './schema'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { auth } from '@/lib/auth.ts'
+import { api, unwrap } from './client.ts'
+import { ApiError, errorMessage, NETWORK_ERROR, StaleSessionError } from './errors.ts'
 
-type DTO = components['schemas']
-const origin = 'http://creditflow.test'
-const id = '7f3e2a10-0000-4000-8000-000000000001'
-const draft: DTO['ClientApplicationView'] = {
-  id,
-  revision: 1,
-  status: 'DRAFT',
-  purpose_text: null,
-  purpose_code: null,
-  requested_amount_rub: null,
-  term_months: null,
-  product_id: null,
-  terms_source: 'MANUAL',
-  terms_field_sources: {},
-  allowed_actions: ['EDIT', 'INTERPRET'],
-  annual_rate_pct: null,
-  monthly_payment_rub: null,
-  overpayment_rub: null,
-  submitted_at: null,
-  client_reason_code: null,
-  offer: null,
-  info_request: null,
-  timeline: [],
+const json = (status: number, body: unknown) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+
+afterEach(() => vi.unstubAllGlobals())
+
+function deferred() {
+  let resolve: () => void = () => {}
+  const promise = new Promise<void>((done) => (resolve = done))
+  return { promise, resolve }
 }
-const report: DTO['AiReportView'] = {
-  id,
-  scoring_result_id: id,
-  status: 'PENDING',
-  llm_mode: 'replay',
-  model_id: null,
-  prompt_version: 'explain-v1',
-  report: null,
-  fallback_reason: null,
-  updated_at: '2026-10-23T12:00:00Z',
+
+/**
+ * Ответ, у которого заголовки уже пришли, а тело — по команде теста. `reading` выполняется,
+ * когда клиент начал читать тело, то есть onResponse уже отработал.
+ */
+function heldBody() {
+  const reading = deferred()
+  let controller: ReadableStreamDefaultController<Uint8Array> | undefined
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      start: (c) => void (controller = c),
+      pull: () => reading.resolve(),
+    },
+    // Без буфера: pull вызывается только при чтении, а не сразу при создании потока.
+    { highWaterMark: 0 },
+  )
+  return {
+    response: new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
+    reading: reading.promise,
+    finish(body: unknown) {
+      controller?.enqueue(new TextEncoder().encode(JSON.stringify(body)))
+      controller?.close()
+    },
+    fail: () => controller?.error(new TypeError('terminated')),
+  }
 }
-const server = setupServer()
-let api: ReturnType<typeof createApiClient>
-beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
-  api = createApiClient(origin, () => 'msw-token')
+
+const switchUser = () => {
+  auth.clear()
+  auth.setSession({ token: 'second', role: 'CLIENT' })
+}
+
+describe('api client', () => {
+  it('отдаёт данные и добавляет токен сессии', async () => {
+    auth.setSession({ token: 'secret', role: 'CLIENT' })
+    const fetch = vi.fn<(request: Request) => Promise<Response>>(async () =>
+      json(200, { status: 'ok', db: 'ok', ext_sim: 'ok', llm: 'replay' }),
+    )
+    vi.stubGlobal('fetch', fetch)
+    const data = await unwrap(api.GET('/api/v1/health'))
+    expect(data.status).toBe('ok')
+    expect(fetch.mock.calls[0]?.[0].headers.get('Authorization')).toBe('Bearer secret')
+  })
+
+  it('ответ, пришедший после выхода и входа другим пользователем, отбрасывается', async () => {
+    auth.setSession({ token: 'first', role: 'CLIENT' })
+    let respond: ((response: Response) => void) | undefined
+    vi.stubGlobal('fetch', () => new Promise<Response>((resolve) => (respond = resolve)))
+    const late = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await vi.waitFor(() => expect(respond).toBeDefined())
+    auth.clear()
+    auth.setSession({ token: 'second', role: 'CLIENT' })
+    respond?.(json(200, { status: 'ok', db: 'ok', ext_sim: 'ok', llm: 'replay' }))
+    expect(await late).toBeInstanceOf(StaleSessionError)
+  })
+
+  it('тело дочитывается уже после смены пользователя — результат отбрасывается', async () => {
+    auth.setSession({ token: 'first', role: 'CLIENT' })
+    const held = heldBody()
+    vi.stubGlobal('fetch', async () => held.response)
+    const late = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await held.reading
+    switchUser()
+    held.finish({ status: 'ok' })
+    expect(await late).toBeInstanceOf(StaleSessionError)
+  })
+
+  it('заголовки пришли, сессия сменилась, тело оборвалось — StaleSessionError', async () => {
+    auth.setSession({ token: 'first', role: 'CLIENT' })
+    const held = heldBody()
+    vi.stubGlobal('fetch', async () => held.response)
+    const late = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await held.reading
+    switchUser()
+    held.fail()
+    expect(await late).toBeInstanceOf(StaleSessionError)
+  })
+
+  it('тело оборвалось без смены сессии — NETWORK_ERROR', async () => {
+    auth.setSession({ token: 'first', role: 'CLIENT' })
+    const held = heldBody()
+    vi.stubGlobal('fetch', async () => held.response)
+    const late = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await held.reading
+    held.fail()
+    expect(await late).toMatchObject({ status: 0, code: NETWORK_ERROR })
+  })
+
+  it('параллельные запросы разных сессий не смешивают метки', async () => {
+    auth.setSession({ token: 'first', role: 'CLIENT' })
+    const byToken = { first: heldBody(), second: heldBody() }
+    vi.stubGlobal('fetch', async (request: Request) =>
+      request.headers.get('Authorization') === 'Bearer first'
+        ? byToken.first.response
+        : byToken.second.response,
+    )
+    const old = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await byToken.first.reading
+    switchUser()
+    const current = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await byToken.second.reading
+    // Сначала дочитывается тело нового запроса, потом старого — и наоборот для сбоя ниже.
+    byToken.second.finish({ status: 'ok' })
+    byToken.first.finish({ status: 'ok' })
+    expect(await current).toEqual({ status: 'ok' })
+    expect(await old).toBeInstanceOf(StaleSessionError)
+
+    const failing = heldBody()
+    vi.stubGlobal('fetch', async () => failing.response)
+    const broken = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await failing.reading
+    failing.fail()
+    expect(await broken).toMatchObject({ code: NETWORK_ERROR })
+  })
+
+  it('сбой сети запроса прошлой сессии — StaleSessionError, а не NETWORK_ERROR', async () => {
+    auth.setSession({ token: 'first', role: 'CLIENT' })
+    let fail: ((error: Error) => void) | undefined
+    vi.stubGlobal('fetch', () => new Promise<Response>((_, reject) => (fail = reject)))
+    const late = unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    await vi.waitFor(() => expect(fail).toBeDefined())
+    auth.clear()
+    auth.setSession({ token: 'second', role: 'CLIENT' })
+    fail?.(new TypeError('Failed to fetch'))
+    expect(await late).toBeInstanceOf(StaleSessionError)
+  })
+
+  it('конверт ошибки превращается в ApiError с кодом', async () => {
+    vi.stubGlobal('fetch', async () =>
+      json(409, { error: { code: 'REVISION_CONFLICT', message: 'stale' } }),
+    )
+    const error = await unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ApiError)
+    expect(error).toMatchObject({ status: 409, code: 'REVISION_CONFLICT' })
+  })
+
+  it('ответ без конверта — код по HTTP-статусу', async () => {
+    vi.stubGlobal('fetch', async () => new Response('Bad gateway', { status: 502 }))
+    const error = await unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    expect(error).toMatchObject({ status: 502, code: 'HTTP_502' })
+  })
+
+  it('сбой сети — NETWORK_ERROR', async () => {
+    vi.stubGlobal('fetch', async () => {
+      throw new TypeError('Failed to fetch')
+    })
+    const error = await unwrap(api.GET('/api/v1/health')).catch((e: unknown) => e)
+    expect(error).toMatchObject({ status: 0, code: NETWORK_ERROR })
+  })
 })
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
-describe('typed API + MSW 2 contract smoke', () => {
-  it.each([200, 201] as const)('POST applications %s', async (status) => {
-    server.use(
-      http.post(`${origin}/api/v1/applications`, ({ request }) => {
-        expect(request.headers.get('Authorization')).toBe('Bearer msw-token')
-        return HttpResponse.json(draft, { status })
-      }),
+describe('errorMessage', () => {
+  it('текст берётся по коду, а не из message бэка', () => {
+    expect(errorMessage(new ApiError(422, 'INVALID_INN', 'inn bad'))).toBe(
+      'Проверьте ИНН: 10 цифр для организации или 12 для ИП',
     )
-    const result = await api.POST('/api/v1/applications', { body: {} })
-    expect(result.response.status).toBe(status)
-    expect(result.data?.allowed_actions).toEqual(['EDIT', 'INTERPRET'])
   })
 
-  it.each([200, 202] as const)('POST AI report %s', async (status) => {
-    server.use(
-      http.post(`${origin}/api/v1/manager/applications/:id/ai-report`, () =>
-        HttpResponse.json(report, { status }),
-      ),
+  it('неизвестный код и не-ApiError — общий текст', () => {
+    expect(errorMessage(new ApiError(500, 'HTTP_500', 'boom'))).toBe(
+      'Что-то пошло не так. Повторите ещё раз',
     )
-    const result = await api.POST('/api/v1/manager/applications/{application_id}/ai-report', {
-      params: { path: { application_id: id } },
-    })
-    expect(result.response.status).toBe(status)
-    expect(result.data?.status).toBe('PENDING')
-  })
-
-  it('returns named error details and preserves Idempotency-Key', async () => {
-    const error: DTO['ErrorEnvelope'] = {
-      error: {
-        code: 'APPLICATION_INCOMPLETE',
-        message: 'Заполните поля',
-        details: {
-          missing_fields: ['product_id'],
-        },
-      },
-    }
-    server.use(
-      http.post(`${origin}/api/v1/applications/:id/submit`, ({ request }) => {
-        expect(request.headers.get('Idempotency-Key')).toBe('smoke-action-key')
-        return HttpResponse.json(error, { status: 422 })
-      }),
-    )
-    const result = await api.POST('/api/v1/applications/{application_id}/submit', {
-      params: { path: { application_id: id }, header: { 'Idempotency-Key': 'smoke-action-key' } },
-      body: { revision: 1, bki_consent_version: 'bki-v1' },
-    })
-    expect(result.error && missingFields(result.error)).toEqual(['product_id'])
-  })
-
-  it('exposes main C2, nullable offer constraints and canonical product enums', () => {
-    // These examples are validated by backend tests against their actual DTOs.
-    const spec = JSON.parse(
-      readFileSync(new URL('../../../docs/openapi.json', import.meta.url), 'utf8'),
-    )
-    const cards =
-      spec.paths['/api/v1/manager/applications/{application_id}'].get.responses['200'].content[
-        'application/json'
-      ].examples
-    expect(cards.under_review.value.offer_constraints.max_amount_rub).toBe('5000000.00')
-    expect(cards.issued.value.offer_constraints).toBeNull()
-    expect(cards.issued.value.requested_amount_rub).toBe('3000000.00')
-    expect(cards.issued.value.offers[0].amount_rub).toBe('2340000.00')
-    expect(cards.issued.value.contract.term_months).toBe(36)
-    const constraints: DTO['ProductConstraint'][] = [
-      'PURPOSE_NOT_ALLOWED',
-      'TERM_ABOVE_PRODUCT_MAX',
-    ]
-    expect(constraints).toEqual(
-      spec.paths['/api/v1/credit-products'].get.responses['200'].content['application/json']
-        .example[1].unmet_constraints,
-    )
+    expect(errorMessage(new Error('x'))).toBe('Что-то пошло не так. Повторите ещё раз')
   })
 })

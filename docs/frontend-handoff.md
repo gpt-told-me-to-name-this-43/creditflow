@@ -51,7 +51,7 @@ pnpm exec vite build
 `generate:api` вызывает `openapi-typescript ../docs/openapi.json -o src/api/schema.d.ts`.
 Сгенерированный файл не редактируется и не форматируется вручную. CI повторяет генерацию
 и проверяет отсутствие diff. Проверки типов — `src/api/contract-smoke.ts`, MSW-тесты —
-`src/api/client.test.ts`. Проверены оба ответа создания 200/201 и AI 200/202, типы details,
+`src/api/contract-smoke.test.ts`. Проверены оба ответа создания 200/201 и AI 200/202, типы details,
 ProductConstraint, nullable OfferConstraints и отсутствие внутренних полей клиента.
 openapi-typescript 7.13 декларирует peer dependency TypeScript ^5.x; в репозитории
 установлен TypeScript 6.0.3. Генерация и строгая проверка типов этой комбинации выполнены;

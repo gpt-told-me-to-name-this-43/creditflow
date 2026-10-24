@@ -1,3 +1,3 @@
-# Node/Vitest MSW не требует install-script/browser worker; подключение worker — #9/#10.
+# postinstall msw не нужен: mockServiceWorker.js генерируется явно (`pnpm exec msw init`).
 allowBuilds:
   msw: false
