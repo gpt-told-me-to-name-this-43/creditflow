@@ -18,6 +18,11 @@ const STORAGE_KEY = 'creditflow.session'
 const listeners = new Set<() => void>()
 const notify = () => listeners.forEach((listener) => listener())
 
+// Поколение сессии растёт при каждом входе и выходе. Запрос или мутация, начатые в одном
+// поколении и завершившиеся в другом, принадлежат прошлому пользователю: их результат
+// отбрасывается (StaleSessionError), а не пишется в кэш и не ведёт навигацию.
+let generation = 0
+
 function readRaw() {
   try {
     return sessionStorage.getItem(STORAGE_KEY)
@@ -39,13 +44,19 @@ export const auth = {
   },
 
   setSession(session: Session) {
+    generation += 1
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session))
     notify()
   },
 
   clear() {
+    generation += 1
     sessionStorage.removeItem(STORAGE_KEY)
     notify()
+  },
+
+  generation() {
+    return generation
   },
 
   subscribe(listener: () => void) {
@@ -57,6 +68,15 @@ export const auth = {
 }
 
 export type Auth = typeof auth
+
+/** Сессия на старте операции: `onMutate: markSession` → третий аргумент `onSuccess`. */
+export interface SessionMark {
+  generation: number
+}
+export const markSession = (): SessionMark => ({ generation: auth.generation() })
+/** Операция начата в текущей сессии; без метки — нет (безопасный отказ). */
+export const isCurrentSession = (mark: SessionMark | undefined) =>
+  mark?.generation === auth.generation()
 
 /**
  * Есть ли сессия — для шапки. Снимок — строка из sessionStorage: стабильна между

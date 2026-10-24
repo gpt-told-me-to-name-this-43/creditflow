@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { api, unwrap } from '@/api/client.ts'
 import type { PurposeCode } from '@/api/enums.ts'
-import { applicationQuery } from '@/api/queries/applications.ts'
+import { applicationQuery, markSession, storeApplication } from '@/api/queries/applications.ts'
 import { queryKeys } from '@/api/queries/keys.ts'
 import type { components } from '@/api/schema.d.ts'
 import { wholeRubles } from '@/lib/money.ts'
@@ -76,7 +76,8 @@ export function useSaveDraft(applicationId: string) {
         }),
       )
     },
-    onSuccess: (application) => queryClient.setQueryData(queryKey, application),
+    onMutate: markSession,
+    onSuccess: (application, _patch, mark) => storeApplication(queryClient, application, mark),
     meta: { invalidates: [queryKeys.applications.all] },
   })
 }

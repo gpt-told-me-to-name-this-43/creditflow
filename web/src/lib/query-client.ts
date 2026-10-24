@@ -1,6 +1,6 @@
 import { MutationCache, QueryCache, QueryClient, type QueryKey } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { errorMessage, isApiError, isUnauthorized } from '@/api/errors.ts'
+import { errorMessage, isApiError, isStaleSession, isUnauthorized } from '@/api/errors.ts'
 
 declare module '@tanstack/react-query' {
   interface Register {
@@ -25,6 +25,8 @@ export function createQueryClient({ onUnauthorized }: { onUnauthorized: () => vo
   const queryClient: QueryClient = new QueryClient({
     queryCache: new QueryCache({
       onError(error, query) {
+        // Ответ для прошлого пользователя: его кэш уже очищен, показывать нечего.
+        if (isStaleSession(error)) return
         if (isUnauthorized(error)) return onUnauthorized()
         // Первая загрузка падает в errorComponent экрана; тост — когда данные уже на экране.
         if (query.state.data !== undefined) toast.error(errorMessage(error))
@@ -33,6 +35,7 @@ export function createQueryClient({ onUnauthorized }: { onUnauthorized: () => vo
     mutationCache: new MutationCache({
       onSuccess: (_data, _variables, _result, mutation) => invalidate(mutation.meta?.invalidates),
       onError(error, _variables, _result, mutation) {
+        if (isStaleSession(error)) return
         if (isUnauthorized(error)) return onUnauthorized()
         const conflict = isApiError(error, 'REVISION_CONFLICT')
         if (conflict || mutation.meta?.errorToast !== false) toast.error(errorMessage(error))

@@ -144,3 +144,59 @@ describe('подписание', () => {
     expect(await screen.findByText(/^Деньги зачислены \d/)).toBeInTheDocument()
   }, 8000)
 })
+
+/** Задерживает запросы на `path`, пока не вызван `release()`; затем отвечает обычный мок. */
+function hold(path: string) {
+  let release = () => {}
+  const gate = new Promise<void>((resolve) => (release = resolve))
+  let arrived = () => {}
+  const started = new Promise<void>((resolve) => (arrived = resolve))
+  server.use(
+    http.post(`*/api/v1/applications/:applicationId/${path}`, async () => {
+      arrived()
+      await gate
+    }),
+  )
+  return { started, release }
+}
+
+describe('подписание: пересекающиеся запросы', () => {
+  it('пока идёт подписание, новый код не запросить; ответ старого кода не гасит текущий', async () => {
+    const { user } = await openApproved()
+    await user.click(screen.getByRole('checkbox', { name: /согласен/ }))
+    await user.click(screen.getByRole('button', { name: 'Получить код' }))
+    const code = await screen.findByLabelText('Код подтверждения')
+    const first = demoCode()
+
+    const signing = hold('sign')
+    await user.type(code, first === '000000' ? '111111' : '000000')
+    await user.click(screen.getByRole('button', { name: 'Подписать договор' }))
+    await signing.started
+
+    const newCode = screen.getByRole('button', { name: 'Получить новый код' })
+    expect(newCode).toBeDisabled()
+    await user.click(newCode)
+    signing.release()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Неверный код/)
+    expect(screen.getByLabelText('Код подтверждения')).toBeEnabled()
+    expect(demoCode()).toBe(first)
+  })
+
+  it('пока запрашивается новый код, подписать нельзя', async () => {
+    const { user } = await openApproved()
+    await user.click(screen.getByRole('checkbox', { name: /согласен/ }))
+    await user.click(screen.getByRole('button', { name: 'Получить код' }))
+    const code = await screen.findByLabelText('Код подтверждения')
+    await user.type(code, demoCode())
+
+    const issuing = hold('sign/challenge')
+    await user.click(screen.getByRole('button', { name: 'Получить новый код' }))
+    await issuing.started
+    expect(screen.getByRole('button', { name: 'Подписать договор' })).toBeDisabled()
+    issuing.release()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Получить новый код' })).toBeEnabled(),
+    )
+  })
+})

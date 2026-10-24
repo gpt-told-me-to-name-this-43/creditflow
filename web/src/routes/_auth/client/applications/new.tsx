@@ -33,7 +33,12 @@ export const Route = createFileRoute('/_auth/client/applications/new')({
       })
     }
 
-    const application = await queryClient.ensureQueryData(applicationQuery(deps.applicationId))
+    // Кэш мог устареть (заявку отправили, а ответ не дошёл): отдаём его сразу и
+    // перечитываем в фоне — мастер сам уйдёт на страницу заявки по свежему статусу.
+    const application = await queryClient.ensureQueryData({
+      ...applicationQuery(deps.applicationId),
+      revalidateIfStale: true,
+    })
     // Отправленную заявку не редактируют — её страница со статусом.
     if (application.status !== 'DRAFT') {
       throw redirect({

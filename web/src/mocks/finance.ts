@@ -21,21 +21,80 @@ export function formatKopecks(kopecks: number): string {
   return `${sign}${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, '0')}`
 }
 
-function monthlyRate(annualRatePct: string) {
-  return toKopecks(annualRatePct) / 100 / 1200
+/*
+ * Повторяем серверный Decimal (api/app/scoring/money.py): каждая операция округляется
+ * до 34 значащих цифр (ROUND_HALF_EVEN), деньги — до копейки ROUND_HALF_UP.
+ * Число — дробь num/den на BigInt; float не участвует, иначе на «половинках копейки»
+ * и в последнем платеже моки расходятся с сервером.
+ */
+const PREC = 34n
+type Ratio = { num: bigint; den: bigint }
+
+const abs = (n: bigint) => (n < 0n ? -n : n)
+const ratio = (num: bigint, den = 1n): Ratio => (den < 0n ? { num: -num, den: -den } : { num, den })
+
+function parseDecimal(value: string): Ratio {
+  const [whole = '0', fraction = ''] = value.split('.')
+  return ratio(BigInt(whole + fraction), 10n ** BigInt(fraction.length))
 }
 
-/** Платёж P = S · r / (1 − (1 + r)^−n), округление до копейки. */
+/** Округление до 34 значащих цифр, как контекст Decimal(prec=34). */
+function context(x: Ratio): Ratio {
+  if (x.num === 0n) return ratio(0n)
+  const n = abs(x.num)
+  let shift = BigInt(PREC) - BigInt((n / x.den).toString().length)
+  if (n < x.den) {
+    // |x| < 1: считаем ведущие нули дробной части
+    let lead = 0n
+    for (let probe = n * 10n; probe < x.den; probe *= 10n) lead += 1n
+    shift = PREC + lead
+  }
+  const scale = (k: bigint) => (k >= 0n ? [n * 10n ** k, x.den] : [n, x.den * 10n ** -k])
+  const [num, den] = scale(shift) as [bigint, bigint]
+  let q = num / den
+  const twice = (num % den) * 2n
+  if (twice > den || (twice === den && q % 2n === 1n)) q += 1n
+  const sign = x.num < 0n ? -1n : 1n
+  return shift >= 0n ? ratio(sign * q, 10n ** shift) : ratio(sign * q * 10n ** -shift)
+}
+
+const add = (a: Ratio, b: Ratio) => context(ratio(a.num * b.den + b.num * a.den, a.den * b.den))
+const sub = (a: Ratio, b: Ratio) => add(a, ratio(-b.num, b.den))
+const mul = (a: Ratio, b: Ratio) => context(ratio(a.num * b.num, a.den * b.den))
+const div = (a: Ratio, b: Ratio) => context(ratio(a.num * b.den, a.den * b.num))
+/** a^−n: точная степень и одно округление — как Decimal ** int. */
+const powNeg = (a: Ratio, n: number) => context(ratio(a.den ** BigInt(n), a.num ** BigInt(n)))
+
+/** round_money: до копейки ROUND_HALF_UP (половина — от нуля). */
+function toCents(x: Ratio): number {
+  const num = abs(x.num) * 100n
+  let q = num / x.den
+  if ((num % x.den) * 2n >= x.den) q += 1n
+  return Number(x.num < 0n ? -q : q)
+}
+
+const fromKopecks = (kopecks: number) => ratio(BigInt(kopecks), 100n)
+const monthlyRate = (annualRatePct: string) => div(parseDecimal(annualRatePct), ratio(1200n))
+
+/** Платёж P = round_half_up(S · r / (1 − (1 + r)^−n)); при 0% — S / n. */
 export function monthlyPayment(amountKopecks: number, termMonths: number, annualRatePct: string) {
   const r = monthlyRate(annualRatePct)
-  const factor = r === 0 ? 1 / termMonths : r / (1 - (1 + r) ** -termMonths)
-  return Math.round(amountKopecks * factor)
+  const factor =
+    r.num === 0n
+      ? div(ratio(1n), ratio(BigInt(termMonths)))
+      : div(r, sub(ratio(1n), powNeg(add(ratio(1n), r), termMonths)))
+  return toCents(mul(fromKopecks(amountKopecks), factor))
 }
 
+/** Всегда от исходной даты, а не от предыдущего платежа: 31.01 → 28/29.02 → 31.03. */
 function addMonths(isoDate: string, months: number) {
-  const date = new Date(`${isoDate}T00:00:00Z`)
-  date.setUTCMonth(date.getUTCMonth() + months)
-  return date.toISOString().slice(0, 10)
+  const [year = 0, month = 1, day = 1] = isoDate.split('-').map(Number)
+  const target = new Date(Date.UTC(year, month - 1 + months, 1))
+  const lastDay = new Date(
+    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
+  ).getUTCDate()
+  target.setUTCDate(Math.min(day, lastDay))
+  return target.toISOString().slice(0, 10)
 }
 
 /** График: последний платёж закрывает остаток до копейки. */
@@ -49,7 +108,7 @@ export function buildSchedule(
   const payment = monthlyPayment(amountKopecks, termMonths, annualRatePct)
   let balance = amountKopecks
   return Array.from({ length: termMonths }, (_, i) => {
-    const interest = Math.round(balance * r)
+    const interest = toCents(mul(fromKopecks(balance), r))
     const isLast = i === termMonths - 1
     const principal = isLast ? balance : payment - interest
     balance -= principal

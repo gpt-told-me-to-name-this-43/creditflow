@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Navigate, useNavigate } from '@tanstack/react-router'
 import { isApiError } from '@/api/errors.ts'
 import { applicationQuery } from '@/api/queries/applications.ts'
 import type { components } from '@/api/schema.d.ts'
@@ -105,6 +105,18 @@ export function Wizard({ applicationId, step }: { applicationId: string; step: n
     )
     if (invalid) return
     await saveAndGo(termsPatch(form.state.values), 3)
+  }
+
+  // Заявку уже отправили (ответ на submit потерялся, другая вкладка): свежий статус
+  // из кэша уводит на её страницу — лоадер мог отдать устаревший черновик.
+  if (application.status !== 'DRAFT') {
+    return (
+      <Navigate
+        to="/client/applications/$applicationId"
+        params={{ applicationId: application.id }}
+        replace
+      />
+    )
   }
 
   return (

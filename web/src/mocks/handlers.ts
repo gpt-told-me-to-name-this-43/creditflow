@@ -147,6 +147,8 @@ async function readJson<T>(request: { clone(): { json(): Promise<T> } }): Promis
 /**
  * Idempotency-Key (design.md §3.7): тот же ключ и тело — сохранённый ответ, другое тело — 422.
  * Ошибки не сохраняются: повтор после 4xx/5xx выполняется заново.
+ * Ключ занимается синхронно до первого await обработчика: параллельный повтор получает
+ * 409 IDEMPOTENCY_IN_PROGRESS, а не выполняет действие второй раз.
  */
 async function idempotent(
   request: Request,
@@ -160,13 +162,23 @@ async function idempotent(
   const saved = store.get()
   if (saved) {
     if (saved.fingerprint !== fingerprint) return apiError(422, 'IDEMPOTENCY_KEY_REUSED')
+    if (saved.state === 'in_progress') return apiError(409, 'IDEMPOTENCY_IN_PROGRESS')
     return HttpResponse.json(saved.body as never, { status: saved.status })
   }
-  const response = await run()
-  if (response.ok) {
-    store.set({ fingerprint, status: response.status, body: await response.clone().json() })
+  store.set({ fingerprint, state: 'in_progress' })
+  try {
+    const response = await run()
+    if (!response.ok) {
+      store.release()
+      return response
+    }
+    const body: unknown = await response.clone().json()
+    store.set({ fingerprint, state: 'done', status: response.status, body })
+    return response
+  } catch (error) {
+    store.release()
+    throw error
   }
-  return response
 }
 
 const view = (application: ApplicationRow, status = 200) =>

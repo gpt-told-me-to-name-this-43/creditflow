@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InfoIcon } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { api, unwrap } from '@/api/client.ts'
-import { errorMessage, isApiError } from '@/api/errors.ts'
-import { applicationQuery } from '@/api/queries/applications.ts'
+import { errorMessage, isApiError, isStaleSession } from '@/api/errors.ts'
+import { markSession, storeApplication } from '@/api/queries/applications.ts'
 import { queryKeys } from '@/api/queries/keys.ts'
 import type { components } from '@/api/schema.d.ts'
 import { Button } from '@/components/ui/button.tsx'
@@ -56,6 +56,8 @@ export function SignPanel({ application }: { application: Application }) {
   const [burned, setBurned] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const now = useNow(challenge !== null && !burned)
+  // Действующий challenge: ответ sign для заменённого кода не должен менять текущий.
+  const currentChallenge = useRef<string | null>(null)
 
   const requestCode = useMutation({
     mutationFn: () =>
@@ -67,6 +69,7 @@ export function SignPanel({ application }: { application: Application }) {
       ),
     meta: { errorToast: false, invalidates: [queryKeys.applications.detail(application.id)] },
     onSuccess: (issued) => {
+      currentChallenge.current = issued.challenge_id
       setChallenge(issued)
       setIssuedAt(Date.now())
       setAttempts(issued.attempts_remaining)
@@ -74,7 +77,9 @@ export function SignPanel({ application }: { application: Application }) {
       setBurned(false)
       setError(null)
     },
-    onError: (failure) => setError(challengeError(failure)),
+    onError: (failure) => {
+      if (!isStaleSession(failure)) setError(challengeError(failure))
+    },
   })
 
   const sign = useIdempotentMutation({
@@ -89,10 +94,12 @@ export function SignPanel({ application }: { application: Application }) {
         }),
       ),
     meta: { errorToast: false, invalidates: [queryKeys.applications.all] },
-    onSuccess: (signed) => {
-      queryClient.setQueryData(applicationQuery(application.id).queryKey, signed)
+    onMutate: markSession,
+    onSuccess: (signed, _body, mark) => {
+      storeApplication(queryClient, signed, mark)
     },
-    onError: (failure) => {
+    onError: (failure, { challenge_id }) => {
+      if (challenge_id !== currentChallenge.current) return
       setCode('')
       if (isApiError(failure, 'SIGN_CODE_INVALID')) {
         const details = failure.details as Partial<Schemas['SignCodeInvalidDetails']> | undefined
@@ -117,7 +124,9 @@ export function SignPanel({ application }: { application: Application }) {
 
   const left = challenge ? secondsUntil(challenge.expires_at, Math.max(now, issuedAt)) : 0
   const expired = challenge !== null && (burned || left === 0)
-  const canSign = agreed && challenge && !expired && code.length === 6 && !sign.isPending
+  // Sign и запрос кода взаимоисключающие: новый код заменяет тот, что сейчас проверяется.
+  const busy = sign.isPending || requestCode.isPending
+  const canSign = agreed && challenge && !expired && code.length === 6 && !busy
 
   return (
     <Card>
@@ -192,7 +201,7 @@ export function SignPanel({ application }: { application: Application }) {
               <Button
                 size="lg"
                 variant="outline"
-                disabled={requestCode.isPending}
+                disabled={busy}
                 onClick={() => requestCode.mutate()}
               >
                 {signTexts.newCode}

@@ -15,6 +15,7 @@ import { firstError, FormField } from '@/components/ui/form-field.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { bindingErrors, errorMessages } from '@/content/errors.ts'
 import { formatDate } from '@/lib/dates.ts'
+import { isCurrentSession, markSession } from '@/lib/auth.ts'
 import { isValidInn, normalizeInn } from '@/lib/inn.ts'
 
 type Company = components['schemas']['Company']
@@ -41,7 +42,10 @@ export function CompanyBinding() {
       ),
     // Ошибки привязки объясняем на экране, рядом с формой, а не тостом.
     meta: { errorToast: false },
-    onSuccess: async (company) => {
+    onMutate: markSession,
+    onSuccess: async (company, _inn, mark) => {
+      // Привязка прошлого пользователя не пишет в кэш нового.
+      if (!isCurrentSession(mark)) return
       queryClient.setQueryData(queryKeys.company, company)
       // GET /auth/me читает гард кабинета: без свежего company_id он вернёт сюда же.
       await queryClient.invalidateQueries({ queryKey: queryKeys.me, refetchType: 'all' })

@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { CircleCheckIcon, LoaderCircleIcon } from 'lucide-react'
 import { useId, useState } from 'react'
 import { api, unwrap } from '@/api/client.ts'
-import { applicationQuery } from '@/api/queries/applications.ts'
+import { markSession, storeApplication } from '@/api/queries/applications.ts'
 import { queryKeys } from '@/api/queries/keys.ts'
 import type { components } from '@/api/schema.d.ts'
 import { Button } from '@/components/ui/button.tsx'
@@ -43,15 +43,14 @@ const MAX_ANSWER = 2000
 
 /** Действие с заявкой: ответ кладём в кэш карточки и обновляем список. */
 function useApplicationAction<TBody>(
-  applicationId: string,
   request: (body: TBody, idempotencyKey: string) => Promise<Application>,
 ) {
   const queryClient = useQueryClient()
   return useIdempotentMutation({
     mutationFn: request,
     meta: { invalidates: [queryKeys.applications.all] },
-    onSuccess: (application) =>
-      queryClient.setQueryData(applicationQuery(applicationId).queryKey, application),
+    onMutate: markSession,
+    onSuccess: (application, _body, mark) => storeApplication(queryClient, application, mark),
   })
 }
 
@@ -91,18 +90,16 @@ export function UnderReviewBlock({ application }: { application: Application }) 
 
 export function InfoRequestBlock({ application }: { application: Application }) {
   const answerId = useId()
-  const respond = useApplicationAction(
-    application.id,
-    (body: Schemas['InfoResponseRequest'], idempotencyKey) =>
-      unwrap(
-        api.POST('/api/v1/applications/{application_id}/info-response', {
-          params: {
-            path: { application_id: application.id },
-            header: { 'Idempotency-Key': idempotencyKey },
-          },
-          body,
-        }),
-      ),
+  const respond = useApplicationAction((body: Schemas['InfoResponseRequest'], idempotencyKey) =>
+    unwrap(
+      api.POST('/api/v1/applications/{application_id}/info-response', {
+        params: {
+          path: { application_id: application.id },
+          header: { 'Idempotency-Key': idempotencyKey },
+        },
+        body,
+      }),
+    ),
   )
   const form = useForm({
     defaultValues: { answer: '' },
@@ -198,7 +195,6 @@ export function OfferBlock({ application }: { application: Application }) {
   const [dialog, setDialog] = useState<'accept' | 'decline' | null>(null)
 
   const decide = useApplicationAction(
-    application.id,
     ({ action, revision }: { action: 'accept' | 'decline'; revision: number }, idempotencyKey) => {
       const options = {
         params: {

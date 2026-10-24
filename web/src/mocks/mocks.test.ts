@@ -282,6 +282,42 @@ describe('заявка', () => {
     })
   })
 
+  it('одновременный повтор с тем же ключом не выполняет действие второй раз', async () => {
+    const application = await filledDraft()
+    const key = crypto.randomUUID()
+    const [first, second] = await Promise.all([
+      submit(application.id, application.revision, key),
+      failure(submit(application.id, application.revision, key)),
+    ])
+    expect(second).toMatchObject({ status: 409, code: 'IDEMPOTENCY_IN_PROGRESS' })
+    // Повтор после завершения — сохранённый ответ первого запроса, а не новая обработка.
+    expect(first).toMatchObject({ status: 'UNDER_REVIEW', revision: application.revision + 1 })
+    expect(await submit(application.id, application.revision, key)).toEqual(first)
+  })
+
+  it('пока ключ обрабатывается, другое тело — 422 IDEMPOTENCY_KEY_REUSED', async () => {
+    const application = await filledDraft()
+    const key = crypto.randomUUID()
+    const [, reused] = await Promise.all([
+      submit(application.id, application.revision, key),
+      failure(submit(application.id, application.revision + 1, key)),
+    ])
+    expect(reused).toMatchObject({ code: 'IDEMPOTENCY_KEY_REUSED' })
+  })
+
+  it('после ошибки тот же ключ выполняет действие заново', async () => {
+    setScenario('error503')
+    const application = await filledDraft()
+    const key = crypto.randomUUID()
+    expect(await failure(submit(application.id, application.revision, key))).toMatchObject({
+      code: 'PROVIDER_UNAVAILABLE',
+    })
+    setScenario('default')
+    expect(await submit(application.id, application.revision, key)).toMatchObject({
+      status: 'UNDER_REVIEW',
+    })
+  })
+
   it('чужая заявка — 404', async () => {
     const application = await filledDraft()
     await signInWithCompany('director.techservice', '0099010012')

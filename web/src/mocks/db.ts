@@ -122,11 +122,9 @@ export interface ApplicationEventRow {
 }
 
 /** Сохранённый ответ действия с Idempotency-Key. */
-export interface IdempotencyRow {
-  fingerprint: string
-  status: number
-  body: unknown
-}
+export type IdempotencyRow =
+  | { fingerprint: string; state: 'in_progress' }
+  | { fingerprint: string; state: 'done'; status: number; body: unknown }
 
 const SEED_USERS: Omit<UserRow, 'id' | 'company_id'>[] = [
   client('director.techservice', 'Иванов Пётр Сергеевич', '009901001052', 'C1'),
@@ -301,7 +299,7 @@ interface State {
   companies: CompanyRow[]
   applications: ApplicationRow[]
   events: ApplicationEventRow[]
-  idempotency: Record<string, IdempotencyRow>
+  idempotency: Record<string, IdempotencyRow | undefined>
   jobs: Job[]
 }
 
@@ -402,6 +400,9 @@ export const db = {
       get: () => state.idempotency[`${userId}:${key}`],
       set: (row: IdempotencyRow) => {
         state.idempotency[`${userId}:${key}`] = row
+      },
+      release: () => {
+        state.idempotency[`${userId}:${key}`] = undefined
       },
     }
   },

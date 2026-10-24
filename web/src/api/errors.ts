@@ -31,6 +31,18 @@ export class ApiError extends Error {
   }
 }
 
+/** Ответ пришёл уже после смены пользователя: результат не применяется, ошибку не показываем. */
+export class StaleSessionError extends Error {
+  constructor() {
+    super('Session changed while the request was in flight')
+    this.name = 'StaleSessionError'
+  }
+}
+
+export function isStaleSession(error: unknown): error is StaleSessionError {
+  return error instanceof StaleSessionError
+}
+
 export function isApiError(error: unknown, code?: ErrorCode): error is ApiError {
   return error instanceof ApiError && (code === undefined || error.code === code)
 }

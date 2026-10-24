@@ -1,9 +1,11 @@
 import { cleanup, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
-import { db } from '@/mocks/db.ts'
+import { http, HttpResponse } from 'msw'
+import { describe, expect, it, onTestFinished } from 'vitest'
+import { db, submitApplication } from '@/mocks/db.ts'
 import { setScenario } from '@/mocks/scenarios.ts'
 import { renderApp } from '@/test/render.tsx'
+import { server } from '@/test/server.ts'
 import { signInWithCompany } from '@/test/session.ts'
 
 const nbsp = (s: string) => s.replaceAll(' ', '\u00a0')
@@ -199,5 +201,61 @@ describe('мастер заявки', () => {
     await user.click(screen.getByRole('button', { name: 'Отправить заявку' }))
     await screen.findByRole('heading', { name: 'Оборудование', level: 1 })
     expect(draft.status).toBe('UNDER_REVIEW')
+  })
+
+  it('ответ на отправку потерялся — после проверки статуса открывается заявка, без повторной отправки', async () => {
+    const client = await signInWithCompany('director.techservice', '0099010012')
+    const user = userEvent.setup()
+    const draft = Object.assign(db.createApplication(client), {
+      purpose_code: 'EQUIPMENT',
+      requested_amount_rub: '2000000.00',
+      term_months: 36,
+      product_id: 'investment',
+    } as const)
+    let submits = 0
+    const countSubmits = ({ request }: { request: Request }) => {
+      if (request.method === 'POST' && request.url.endsWith('/submit')) submits += 1
+    }
+    server.events.on('request:start', countSubmits)
+    onTestFinished(() => server.events.removeListener('request:start', countSubmits))
+    // Бэк заявку принял, а ответ до браузера не дошёл.
+    server.use(
+      http.post(
+        '*/api/v1/applications/:applicationId/submit',
+        () => {
+          submitApplication(draft)
+          return HttpResponse.error()
+        },
+        { once: true },
+      ),
+    )
+    const { router } = renderApp(`/client/applications/new?applicationId=${draft.id}&step=4`)
+    await screen.findByRole('heading', { name: 'Проверьте заявку' })
+    await user.click(screen.getByRole('checkbox'))
+    await user.click(screen.getByRole('button', { name: 'Отправить заявку' }))
+
+    await screen.findByRole('heading', { name: 'Оборудование', level: 1 })
+    expect(router.state.location.pathname).toBe(`/client/applications/${draft.id}`)
+    expect(draft.status).toBe('UNDER_REVIEW')
+    expect(submits).toBe(1)
+  })
+
+  it('заявку уже отправили, а в кэше черновик — переход по шагам уводит на страницу заявки', async () => {
+    const client = await signInWithCompany('director.techservice', '0099010012')
+    const user = userEvent.setup()
+    const draft = Object.assign(db.createApplication(client), {
+      purpose_code: 'EQUIPMENT',
+      requested_amount_rub: '2000000.00',
+      term_months: 36,
+      product_id: 'investment',
+    } as const)
+    const { router } = renderApp(`/client/applications/new?applicationId=${draft.id}&step=4`)
+    await screen.findByRole('heading', { name: 'Проверьте заявку' })
+    // Отправлено, например, из другой вкладки: кэш этой вкладки ещё считает заявку черновиком.
+    submitApplication(draft)
+    await user.click(screen.getByRole('button', { name: 'Назад' }))
+
+    await screen.findByRole('heading', { name: 'Оборудование', level: 1 })
+    expect(router.state.location.pathname).toBe(`/client/applications/${draft.id}`)
   })
 })

@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { type ReactNode, useId } from 'react'
 import { api, unwrap } from '@/api/client.ts'
 import { errorMessage, isApiError } from '@/api/errors.ts'
-import { applicationQuery } from '@/api/queries/applications.ts'
+import { applicationQuery, markSession, storeApplication } from '@/api/queries/applications.ts'
 import { consentTextsQuery } from '@/api/queries/auth.ts'
 import { queryKeys } from '@/api/queries/keys.ts'
 import { creditProductsQuery } from '@/api/queries/products.ts'
@@ -58,12 +58,24 @@ export function StepReview({ form, application, onEdit }: StepReviewProps) {
       ),
     // Ошибки отправки объясняем под кнопкой; 409 REVISION_CONFLICT всё равно покажет тост.
     meta: { invalidates: [queryKeys.applications.all], errorToast: false },
-    onSuccess: async (submitted) => {
-      queryClient.setQueryData(applicationQuery(submitted.id).queryKey, submitted)
+    onMutate: markSession,
+    onSuccess: async (submitted, _body, mark) => {
+      // Сессия сменилась — ни кэша, ни навигации прошлого пользователя.
+      if (!storeApplication(queryClient, submitted, mark)) return
       await navigate({
         to: '/client/applications/$applicationId',
         params: { applicationId: submitted.id },
       })
+    },
+    // Исход неизвестен (сеть, 5xx) или заявка уже не черновик: перечитываем статус.
+    // Если бэк её принял, мастер уведёт на страницу заявки, и повторной отправки не будет.
+    onError: (failure) => {
+      if (
+        isApiError(failure) &&
+        (failure.isNetwork || failure.status >= 500 || failure.code === 'INVALID_STATUS_TRANSITION')
+      ) {
+        void queryClient.invalidateQueries({ queryKey: applicationQuery(application.id).queryKey })
+      }
     },
   })
 

@@ -1,6 +1,6 @@
 import { useMutation, type UseMutationOptions } from '@tanstack/react-query'
 import { useRef } from 'react'
-import { isApiError } from '@/api/errors.ts'
+import { isApiError, isStaleSession } from '@/api/errors.ts'
 
 export function newIdempotencyKey(): string {
   return crypto.randomUUID()
@@ -15,8 +15,8 @@ function keepsKey(error: unknown) {
   )
 }
 
-type IdempotentMutationOptions<TData, TVariables> = Omit<
-  UseMutationOptions<TData, Error, TVariables>,
+type IdempotentMutationOptions<TData, TVariables, TOnMutateResult> = Omit<
+  UseMutationOptions<TData, Error, TVariables, TOnMutateResult>,
   'mutationFn'
 > & {
   /** `idempotencyKey` передаётся в заголовок `Idempotency-Key`. */
@@ -28,15 +28,15 @@ type IdempotentMutationOptions<TData, TVariables> = Omit<
  * действие, повтор после сетевой ошибки или 5xx — с тем же ключом, пока не изменились
  * данные. Кнопку блокируем по `isPending`.
  */
-export function useIdempotentMutation<TData, TVariables = void>({
+export function useIdempotentMutation<TData, TVariables = void, TOnMutateResult = unknown>({
   mutationFn,
   onSuccess,
   onError,
   ...options
-}: IdempotentMutationOptions<TData, TVariables>) {
+}: IdempotentMutationOptions<TData, TVariables, TOnMutateResult>) {
   const pending = useRef<{ key: string; fingerprint: string } | null>(null)
 
-  return useMutation<TData, Error, TVariables>({
+  return useMutation<TData, Error, TVariables, TOnMutateResult>({
     ...options,
     mutationFn: (variables) => {
       const fingerprint = JSON.stringify(variables ?? null)
@@ -51,6 +51,8 @@ export function useIdempotentMutation<TData, TVariables = void>({
     },
     onError: (...args) => {
       if (!keepsKey(args[0])) pending.current = null
+      // Ответ прошлой сессии: экран нового пользователя не трогаем.
+      if (isStaleSession(args[0])) return
       return onError?.(...args)
     },
   })
