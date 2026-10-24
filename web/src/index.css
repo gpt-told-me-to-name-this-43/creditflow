@@ -1,0 +1,98 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Токены темы. Сырые цвета живут только здесь, компоненты берут их через утилиты
+ * (bg-primary, text-muted-foreground…).
+ * Бренд-красный #EF3124 даёт с белым ≈ 4.1:1 — для обычного текста мало, поэтому
+ * красный текст и белый текст на красном только жирные или крупные.
+ * Ошибки — отдельный --destructive, чтобы не путались с брендом.
+ */
+:root {
+  --background: #ffffff;
+  --foreground: #1f1f22;
+  --card: #ffffff;
+  --card-foreground: #1f1f22;
+  --popover: #ffffff;
+  --popover-foreground: #1f1f22;
+  --primary: #ef3124;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f5;
+  --secondary-foreground: #1f1f22;
+  --muted: #f3f4f5;
+  --muted-foreground: #5f6267;
+  --accent: #f3f4f5;
+  --accent-foreground: #1f1f22;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  /* Деньги зачислены: белый текст на зелёном ≈ 5.9:1. */
+  --success: #12733a;
+  --success-foreground: #ffffff;
+  --border: #e3e4e6;
+  --input: #d5d7da;
+  --ring: #ef3124;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #1c1c1e;
+  --foreground: #f2f2f3;
+  --card: #26262a;
+  --card-foreground: #f2f2f3;
+  --popover: #26262a;
+  --popover-foreground: #f2f2f3;
+  --primary: #ef3124;
+  --primary-foreground: #ffffff;
+  --secondary: #2f2f34;
+  --secondary-foreground: #f2f2f3;
+  --muted: #2f2f34;
+  --muted-foreground: #a8a9ae;
+  --accent: #2f2f34;
+  --accent-foreground: #f2f2f3;
+  --destructive: #ff8a80;
+  --destructive-foreground: #1c1c1e;
+  --success: #5cd68a;
+  --success-foreground: #1c1c1e;
+  --border: #3a3a40;
+  --input: #4a4a50;
+  --ring: #ef3124;
+}
+
+@theme inline {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
