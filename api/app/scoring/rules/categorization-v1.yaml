@@ -1,0 +1,24 @@
+# Категоризация операций выписки (design.md §3.4). Побеждает ПЕРВОЕ сработавшее правило,
+# поэтому порядок списка — часть контракта: менять его можно только вместе с RULES_VERSION.
+#
+# Условия (все заданные должны выполниться):
+#   direction               IN | OUT
+#   counterparty_is_bank    true | false
+#   counterparty_inn_equals company_inn | director_inn
+#   counterparty_kind       список из LLC | IE | BANK | UNKNOWN (по длине ИНН и is_bank)
+#   purpose_regex           regex по назначению; без регистра, «ё» читается как «е»
+#   kbk_prefix              префикс 20-значного КБК в назначении («КБК 182…»)
+version: categorization-v1
+rules:
+  - {id: own_transfer,    category: OWN_TRANSFER,     when: {counterparty_inn_equals: company_inn}}
+  - {id: loan_repayment,  category: LOAN_REPAYMENT,   when: {direction: OUT, counterparty_is_bank: true, purpose_regex: "погашени|кредитн|процент"}}
+  - {id: loan_proceeds,   category: LOAN_PROCEEDS,    when: {direction: IN, counterparty_is_bank: true, purpose_regex: "выдач|предоставлени.*кредит"}}
+  - {id: tax,             category: TAX,              when: {direction: OUT, kbk_prefix: "182"}}
+  - {id: salary,          category: SALARY,           when: {direction: OUT, purpose_regex: "заработн"}}
+  - {id: rent,            category: RENT,             when: {direction: OUT, purpose_regex: "аренд"}}
+  - {id: cash_withdrawal, category: CASH_WITHDRAWAL,  when: {direction: OUT, purpose_regex: "снятие наличн"}}
+  - {id: owner_transfer,  category: OWNER_TRANSFER,   when: {direction: OUT, counterparty_inn_equals: director_inn}}
+  - {id: acquiring,       category: ACQUIRING,        when: {direction: IN, counterparty_is_bank: true, purpose_regex: "эквайринг"}}
+  - {id: customer_payment, category: CUSTOMER_PAYMENT, when: {direction: IN, counterparty_kind: [LLC, IE], purpose_regex: "оплат|по счет|за товар|за услуг"}}
+  - {id: supplier,        category: SUPPLIER,         when: {direction: OUT, counterparty_kind: [LLC, IE], purpose_regex: "оплат|поставк|за товар"}}
+# Ничего не сработало → UNCLASSIFIED: IN — не выручка, OUT — opex (консервативно).

@@ -1,0 +1,11 @@
+{
+  "summary_status": "CLEAN",
+  "monthly_payments_total_rub": "100000.00",
+  "obligations": [
+    {
+      "creditor_name": "АО «Демо-Банк»",
+      "monthly_payment_rub": "100000.00",
+      "outstanding_rub": "3000000.00"
+    }
+  ]
+}

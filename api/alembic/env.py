@@ -1,9 +1,10 @@
-"""Alembic: миграции по `Base.metadata`. Цепочка пока пустая, таблицы — в #6."""
+"""Alembic: миграции по `Base.metadata` (модели — app/db/models.py)."""
 
 from logging.config import fileConfig
 
 from sqlalchemy import create_engine, pool
 
+import app.db.models  # noqa: F401 — регистрирует таблицы в Base.metadata (иначе autogenerate пуст)
 from alembic import context
 from app.core.config import Settings
 from app.core.db import Base

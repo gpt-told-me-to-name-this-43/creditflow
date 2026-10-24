@@ -1,0 +1,2885 @@
+{
+  "account_masked": "40702 •••• 0015",
+  "transactions": [
+    {
+      "external_id": "0099050015-000001",
+      "booked_at": "2025-10-01",
+      "direction": "IN",
+      "amount_rub": "38388.62",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000002",
+      "booked_at": "2025-10-01",
+      "direction": "IN",
+      "amount_rub": "58108.10",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.10.2025"
+    },
+    {
+      "external_id": "0099050015-000003",
+      "booked_at": "2025-10-03",
+      "direction": "IN",
+      "amount_rub": "72973.00",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.10.2025"
+    },
+    {
+      "external_id": "0099050015-000004",
+      "booked_at": "2025-10-06",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 10.2025"
+    },
+    {
+      "external_id": "0099050015-000005",
+      "booked_at": "2025-10-07",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000006",
+      "booked_at": "2025-10-09",
+      "direction": "OUT",
+      "amount_rub": "68571.43",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 10.2025"
+    },
+    {
+      "external_id": "0099050015-000007",
+      "booked_at": "2025-10-11",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000008",
+      "booked_at": "2025-10-12",
+      "direction": "OUT",
+      "amount_rub": "39107.76",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000009",
+      "booked_at": "2025-10-13",
+      "direction": "OUT",
+      "amount_rub": "51428.57",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 10.2025"
+    },
+    {
+      "external_id": "0099050015-000010",
+      "booked_at": "2025-10-13",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000011",
+      "booked_at": "2025-10-16",
+      "direction": "OUT",
+      "amount_rub": "48060.15",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000012",
+      "booked_at": "2025-10-17",
+      "direction": "OUT",
+      "amount_rub": "50416.05",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000013",
+      "booked_at": "2025-10-20",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000014",
+      "booked_at": "2025-10-21",
+      "direction": "IN",
+      "amount_rub": "72972.97",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.10.2025"
+    },
+    {
+      "external_id": "0099050015-000015",
+      "booked_at": "2025-10-24",
+      "direction": "IN",
+      "amount_rub": "66216.21",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.10.2025"
+    },
+    {
+      "external_id": "0099050015-000016",
+      "booked_at": "2025-10-24",
+      "direction": "OUT",
+      "amount_rub": "50416.04",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000017",
+      "booked_at": "2025-10-25",
+      "direction": "IN",
+      "amount_rub": "36611.38",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000018",
+      "booked_at": "2025-10-25",
+      "direction": "IN",
+      "amount_rub": "11910.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000019",
+      "booked_at": "2025-10-26",
+      "direction": "IN",
+      "amount_rub": "75000.00",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.10.2025"
+    },
+    {
+      "external_id": "0099050015-000020",
+      "booked_at": "2025-10-26",
+      "direction": "IN",
+      "amount_rub": "79729.72",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.10.2025"
+    },
+    {
+      "external_id": "0099050015-000021",
+      "booked_at": "2025-11-01",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000022",
+      "booked_at": "2025-11-02",
+      "direction": "OUT",
+      "amount_rub": "57818.18",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 11.2025"
+    },
+    {
+      "external_id": "0099050015-000023",
+      "booked_at": "2025-11-03",
+      "direction": "IN",
+      "amount_rub": "70611.28",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.11.2025"
+    },
+    {
+      "external_id": "0099050015-000024",
+      "booked_at": "2025-11-04",
+      "direction": "OUT",
+      "amount_rub": "50887.21",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000025",
+      "booked_at": "2025-11-06",
+      "direction": "IN",
+      "amount_rub": "8229.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000026",
+      "booked_at": "2025-11-08",
+      "direction": "IN",
+      "amount_rub": "74608.15",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.11.2025"
+    },
+    {
+      "external_id": "0099050015-000027",
+      "booked_at": "2025-11-09",
+      "direction": "IN",
+      "amount_rub": "35853.65",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000028",
+      "booked_at": "2025-11-10",
+      "direction": "IN",
+      "amount_rub": "70611.28",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.11.2025"
+    },
+    {
+      "external_id": "0099050015-000029",
+      "booked_at": "2025-11-11",
+      "direction": "IN",
+      "amount_rub": "63949.86",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.11.2025"
+    },
+    {
+      "external_id": "0099050015-000030",
+      "booked_at": "2025-11-12",
+      "direction": "OUT",
+      "amount_rub": "49473.68",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000031",
+      "booked_at": "2025-11-13",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000032",
+      "booked_at": "2025-11-16",
+      "direction": "OUT",
+      "amount_rub": "48060.15",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000033",
+      "booked_at": "2025-11-18",
+      "direction": "OUT",
+      "amount_rub": "39578.96",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000034",
+      "booked_at": "2025-11-19",
+      "direction": "OUT",
+      "amount_rub": "62181.82",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 11.2025"
+    },
+    {
+      "external_id": "0099050015-000035",
+      "booked_at": "2025-11-19",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000036",
+      "booked_at": "2025-11-23",
+      "direction": "IN",
+      "amount_rub": "76606.58",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.11.2025"
+    },
+    {
+      "external_id": "0099050015-000037",
+      "booked_at": "2025-11-24",
+      "direction": "IN",
+      "amount_rub": "68612.85",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.11.2025"
+    },
+    {
+      "external_id": "0099050015-000038",
+      "booked_at": "2025-11-24",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 11.2025"
+    },
+    {
+      "external_id": "0099050015-000039",
+      "booked_at": "2025-11-26",
+      "direction": "IN",
+      "amount_rub": "39146.35",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000040",
+      "booked_at": "2025-11-28",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000041",
+      "booked_at": "2025-12-03",
+      "direction": "OUT",
+      "amount_rub": "62105.27",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 12.2025"
+    },
+    {
+      "external_id": "0099050015-000042",
+      "booked_at": "2025-12-03",
+      "direction": "OUT",
+      "amount_rub": "47218.60",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000043",
+      "booked_at": "2025-12-06",
+      "direction": "OUT",
+      "amount_rub": "51590.69",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000044",
+      "booked_at": "2025-12-07",
+      "direction": "IN",
+      "amount_rub": "56158.23",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.12.2025"
+    },
+    {
+      "external_id": "0099050015-000045",
+      "booked_at": "2025-12-08",
+      "direction": "OUT",
+      "amount_rub": "57894.73",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 12.2025"
+    },
+    {
+      "external_id": "0099050015-000046",
+      "booked_at": "2025-12-09",
+      "direction": "IN",
+      "amount_rub": "73491.02",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.12.2025"
+    },
+    {
+      "external_id": "0099050015-000047",
+      "booked_at": "2025-12-10",
+      "direction": "OUT",
+      "amount_rub": "36725.58",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000048",
+      "booked_at": "2025-12-10",
+      "direction": "IN",
+      "amount_rub": "11598.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000049",
+      "booked_at": "2025-12-11",
+      "direction": "IN",
+      "amount_rub": "34782.60",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000050",
+      "booked_at": "2025-12-11",
+      "direction": "IN",
+      "amount_rub": "65171.33",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.12.2025"
+    },
+    {
+      "external_id": "0099050015-000051",
+      "booked_at": "2025-12-11",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000052",
+      "booked_at": "2025-12-12",
+      "direction": "OUT",
+      "amount_rub": "52465.13",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000053",
+      "booked_at": "2025-12-14",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000054",
+      "booked_at": "2025-12-19",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000055",
+      "booked_at": "2025-12-23",
+      "direction": "IN",
+      "amount_rub": "40217.40",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000056",
+      "booked_at": "2025-12-23",
+      "direction": "IN",
+      "amount_rub": "78344.20",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.12.2025"
+    },
+    {
+      "external_id": "0099050015-000057",
+      "booked_at": "2025-12-24",
+      "direction": "IN",
+      "amount_rub": "70024.46",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.12.2025"
+    },
+    {
+      "external_id": "0099050015-000058",
+      "booked_at": "2025-12-25",
+      "direction": "IN",
+      "amount_rub": "81810.76",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.12.2025"
+    },
+    {
+      "external_id": "0099050015-000059",
+      "booked_at": "2025-12-25",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000060",
+      "booked_at": "2025-12-28",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 12.2025"
+    },
+    {
+      "external_id": "0099050015-000061",
+      "booked_at": "2026-01-05",
+      "direction": "IN",
+      "amount_rub": "81155.77",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.01.2026"
+    },
+    {
+      "external_id": "0099050015-000062",
+      "booked_at": "2026-01-08",
+      "direction": "OUT",
+      "amount_rub": "41063.17",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000063",
+      "booked_at": "2026-01-09",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000064",
+      "booked_at": "2026-01-09",
+      "direction": "OUT",
+      "amount_rub": "57884.21",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000065",
+      "booked_at": "2026-01-09",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000066",
+      "booked_at": "2026-01-10",
+      "direction": "IN",
+      "amount_rub": "75460.63",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.01.2026"
+    },
+    {
+      "external_id": "0099050015-000067",
+      "booked_at": "2026-01-10",
+      "direction": "OUT",
+      "amount_rub": "45515.78",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000068",
+      "booked_at": "2026-01-11",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 01.2026"
+    },
+    {
+      "external_id": "0099050015-000069",
+      "booked_at": "2026-01-11",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 01.2026"
+    },
+    {
+      "external_id": "0099050015-000070",
+      "booked_at": "2026-01-12",
+      "direction": "IN",
+      "amount_rub": "81155.77",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.01.2026"
+    },
+    {
+      "external_id": "0099050015-000071",
+      "booked_at": "2026-01-12",
+      "direction": "IN",
+      "amount_rub": "64782.28",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.01.2026"
+    },
+    {
+      "external_id": "0099050015-000072",
+      "booked_at": "2026-01-15",
+      "direction": "OUT",
+      "amount_rub": "43536.84",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000073",
+      "booked_at": "2026-01-16",
+      "direction": "IN",
+      "amount_rub": "61934.67",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.01.2026"
+    },
+    {
+      "external_id": "0099050015-000074",
+      "booked_at": "2026-01-16",
+      "direction": "IN",
+      "amount_rub": "60510.88",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.01.2026"
+    },
+    {
+      "external_id": "0099050015-000075",
+      "booked_at": "2026-01-16",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000076",
+      "booked_at": "2026-01-17",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 01.2026"
+    },
+    {
+      "external_id": "0099050015-000077",
+      "booked_at": "2026-01-23",
+      "direction": "IN",
+      "amount_rub": "37681.15",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000078",
+      "booked_at": "2026-01-23",
+      "direction": "IN",
+      "amount_rub": "12454.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000079",
+      "booked_at": "2026-01-24",
+      "direction": "IN",
+      "amount_rub": "37318.85",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000080",
+      "booked_at": "2026-01-24",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000081",
+      "booked_at": "2026-02-01",
+      "direction": "IN",
+      "amount_rub": "77560.56",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.02.2026"
+    },
+    {
+      "external_id": "0099050015-000082",
+      "booked_at": "2026-02-03",
+      "direction": "IN",
+      "amount_rub": "37096.77",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000083",
+      "booked_at": "2026-02-03",
+      "direction": "OUT",
+      "amount_rub": "41894.15",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000084",
+      "booked_at": "2026-02-10",
+      "direction": "IN",
+      "amount_rub": "13095.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000085",
+      "booked_at": "2026-02-11",
+      "direction": "OUT",
+      "amount_rub": "47654.59",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000086",
+      "booked_at": "2026-02-13",
+      "direction": "IN",
+      "amount_rub": "37903.23",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000087",
+      "booked_at": "2026-02-16",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000088",
+      "booked_at": "2026-02-17",
+      "direction": "IN",
+      "amount_rub": "64897.57",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.02.2026"
+    },
+    {
+      "external_id": "0099050015-000089",
+      "booked_at": "2026-02-18",
+      "direction": "OUT",
+      "amount_rub": "46083.58",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000090",
+      "booked_at": "2026-02-19",
+      "direction": "OUT",
+      "amount_rub": "53770.50",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 02.2026"
+    },
+    {
+      "external_id": "0099050015-000091",
+      "booked_at": "2026-02-19",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 02.2026"
+    },
+    {
+      "external_id": "0099050015-000092",
+      "booked_at": "2026-02-22",
+      "direction": "IN",
+      "amount_rub": "79143.38",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.02.2026"
+    },
+    {
+      "external_id": "0099050015-000093",
+      "booked_at": "2026-02-23",
+      "direction": "IN",
+      "amount_rub": "66480.44",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.02.2026"
+    },
+    {
+      "external_id": "0099050015-000094",
+      "booked_at": "2026-02-24",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000095",
+      "booked_at": "2026-02-25",
+      "direction": "OUT",
+      "amount_rub": "66229.50",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 02.2026"
+    },
+    {
+      "external_id": "0099050015-000096",
+      "booked_at": "2026-02-25",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000097",
+      "booked_at": "2026-02-26",
+      "direction": "IN",
+      "amount_rub": "68854.74",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.02.2026"
+    },
+    {
+      "external_id": "0099050015-000098",
+      "booked_at": "2026-02-26",
+      "direction": "IN",
+      "amount_rub": "68063.31",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.02.2026"
+    },
+    {
+      "external_id": "0099050015-000099",
+      "booked_at": "2026-02-26",
+      "direction": "OUT",
+      "amount_rub": "52367.68",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000100",
+      "booked_at": "2026-02-28",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000101",
+      "booked_at": "2026-03-01",
+      "direction": "OUT",
+      "amount_rub": "38733.69",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000102",
+      "booked_at": "2026-03-03",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000103",
+      "booked_at": "2026-03-04",
+      "direction": "OUT",
+      "amount_rub": "49597.98",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000104",
+      "booked_at": "2026-03-04",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000105",
+      "booked_at": "2026-03-08",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000106",
+      "booked_at": "2026-03-10",
+      "direction": "OUT",
+      "amount_rub": "62198.96",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 03.2026"
+    },
+    {
+      "external_id": "0099050015-000107",
+      "booked_at": "2026-03-10",
+      "direction": "IN",
+      "amount_rub": "14388.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000108",
+      "booked_at": "2026-03-17",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 03.2026"
+    },
+    {
+      "external_id": "0099050015-000109",
+      "booked_at": "2026-03-20",
+      "direction": "IN",
+      "amount_rub": "59964.72",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.03.2026"
+    },
+    {
+      "external_id": "0099050015-000110",
+      "booked_at": "2026-03-20",
+      "direction": "IN",
+      "amount_rub": "68209.87",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.03.2026"
+    },
+    {
+      "external_id": "0099050015-000111",
+      "booked_at": "2026-03-22",
+      "direction": "OUT",
+      "amount_rub": "56211.05",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000112",
+      "booked_at": "2026-03-23",
+      "direction": "IN",
+      "amount_rub": "39236.12",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000113",
+      "booked_at": "2026-03-24",
+      "direction": "IN",
+      "amount_rub": "74206.34",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.03.2026"
+    },
+    {
+      "external_id": "0099050015-000114",
+      "booked_at": "2026-03-24",
+      "direction": "IN",
+      "amount_rub": "77204.58",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.03.2026"
+    },
+    {
+      "external_id": "0099050015-000115",
+      "booked_at": "2026-03-25",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000116",
+      "booked_at": "2026-03-26",
+      "direction": "OUT",
+      "amount_rub": "57801.04",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 03.2026"
+    },
+    {
+      "external_id": "0099050015-000117",
+      "booked_at": "2026-03-26",
+      "direction": "OUT",
+      "amount_rub": "43457.28",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000118",
+      "booked_at": "2026-03-27",
+      "direction": "IN",
+      "amount_rub": "35763.88",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000119",
+      "booked_at": "2026-03-28",
+      "direction": "IN",
+      "amount_rub": "80202.82",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.03.2026"
+    },
+    {
+      "external_id": "0099050015-000120",
+      "booked_at": "2026-03-28",
+      "direction": "IN",
+      "amount_rub": "65211.67",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.03.2026"
+    },
+    {
+      "external_id": "0099050015-000121",
+      "booked_at": "2026-04-04",
+      "direction": "IN",
+      "amount_rub": "67369.30",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.04.2026"
+    },
+    {
+      "external_id": "0099050015-000122",
+      "booked_at": "2026-04-05",
+      "direction": "IN",
+      "amount_rub": "73102.86",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.04.2026"
+    },
+    {
+      "external_id": "0099050015-000123",
+      "booked_at": "2026-04-09",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 04.2026"
+    },
+    {
+      "external_id": "0099050015-000124",
+      "booked_at": "2026-04-09",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000125",
+      "booked_at": "2026-04-10",
+      "direction": "OUT",
+      "amount_rub": "62790.70",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 04.2026"
+    },
+    {
+      "external_id": "0099050015-000126",
+      "booked_at": "2026-04-15",
+      "direction": "IN",
+      "amount_rub": "73102.86",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.04.2026"
+    },
+    {
+      "external_id": "0099050015-000127",
+      "booked_at": "2026-04-15",
+      "direction": "IN",
+      "amount_rub": "62352.48",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.04.2026"
+    },
+    {
+      "external_id": "0099050015-000128",
+      "booked_at": "2026-04-16",
+      "direction": "IN",
+      "amount_rub": "63069.13",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.04.2026"
+    },
+    {
+      "external_id": "0099050015-000129",
+      "booked_at": "2026-04-17",
+      "direction": "IN",
+      "amount_rub": "39418.61",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000130",
+      "booked_at": "2026-04-19",
+      "direction": "OUT",
+      "amount_rub": "57209.30",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 04.2026"
+    },
+    {
+      "external_id": "0099050015-000131",
+      "booked_at": "2026-04-19",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000132",
+      "booked_at": "2026-04-21",
+      "direction": "IN",
+      "amount_rub": "35581.39",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000133",
+      "booked_at": "2026-04-21",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000134",
+      "booked_at": "2026-04-22",
+      "direction": "IN",
+      "amount_rub": "5804.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000135",
+      "booked_at": "2026-04-24",
+      "direction": "OUT",
+      "amount_rub": "46889.41",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000136",
+      "booked_at": "2026-04-25",
+      "direction": "OUT",
+      "amount_rub": "53082.37",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000137",
+      "booked_at": "2026-04-27",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000138",
+      "booked_at": "2026-04-27",
+      "direction": "OUT",
+      "amount_rub": "41581.17",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000139",
+      "booked_at": "2026-04-27",
+      "direction": "OUT",
+      "amount_rub": "46447.05",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000140",
+      "booked_at": "2026-04-28",
+      "direction": "IN",
+      "amount_rub": "86003.37",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.04.2026"
+    },
+    {
+      "external_id": "0099050015-000141",
+      "booked_at": "2026-05-01",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000142",
+      "booked_at": "2026-05-02",
+      "direction": "OUT",
+      "amount_rub": "48898.98",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000143",
+      "booked_at": "2026-05-04",
+      "direction": "IN",
+      "amount_rub": "30445.55",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000144",
+      "booked_at": "2026-05-05",
+      "direction": "IN",
+      "amount_rub": "82390.95",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.05.2026"
+    },
+    {
+      "external_id": "0099050015-000145",
+      "booked_at": "2026-05-05",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000146",
+      "booked_at": "2026-05-06",
+      "direction": "OUT",
+      "amount_rub": "50653.27",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 05.2026"
+    },
+    {
+      "external_id": "0099050015-000147",
+      "booked_at": "2026-05-08",
+      "direction": "IN",
+      "amount_rub": "76211.63",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.05.2026"
+    },
+    {
+      "external_id": "0099050015-000148",
+      "booked_at": "2026-05-08",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000149",
+      "booked_at": "2026-05-09",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000150",
+      "booked_at": "2026-05-11",
+      "direction": "IN",
+      "amount_rub": "74151.88",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.05.2026"
+    },
+    {
+      "external_id": "0099050015-000151",
+      "booked_at": "2026-05-11",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 05.2026"
+    },
+    {
+      "external_id": "0099050015-000152",
+      "booked_at": "2026-05-14",
+      "direction": "IN",
+      "amount_rub": "64539.57",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.05.2026"
+    },
+    {
+      "external_id": "0099050015-000153",
+      "booked_at": "2026-05-14",
+      "direction": "IN",
+      "amount_rub": "9649.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000154",
+      "booked_at": "2026-05-15",
+      "direction": "OUT",
+      "amount_rub": "69346.73",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 05.2026"
+    },
+    {
+      "external_id": "0099050015-000155",
+      "booked_at": "2026-05-17",
+      "direction": "OUT",
+      "amount_rub": "46050.50",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000156",
+      "booked_at": "2026-05-18",
+      "direction": "IN",
+      "amount_rub": "71405.49",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.05.2026"
+    },
+    {
+      "external_id": "0099050015-000157",
+      "booked_at": "2026-05-23",
+      "direction": "IN",
+      "amount_rub": "44554.45",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000158",
+      "booked_at": "2026-05-23",
+      "direction": "OUT",
+      "amount_rub": "46050.52",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000159",
+      "booked_at": "2026-05-25",
+      "direction": "IN",
+      "amount_rub": "56300.48",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.05.2026"
+    },
+    {
+      "external_id": "0099050015-000160",
+      "booked_at": "2026-05-25",
+      "direction": "OUT",
+      "amount_rub": "47000.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000161",
+      "booked_at": "2026-06-02",
+      "direction": "IN",
+      "amount_rub": "60608.69",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.06.2026"
+    },
+    {
+      "external_id": "0099050015-000162",
+      "booked_at": "2026-06-03",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 06.2026"
+    },
+    {
+      "external_id": "0099050015-000163",
+      "booked_at": "2026-06-03",
+      "direction": "IN",
+      "amount_rub": "5793.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000164",
+      "booked_at": "2026-06-04",
+      "direction": "OUT",
+      "amount_rub": "56511.63",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 06.2026"
+    },
+    {
+      "external_id": "0099050015-000165",
+      "booked_at": "2026-06-06",
+      "direction": "IN",
+      "amount_rub": "71695.65",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.06.2026"
+    },
+    {
+      "external_id": "0099050015-000166",
+      "booked_at": "2026-06-06",
+      "direction": "IN",
+      "amount_rub": "69478.28",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.06.2026"
+    },
+    {
+      "external_id": "0099050015-000167",
+      "booked_at": "2026-06-06",
+      "direction": "OUT",
+      "amount_rub": "43111.11",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000168",
+      "booked_at": "2026-06-08",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000169",
+      "booked_at": "2026-06-09",
+      "direction": "IN",
+      "amount_rub": "86478.26",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.06.2026"
+    },
+    {
+      "external_id": "0099050015-000170",
+      "booked_at": "2026-06-10",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000171",
+      "booked_at": "2026-06-13",
+      "direction": "IN",
+      "amount_rub": "77608.69",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.06.2026"
+    },
+    {
+      "external_id": "0099050015-000172",
+      "booked_at": "2026-06-14",
+      "direction": "OUT",
+      "amount_rub": "51555.56",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000173",
+      "booked_at": "2026-06-14",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000174",
+      "booked_at": "2026-06-15",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000175",
+      "booked_at": "2026-06-15",
+      "direction": "OUT",
+      "amount_rub": "49333.33",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000176",
+      "booked_at": "2026-06-19",
+      "direction": "IN",
+      "amount_rub": "59130.43",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.06.2026"
+    },
+    {
+      "external_id": "0099050015-000177",
+      "booked_at": "2026-06-21",
+      "direction": "OUT",
+      "amount_rub": "63488.37",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 06.2026"
+    },
+    {
+      "external_id": "0099050015-000178",
+      "booked_at": "2026-06-23",
+      "direction": "IN",
+      "amount_rub": "37325.58",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000179",
+      "booked_at": "2026-06-26",
+      "direction": "OUT",
+      "amount_rub": "44000.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000180",
+      "booked_at": "2026-06-28",
+      "direction": "IN",
+      "amount_rub": "37674.42",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000181",
+      "booked_at": "2026-07-01",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000182",
+      "booked_at": "2026-07-02",
+      "direction": "OUT",
+      "amount_rub": "38975.60",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000183",
+      "booked_at": "2026-07-03",
+      "direction": "IN",
+      "amount_rub": "63750.00",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.07.2026"
+    },
+    {
+      "external_id": "0099050015-000184",
+      "booked_at": "2026-07-03",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 07.2026"
+    },
+    {
+      "external_id": "0099050015-000185",
+      "booked_at": "2026-07-04",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000186",
+      "booked_at": "2026-07-04",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000187",
+      "booked_at": "2026-07-04",
+      "direction": "IN",
+      "amount_rub": "11323.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000188",
+      "booked_at": "2026-07-05",
+      "direction": "IN",
+      "amount_rub": "60818.96",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.07.2026"
+    },
+    {
+      "external_id": "0099050015-000189",
+      "booked_at": "2026-07-08",
+      "direction": "IN",
+      "amount_rub": "75474.13",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.07.2026"
+    },
+    {
+      "external_id": "0099050015-000190",
+      "booked_at": "2026-07-08",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000191",
+      "booked_at": "2026-07-10",
+      "direction": "OUT",
+      "amount_rub": "49521.95",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000192",
+      "booked_at": "2026-07-11",
+      "direction": "IN",
+      "amount_rub": "79870.68",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.07.2026"
+    },
+    {
+      "external_id": "0099050015-000193",
+      "booked_at": "2026-07-11",
+      "direction": "OUT",
+      "amount_rub": "44936.58",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000194",
+      "booked_at": "2026-07-12",
+      "direction": "IN",
+      "amount_rub": "34154.92",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000195",
+      "booked_at": "2026-07-12",
+      "direction": "OUT",
+      "amount_rub": "55862.06",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 07.2026"
+    },
+    {
+      "external_id": "0099050015-000196",
+      "booked_at": "2026-07-14",
+      "direction": "IN",
+      "amount_rub": "40845.08",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000197",
+      "booked_at": "2026-07-18",
+      "direction": "OUT",
+      "amount_rub": "54565.87",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000198",
+      "booked_at": "2026-07-20",
+      "direction": "OUT",
+      "amount_rub": "64137.94",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 07.2026"
+    },
+    {
+      "external_id": "0099050015-000199",
+      "booked_at": "2026-07-25",
+      "direction": "IN",
+      "amount_rub": "58620.72",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.07.2026"
+    },
+    {
+      "external_id": "0099050015-000200",
+      "booked_at": "2026-07-28",
+      "direction": "IN",
+      "amount_rub": "86465.51",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.07.2026"
+    },
+    {
+      "external_id": "0099050015-000201",
+      "booked_at": "2026-08-01",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000202",
+      "booked_at": "2026-08-04",
+      "direction": "IN",
+      "amount_rub": "12262.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000203",
+      "booked_at": "2026-08-05",
+      "direction": "OUT",
+      "amount_rub": "56938.78",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 08.2026"
+    },
+    {
+      "external_id": "0099050015-000204",
+      "booked_at": "2026-08-07",
+      "direction": "OUT",
+      "amount_rub": "58000.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000205",
+      "booked_at": "2026-08-08",
+      "direction": "OUT",
+      "amount_rub": "41500.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000206",
+      "booked_at": "2026-08-09",
+      "direction": "OUT",
+      "amount_rub": "44500.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000207",
+      "booked_at": "2026-08-10",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 08.2026"
+    },
+    {
+      "external_id": "0099050015-000208",
+      "booked_at": "2026-08-13",
+      "direction": "IN",
+      "amount_rub": "33000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000209",
+      "booked_at": "2026-08-13",
+      "direction": "IN",
+      "amount_rub": "79037.52",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.08.2026"
+    },
+    {
+      "external_id": "0099050015-000210",
+      "booked_at": "2026-08-13",
+      "direction": "OUT",
+      "amount_rub": "63061.22",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 08.2026"
+    },
+    {
+      "external_id": "0099050015-000211",
+      "booked_at": "2026-08-17",
+      "direction": "IN",
+      "amount_rub": "79037.52",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.08.2026"
+    },
+    {
+      "external_id": "0099050015-000212",
+      "booked_at": "2026-08-17",
+      "direction": "IN",
+      "amount_rub": "55464.92",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.08.2026"
+    },
+    {
+      "external_id": "0099050015-000213",
+      "booked_at": "2026-08-17",
+      "direction": "IN",
+      "amount_rub": "82504.09",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.08.2026"
+    },
+    {
+      "external_id": "0099050015-000214",
+      "booked_at": "2026-08-17",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000215",
+      "booked_at": "2026-08-19",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000216",
+      "booked_at": "2026-08-22",
+      "direction": "IN",
+      "amount_rub": "57544.86",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.08.2026"
+    },
+    {
+      "external_id": "0099050015-000217",
+      "booked_at": "2026-08-23",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000218",
+      "booked_at": "2026-08-24",
+      "direction": "IN",
+      "amount_rub": "42000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000219",
+      "booked_at": "2026-08-26",
+      "direction": "IN",
+      "amount_rub": "71411.09",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.08.2026"
+    },
+    {
+      "external_id": "0099050015-000220",
+      "booked_at": "2026-08-28",
+      "direction": "OUT",
+      "amount_rub": "44000.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000221",
+      "booked_at": "2026-09-01",
+      "direction": "OUT",
+      "amount_rub": "12000.00",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000222",
+      "booked_at": "2026-09-06",
+      "direction": "OUT",
+      "amount_rub": "54068.60",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000223",
+      "booked_at": "2026-09-07",
+      "direction": "IN",
+      "amount_rub": "32089.55",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000224",
+      "booked_at": "2026-09-09",
+      "direction": "IN",
+      "amount_rub": "65948.27",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.09.2026"
+    },
+    {
+      "external_id": "0099050015-000225",
+      "booked_at": "2026-09-11",
+      "direction": "OUT",
+      "amount_rub": "44147.76",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000226",
+      "booked_at": "2026-09-13",
+      "direction": "IN",
+      "amount_rub": "61551.72",
+      "counterparty": {
+        "inn": "0098000519",
+        "name": "ООО «Покупатель C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.09.2026"
+    },
+    {
+      "external_id": "0099050015-000227",
+      "booked_at": "2026-09-14",
+      "direction": "OUT",
+      "amount_rub": "57857.15",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 09.2026"
+    },
+    {
+      "external_id": "0099050015-000228",
+      "booked_at": "2026-09-14",
+      "direction": "IN",
+      "amount_rub": "8377.00",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099050015-000229",
+      "booked_at": "2026-09-15",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 09.2026"
+    },
+    {
+      "external_id": "0099050015-000230",
+      "booked_at": "2026-09-15",
+      "direction": "OUT",
+      "amount_rub": "47124.01",
+      "counterparty": {
+        "inn": "0098000565",
+        "name": "ООО «Поставщик C5-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000231",
+      "booked_at": "2026-09-15",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000232",
+      "booked_at": "2026-09-16",
+      "direction": "IN",
+      "amount_rub": "74008.62",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.09.2026"
+    },
+    {
+      "external_id": "0099050015-000233",
+      "booked_at": "2026-09-17",
+      "direction": "IN",
+      "amount_rub": "77672.41",
+      "counterparty": {
+        "inn": "0098000526",
+        "name": "ООО «Покупатель C5-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.09.2026"
+    },
+    {
+      "external_id": "0099050015-000234",
+      "booked_at": "2026-09-18",
+      "direction": "OUT",
+      "amount_rub": "62142.85",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 09.2026"
+    },
+    {
+      "external_id": "0099050015-000235",
+      "booked_at": "2026-09-20",
+      "direction": "IN",
+      "amount_rub": "76939.67",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.09.2026"
+    },
+    {
+      "external_id": "0099050015-000236",
+      "booked_at": "2026-09-21",
+      "direction": "IN",
+      "amount_rub": "42910.45",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099050015-000237",
+      "booked_at": "2026-09-22",
+      "direction": "OUT",
+      "amount_rub": "40000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099050015-000238",
+      "booked_at": "2026-09-26",
+      "direction": "OUT",
+      "amount_rub": "42659.63",
+      "counterparty": {
+        "inn": "0098000558",
+        "name": "ООО «Поставщик C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099050015-000239",
+      "booked_at": "2026-09-26",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099050015",
+        "name": "ООО «Вектор» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099050015-000240",
+      "booked_at": "2026-09-28",
+      "direction": "IN",
+      "amount_rub": "68879.31",
+      "counterparty": {
+        "inn": "0098000501",
+        "name": "ООО «Покупатель C5-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.09.2026"
+    }
+  ]
+}

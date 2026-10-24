@@ -63,7 +63,29 @@ def llm_status(settings: Settings) -> LLMStatus:
 @router.get(
     "/health",
     response_model=HealthResponse,
-    responses={503: {"model": HealthResponse, "description": "БД недоступна"}},
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {"status": "ok", "db": "ok", "ext_sim": "ok", "llm": "replay"}
+                }
+            }
+        },
+        503: {
+            "model": HealthResponse,
+            "description": "БД недоступна",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "unavailable",
+                        "db": "unavailable",
+                        "ext_sim": "ok",
+                        "llm": "replay",
+                    }
+                }
+            },
+        },
+    },
 )
 async def health(request: Request, response: Response) -> HealthResponse:
     db, ext_sim = await asyncio.gather(

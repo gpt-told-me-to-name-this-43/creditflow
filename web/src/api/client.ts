@@ -3,21 +3,30 @@ import { auth } from '@/lib/auth.ts'
 import { ApiError, NETWORK_ERROR } from './errors.ts'
 import type { paths } from './schema.d.ts'
 
-const withToken: Middleware = {
-  onRequest({ request }) {
-    const session = auth.getSession()
-    if (session) request.headers.set('Authorization', `Bearer ${session.token}`)
-    return request
-  },
+export { newIdempotencyKey } from '@/lib/idempotency.ts'
+
+// Пути в контракте уже начинаются с /api/v1: baseUrl — origin без префикса API.
+export function createApiClient(
+  baseUrl = globalThis.location?.origin ?? '',
+  getToken: () => string | null | undefined = () => auth.getSession()?.token,
+) {
+  const client = createClient<paths>({
+    baseUrl,
+    // fetch читается при запросе: MSW и тесты могут подменить его после создания клиента.
+    fetch: (request) => globalThis.fetch(request),
+  })
+  const withToken: Middleware = {
+    onRequest({ request }) {
+      const token = getToken()
+      if (token) request.headers.set('Authorization', `Bearer ${token}`)
+      return request
+    },
+  }
+  client.use(withToken)
+  return client
 }
 
-// Пути в контракте уже начинаются с /api/v1, origin тот же (nginx или прокси vite).
-export const api = createClient<paths>({
-  baseUrl: globalThis.location?.origin ?? '',
-  // fetch берётся в момент запроса, а не при создании клиента: так его подменяют MSW и тесты
-  fetch: (request) => globalThis.fetch(request),
-})
-api.use(withToken)
+export const api = createApiClient()
 
 type FetchResult = { data?: unknown; error?: unknown; response: Response }
 

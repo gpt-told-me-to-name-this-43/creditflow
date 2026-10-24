@@ -1,0 +1,2885 @@
+{
+  "account_masked": "40702 •••• 1040",
+  "transactions": [
+    {
+      "external_id": "009903001040-000001",
+      "booked_at": "2025-10-01",
+      "direction": "IN",
+      "amount_rub": "114864.86",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.10.2025"
+    },
+    {
+      "external_id": "009903001040-000002",
+      "booked_at": "2025-10-01",
+      "direction": "IN",
+      "amount_rub": "104527.06",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.10.2025"
+    },
+    {
+      "external_id": "009903001040-000003",
+      "booked_at": "2025-10-02",
+      "direction": "IN",
+      "amount_rub": "137837.83",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.10.2025"
+    },
+    {
+      "external_id": "009903001040-000004",
+      "booked_at": "2025-10-03",
+      "direction": "IN",
+      "amount_rub": "59627.33",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000005",
+      "booked_at": "2025-10-07",
+      "direction": "OUT",
+      "amount_rub": "72402.08",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000006",
+      "booked_at": "2025-10-07",
+      "direction": "OUT",
+      "amount_rub": "56449.11",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000007",
+      "booked_at": "2025-10-08",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000008",
+      "booked_at": "2025-10-09",
+      "direction": "IN",
+      "amount_rub": "95337.83",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.10.2025"
+    },
+    {
+      "external_id": "009903001040-000009",
+      "booked_at": "2025-10-09",
+      "direction": "OUT",
+      "amount_rub": "63316.58",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 10.2025"
+    },
+    {
+      "external_id": "009903001040-000010",
+      "booked_at": "2025-10-09",
+      "direction": "OUT",
+      "amount_rub": "52154.04",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000011",
+      "booked_at": "2025-10-11",
+      "direction": "OUT",
+      "amount_rub": "86683.42",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 10.2025"
+    },
+    {
+      "external_id": "009903001040-000012",
+      "booked_at": "2025-10-12",
+      "direction": "IN",
+      "amount_rub": "10476.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000013",
+      "booked_at": "2025-10-13",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000014",
+      "booked_at": "2025-10-15",
+      "direction": "OUT",
+      "amount_rub": "53994.77",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000015",
+      "booked_at": "2025-10-17",
+      "direction": "IN",
+      "amount_rub": "98783.78",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.10.2025"
+    },
+    {
+      "external_id": "009903001040-000016",
+      "booked_at": "2025-10-24",
+      "direction": "IN",
+      "amount_rub": "60372.67",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000017",
+      "booked_at": "2025-10-24",
+      "direction": "IN",
+      "amount_rub": "128648.64",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.10.2025"
+    },
+    {
+      "external_id": "009903001040-000018",
+      "booked_at": "2025-10-24",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 10.2025"
+    },
+    {
+      "external_id": "009903001040-000019",
+      "booked_at": "2025-10-24",
+      "direction": "OUT",
+      "amount_rub": "15000.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000020",
+      "booked_at": "2025-10-26",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000021",
+      "booked_at": "2025-11-01",
+      "direction": "IN",
+      "amount_rub": "53944.95",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000022",
+      "booked_at": "2025-11-02",
+      "direction": "OUT",
+      "amount_rub": "69886.36",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 11.2025"
+    },
+    {
+      "external_id": "009903001040-000023",
+      "booked_at": "2025-11-02",
+      "direction": "OUT",
+      "amount_rub": "54435.02",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000024",
+      "booked_at": "2025-11-05",
+      "direction": "IN",
+      "amount_rub": "66055.05",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000025",
+      "booked_at": "2025-11-06",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000026",
+      "booked_at": "2025-11-07",
+      "direction": "IN",
+      "amount_rub": "94066.66",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.11.2025"
+    },
+    {
+      "external_id": "009903001040-000027",
+      "booked_at": "2025-11-07",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 11.2025"
+    },
+    {
+      "external_id": "009903001040-000028",
+      "booked_at": "2025-11-08",
+      "direction": "IN",
+      "amount_rub": "124666.66",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.11.2025"
+    },
+    {
+      "external_id": "009903001040-000029",
+      "booked_at": "2025-11-09",
+      "direction": "IN",
+      "amount_rub": "109933.36",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.11.2025"
+    },
+    {
+      "external_id": "009903001040-000030",
+      "booked_at": "2025-11-11",
+      "direction": "OUT",
+      "amount_rub": "80113.64",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 11.2025"
+    },
+    {
+      "external_id": "009903001040-000031",
+      "booked_at": "2025-11-11",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000032",
+      "booked_at": "2025-11-13",
+      "direction": "IN",
+      "amount_rub": "107666.66",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.11.2025"
+    },
+    {
+      "external_id": "009903001040-000033",
+      "booked_at": "2025-11-13",
+      "direction": "IN",
+      "amount_rub": "119000.00",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.11.2025"
+    },
+    {
+      "external_id": "009903001040-000034",
+      "booked_at": "2025-11-14",
+      "direction": "OUT",
+      "amount_rub": "53771.20",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000035",
+      "booked_at": "2025-11-16",
+      "direction": "OUT",
+      "amount_rub": "15000.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000036",
+      "booked_at": "2025-11-17",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000037",
+      "booked_at": "2025-11-19",
+      "direction": "OUT",
+      "amount_rub": "55098.87",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000038",
+      "booked_at": "2025-11-22",
+      "direction": "IN",
+      "amount_rub": "13429.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000039",
+      "booked_at": "2025-11-28",
+      "direction": "IN",
+      "amount_rub": "124666.66",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.11.2025"
+    },
+    {
+      "external_id": "009903001040-000040",
+      "booked_at": "2025-11-28",
+      "direction": "OUT",
+      "amount_rub": "71694.91",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000041",
+      "booked_at": "2025-12-01",
+      "direction": "IN",
+      "amount_rub": "8557.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000042",
+      "booked_at": "2025-12-03",
+      "direction": "IN",
+      "amount_rub": "135528.59",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.12.2025"
+    },
+    {
+      "external_id": "009903001040-000043",
+      "booked_at": "2025-12-03",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 12.2025"
+    },
+    {
+      "external_id": "009903001040-000044",
+      "booked_at": "2025-12-03",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000045",
+      "booked_at": "2025-12-05",
+      "direction": "OUT",
+      "amount_rub": "58602.01",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000046",
+      "booked_at": "2025-12-06",
+      "direction": "IN",
+      "amount_rub": "94280.76",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.12.2025"
+    },
+    {
+      "external_id": "009903001040-000047",
+      "booked_at": "2025-12-06",
+      "direction": "IN",
+      "amount_rub": "111958.40",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.12.2025"
+    },
+    {
+      "external_id": "009903001040-000048",
+      "booked_at": "2025-12-11",
+      "direction": "OUT",
+      "amount_rub": "15000.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000049",
+      "booked_at": "2025-12-11",
+      "direction": "OUT",
+      "amount_rub": "60377.83",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000050",
+      "booked_at": "2025-12-12",
+      "direction": "IN",
+      "amount_rub": "58285.71",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000051",
+      "booked_at": "2025-12-12",
+      "direction": "OUT",
+      "amount_rub": "54458.43",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000052",
+      "booked_at": "2025-12-13",
+      "direction": "IN",
+      "amount_rub": "100173.33",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.12.2025"
+    },
+    {
+      "external_id": "009903001040-000053",
+      "booked_at": "2025-12-13",
+      "direction": "OUT",
+      "amount_rub": "74637.69",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 12.2025"
+    },
+    {
+      "external_id": "009903001040-000054",
+      "booked_at": "2025-12-16",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000055",
+      "booked_at": "2025-12-21",
+      "direction": "IN",
+      "amount_rub": "61714.29",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000056",
+      "booked_at": "2025-12-21",
+      "direction": "IN",
+      "amount_rub": "139064.12",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.12.2025"
+    },
+    {
+      "external_id": "009903001040-000057",
+      "booked_at": "2025-12-22",
+      "direction": "OUT",
+      "amount_rub": "75362.31",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 12.2025"
+    },
+    {
+      "external_id": "009903001040-000058",
+      "booked_at": "2025-12-22",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000059",
+      "booked_at": "2025-12-23",
+      "direction": "IN",
+      "amount_rub": "98994.80",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.12.2025"
+    },
+    {
+      "external_id": "009903001040-000060",
+      "booked_at": "2025-12-25",
+      "direction": "OUT",
+      "amount_rub": "61561.73",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000061",
+      "booked_at": "2026-01-04",
+      "direction": "OUT",
+      "amount_rub": "52890.02",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000062",
+      "booked_at": "2026-01-06",
+      "direction": "OUT",
+      "amount_rub": "58900.25",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000063",
+      "booked_at": "2026-01-06",
+      "direction": "IN",
+      "amount_rub": "8444.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000064",
+      "booked_at": "2026-01-09",
+      "direction": "IN",
+      "amount_rub": "65333.33",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000065",
+      "booked_at": "2026-01-09",
+      "direction": "OUT",
+      "amount_rub": "58299.25",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000066",
+      "booked_at": "2026-01-15",
+      "direction": "IN",
+      "amount_rub": "113732.39",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.01.2026"
+    },
+    {
+      "external_id": "009903001040-000067",
+      "booked_at": "2026-01-15",
+      "direction": "IN",
+      "amount_rub": "105352.11",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.01.2026"
+    },
+    {
+      "external_id": "009903001040-000068",
+      "booked_at": "2026-01-15",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000069",
+      "booked_at": "2026-01-17",
+      "direction": "IN",
+      "amount_rub": "120915.49",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.01.2026"
+    },
+    {
+      "external_id": "009903001040-000070",
+      "booked_at": "2026-01-17",
+      "direction": "OUT",
+      "amount_rub": "64910.48",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000071",
+      "booked_at": "2026-01-20",
+      "direction": "IN",
+      "amount_rub": "128098.59",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.01.2026"
+    },
+    {
+      "external_id": "009903001040-000072",
+      "booked_at": "2026-01-21",
+      "direction": "OUT",
+      "amount_rub": "74675.32",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 01.2026"
+    },
+    {
+      "external_id": "009903001040-000073",
+      "booked_at": "2026-01-21",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000074",
+      "booked_at": "2026-01-22",
+      "direction": "IN",
+      "amount_rub": "54666.67",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000075",
+      "booked_at": "2026-01-22",
+      "direction": "OUT",
+      "amount_rub": "75324.68",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 01.2026"
+    },
+    {
+      "external_id": "009903001040-000076",
+      "booked_at": "2026-01-23",
+      "direction": "IN",
+      "amount_rub": "101760.56",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.01.2026"
+    },
+    {
+      "external_id": "009903001040-000077",
+      "booked_at": "2026-01-25",
+      "direction": "IN",
+      "amount_rub": "110140.86",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.01.2026"
+    },
+    {
+      "external_id": "009903001040-000078",
+      "booked_at": "2026-01-25",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 01.2026"
+    },
+    {
+      "external_id": "009903001040-000079",
+      "booked_at": "2026-01-26",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000080",
+      "booked_at": "2026-01-27",
+      "direction": "OUT",
+      "amount_rub": "15000.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000081",
+      "booked_at": "2026-02-01",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000082",
+      "booked_at": "2026-02-02",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000083",
+      "booked_at": "2026-02-03",
+      "direction": "OUT",
+      "amount_rub": "59818.19",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000084",
+      "booked_at": "2026-02-08",
+      "direction": "IN",
+      "amount_rub": "58834.96",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000085",
+      "booked_at": "2026-02-08",
+      "direction": "OUT",
+      "amount_rub": "57987.01",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000086",
+      "booked_at": "2026-02-12",
+      "direction": "OUT",
+      "amount_rub": "76327.44",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 02.2026"
+    },
+    {
+      "external_id": "009903001040-000087",
+      "booked_at": "2026-02-13",
+      "direction": "OUT",
+      "amount_rub": "56155.84",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000088",
+      "booked_at": "2026-02-14",
+      "direction": "IN",
+      "amount_rub": "12961.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000089",
+      "booked_at": "2026-02-15",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 02.2026"
+    },
+    {
+      "external_id": "009903001040-000090",
+      "booked_at": "2026-02-16",
+      "direction": "OUT",
+      "amount_rub": "73672.56",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 02.2026"
+    },
+    {
+      "external_id": "009903001040-000091",
+      "booked_at": "2026-02-19",
+      "direction": "IN",
+      "amount_rub": "120550.77",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.02.2026"
+    },
+    {
+      "external_id": "009903001040-000092",
+      "booked_at": "2026-02-20",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000093",
+      "booked_at": "2026-02-21",
+      "direction": "IN",
+      "amount_rub": "101824.44",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.02.2026"
+    },
+    {
+      "external_id": "009903001040-000094",
+      "booked_at": "2026-02-21",
+      "direction": "IN",
+      "amount_rub": "126402.75",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.02.2026"
+    },
+    {
+      "external_id": "009903001040-000095",
+      "booked_at": "2026-02-21",
+      "direction": "IN",
+      "amount_rub": "100654.04",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.02.2026"
+    },
+    {
+      "external_id": "009903001040-000096",
+      "booked_at": "2026-02-23",
+      "direction": "IN",
+      "amount_rub": "119380.37",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.02.2026"
+    },
+    {
+      "external_id": "009903001040-000097",
+      "booked_at": "2026-02-26",
+      "direction": "IN",
+      "amount_rub": "61165.04",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000098",
+      "booked_at": "2026-02-26",
+      "direction": "OUT",
+      "amount_rub": "15000.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000099",
+      "booked_at": "2026-02-28",
+      "direction": "IN",
+      "amount_rub": "111187.63",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.02.2026"
+    },
+    {
+      "external_id": "009903001040-000100",
+      "booked_at": "2026-02-28",
+      "direction": "OUT",
+      "amount_rub": "61038.96",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000101",
+      "booked_at": "2026-03-01",
+      "direction": "IN",
+      "amount_rub": "119748.46",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.03.2026"
+    },
+    {
+      "external_id": "009903001040-000102",
+      "booked_at": "2026-03-04",
+      "direction": "IN",
+      "amount_rub": "60845.07",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000103",
+      "booked_at": "2026-03-04",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000104",
+      "booked_at": "2026-03-05",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000105",
+      "booked_at": "2026-03-06",
+      "direction": "OUT",
+      "amount_rub": "51612.14",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000106",
+      "booked_at": "2026-03-08",
+      "direction": "IN",
+      "amount_rub": "97295.59",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.03.2026"
+    },
+    {
+      "external_id": "009903001040-000107",
+      "booked_at": "2026-03-14",
+      "direction": "IN",
+      "amount_rub": "9960.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000108",
+      "booked_at": "2026-03-15",
+      "direction": "OUT",
+      "amount_rub": "74585.63",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 03.2026"
+    },
+    {
+      "external_id": "009903001040-000109",
+      "booked_at": "2026-03-16",
+      "direction": "OUT",
+      "amount_rub": "15000.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000110",
+      "booked_at": "2026-03-17",
+      "direction": "IN",
+      "amount_rub": "122955.97",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.03.2026"
+    },
+    {
+      "external_id": "009903001040-000111",
+      "booked_at": "2026-03-17",
+      "direction": "OUT",
+      "amount_rub": "75414.37",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 03.2026"
+    },
+    {
+      "external_id": "009903001040-000112",
+      "booked_at": "2026-03-20",
+      "direction": "IN",
+      "amount_rub": "114402.51",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.03.2026"
+    },
+    {
+      "external_id": "009903001040-000113",
+      "booked_at": "2026-03-21",
+      "direction": "IN",
+      "amount_rub": "98364.77",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.03.2026"
+    },
+    {
+      "external_id": "009903001040-000114",
+      "booked_at": "2026-03-21",
+      "direction": "OUT",
+      "amount_rub": "62593.45",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000115",
+      "booked_at": "2026-03-22",
+      "direction": "OUT",
+      "amount_rub": "65887.87",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000116",
+      "booked_at": "2026-03-23",
+      "direction": "IN",
+      "amount_rub": "127232.70",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.03.2026"
+    },
+    {
+      "external_id": "009903001040-000117",
+      "booked_at": "2026-03-24",
+      "direction": "IN",
+      "amount_rub": "59154.93",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000118",
+      "booked_at": "2026-03-24",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000119",
+      "booked_at": "2026-03-26",
+      "direction": "OUT",
+      "amount_rub": "54906.54",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000120",
+      "booked_at": "2026-03-28",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 03.2026"
+    },
+    {
+      "external_id": "009903001040-000121",
+      "booked_at": "2026-04-04",
+      "direction": "IN",
+      "amount_rub": "106054.25",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.04.2026"
+    },
+    {
+      "external_id": "009903001040-000122",
+      "booked_at": "2026-04-05",
+      "direction": "IN",
+      "amount_rub": "127044.16",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.04.2026"
+    },
+    {
+      "external_id": "009903001040-000123",
+      "booked_at": "2026-04-06",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 04.2026"
+    },
+    {
+      "external_id": "009903001040-000124",
+      "booked_at": "2026-04-07",
+      "direction": "IN",
+      "amount_rub": "120415.80",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.04.2026"
+    },
+    {
+      "external_id": "009903001040-000125",
+      "booked_at": "2026-04-08",
+      "direction": "IN",
+      "amount_rub": "53957.37",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000126",
+      "booked_at": "2026-04-08",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000127",
+      "booked_at": "2026-04-10",
+      "direction": "OUT",
+      "amount_rub": "73201.61",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000128",
+      "booked_at": "2026-04-11",
+      "direction": "OUT",
+      "amount_rub": "15720.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000129",
+      "booked_at": "2026-04-14",
+      "direction": "OUT",
+      "amount_rub": "53350.32",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000130",
+      "booked_at": "2026-04-15",
+      "direction": "IN",
+      "amount_rub": "111577.91",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.04.2026"
+    },
+    {
+      "external_id": "009903001040-000131",
+      "booked_at": "2026-04-15",
+      "direction": "OUT",
+      "amount_rub": "80111.53",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 04.2026"
+    },
+    {
+      "external_id": "009903001040-000132",
+      "booked_at": "2026-04-15",
+      "direction": "OUT",
+      "amount_rub": "58313.16",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000133",
+      "booked_at": "2026-04-15",
+      "direction": "IN",
+      "amount_rub": "13221.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000134",
+      "booked_at": "2026-04-19",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000135",
+      "booked_at": "2026-04-20",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000136",
+      "booked_at": "2026-04-21",
+      "direction": "IN",
+      "amount_rub": "69642.63",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000137",
+      "booked_at": "2026-04-21",
+      "direction": "OUT",
+      "amount_rub": "77088.47",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 04.2026"
+    },
+    {
+      "external_id": "009903001040-000138",
+      "booked_at": "2026-04-23",
+      "direction": "OUT",
+      "amount_rub": "61414.91",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000139",
+      "booked_at": "2026-04-24",
+      "direction": "IN",
+      "amount_rub": "103844.79",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.04.2026"
+    },
+    {
+      "external_id": "009903001040-000140",
+      "booked_at": "2026-04-27",
+      "direction": "IN",
+      "amount_rub": "131463.09",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.04.2026"
+    },
+    {
+      "external_id": "009903001040-000141",
+      "booked_at": "2026-05-01",
+      "direction": "OUT",
+      "amount_rub": "62070.59",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000142",
+      "booked_at": "2026-05-04",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000143",
+      "booked_at": "2026-05-05",
+      "direction": "OUT",
+      "amount_rub": "69412.24",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000144",
+      "booked_at": "2026-05-07",
+      "direction": "OUT",
+      "amount_rub": "58733.44",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000145",
+      "booked_at": "2026-05-08",
+      "direction": "OUT",
+      "amount_rub": "15720.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000146",
+      "booked_at": "2026-05-09",
+      "direction": "IN",
+      "amount_rub": "57992.42",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000147",
+      "booked_at": "2026-05-09",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000148",
+      "booked_at": "2026-05-10",
+      "direction": "IN",
+      "amount_rub": "135102.53",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.05.2026"
+    },
+    {
+      "external_id": "009903001040-000149",
+      "booked_at": "2026-05-12",
+      "direction": "IN",
+      "amount_rub": "114955.66",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.05.2026"
+    },
+    {
+      "external_id": "009903001040-000150",
+      "booked_at": "2026-05-15",
+      "direction": "OUT",
+      "amount_rub": "75149.26",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 05.2026"
+    },
+    {
+      "external_id": "009903001040-000151",
+      "booked_at": "2026-05-18",
+      "direction": "OUT",
+      "amount_rub": "82050.74",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 05.2026"
+    },
+    {
+      "external_id": "009903001040-000152",
+      "booked_at": "2026-05-18",
+      "direction": "IN",
+      "amount_rub": "8536.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000153",
+      "booked_at": "2026-05-21",
+      "direction": "IN",
+      "amount_rub": "109030.16",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.05.2026"
+    },
+    {
+      "external_id": "009903001040-000154",
+      "booked_at": "2026-05-25",
+      "direction": "IN",
+      "amount_rub": "65607.58",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000155",
+      "booked_at": "2026-05-25",
+      "direction": "IN",
+      "amount_rub": "99549.23",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.05.2026"
+    },
+    {
+      "external_id": "009903001040-000156",
+      "booked_at": "2026-05-25",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 05.2026"
+    },
+    {
+      "external_id": "009903001040-000157",
+      "booked_at": "2026-05-26",
+      "direction": "IN",
+      "amount_rub": "133917.42",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.05.2026"
+    },
+    {
+      "external_id": "009903001040-000158",
+      "booked_at": "2026-05-27",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000159",
+      "booked_at": "2026-05-28",
+      "direction": "IN",
+      "amount_rub": "107845.00",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.05.2026"
+    },
+    {
+      "external_id": "009903001040-000160",
+      "booked_at": "2026-05-28",
+      "direction": "OUT",
+      "amount_rub": "56063.73",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000161",
+      "booked_at": "2026-06-01",
+      "direction": "OUT",
+      "amount_rub": "15720.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000162",
+      "booked_at": "2026-06-01",
+      "direction": "OUT",
+      "amount_rub": "52425.94",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000163",
+      "booked_at": "2026-06-02",
+      "direction": "OUT",
+      "amount_rub": "71933.26",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000164",
+      "booked_at": "2026-06-05",
+      "direction": "OUT",
+      "amount_rub": "62880.00",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 06.2026"
+    },
+    {
+      "external_id": "009903001040-000165",
+      "booked_at": "2026-06-06",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000166",
+      "booked_at": "2026-06-09",
+      "direction": "IN",
+      "amount_rub": "137992.71",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.06.2026"
+    },
+    {
+      "external_id": "009903001040-000167",
+      "booked_at": "2026-06-12",
+      "direction": "IN",
+      "amount_rub": "102045.03",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.06.2026"
+    },
+    {
+      "external_id": "009903001040-000168",
+      "booked_at": "2026-06-12",
+      "direction": "OUT",
+      "amount_rub": "70714.07",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000169",
+      "booked_at": "2026-06-14",
+      "direction": "IN",
+      "amount_rub": "14091.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000170",
+      "booked_at": "2026-06-15",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000171",
+      "booked_at": "2026-06-15",
+      "direction": "OUT",
+      "amount_rub": "51206.73",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000172",
+      "booked_at": "2026-06-16",
+      "direction": "IN",
+      "amount_rub": "67418.19",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000173",
+      "booked_at": "2026-06-16",
+      "direction": "OUT",
+      "amount_rub": "94320.00",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 06.2026"
+    },
+    {
+      "external_id": "009903001040-000174",
+      "booked_at": "2026-06-20",
+      "direction": "IN",
+      "amount_rub": "126396.68",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.06.2026"
+    },
+    {
+      "external_id": "009903001040-000175",
+      "booked_at": "2026-06-21",
+      "direction": "IN",
+      "amount_rub": "120598.67",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.06.2026"
+    },
+    {
+      "external_id": "009903001040-000176",
+      "booked_at": "2026-06-23",
+      "direction": "IN",
+      "amount_rub": "56181.81",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000177",
+      "booked_at": "2026-06-24",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 06.2026"
+    },
+    {
+      "external_id": "009903001040-000178",
+      "booked_at": "2026-06-24",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000179",
+      "booked_at": "2026-06-26",
+      "direction": "IN",
+      "amount_rub": "104364.27",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.06.2026"
+    },
+    {
+      "external_id": "009903001040-000180",
+      "booked_at": "2026-06-27",
+      "direction": "IN",
+      "amount_rub": "109002.64",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.06.2026"
+    },
+    {
+      "external_id": "009903001040-000181",
+      "booked_at": "2026-07-02",
+      "direction": "OUT",
+      "amount_rub": "63803.10",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000182",
+      "booked_at": "2026-07-04",
+      "direction": "IN",
+      "amount_rub": "102012.07",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.07.2026"
+    },
+    {
+      "external_id": "009903001040-000183",
+      "booked_at": "2026-07-04",
+      "direction": "OUT",
+      "amount_rub": "15720.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000184",
+      "booked_at": "2026-07-06",
+      "direction": "OUT",
+      "amount_rub": "67797.16",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 07.2026"
+    },
+    {
+      "external_id": "009903001040-000185",
+      "booked_at": "2026-07-07",
+      "direction": "IN",
+      "amount_rub": "62069.86",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000186",
+      "booked_at": "2026-07-07",
+      "direction": "IN",
+      "amount_rub": "121916.87",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.07.2026"
+    },
+    {
+      "external_id": "009903001040-000187",
+      "booked_at": "2026-07-07",
+      "direction": "OUT",
+      "amount_rub": "56146.73",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000188",
+      "booked_at": "2026-07-08",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000189",
+      "booked_at": "2026-07-10",
+      "direction": "IN",
+      "amount_rub": "124405.00",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.07.2026"
+    },
+    {
+      "external_id": "009903001040-000190",
+      "booked_at": "2026-07-11",
+      "direction": "OUT",
+      "amount_rub": "89402.84",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 07.2026"
+    },
+    {
+      "external_id": "009903001040-000191",
+      "booked_at": "2026-07-12",
+      "direction": "OUT",
+      "amount_rub": "54870.69",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000192",
+      "booked_at": "2026-07-13",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000193",
+      "booked_at": "2026-07-19",
+      "direction": "IN",
+      "amount_rub": "115696.62",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.07.2026"
+    },
+    {
+      "external_id": "009903001040-000194",
+      "booked_at": "2026-07-21",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000195",
+      "booked_at": "2026-07-21",
+      "direction": "IN",
+      "amount_rub": "7387.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000196",
+      "booked_at": "2026-07-23",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 07.2026"
+    },
+    {
+      "external_id": "009903001040-000197",
+      "booked_at": "2026-07-24",
+      "direction": "IN",
+      "amount_rub": "61530.14",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000198",
+      "booked_at": "2026-07-24",
+      "direction": "IN",
+      "amount_rub": "103256.12",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.07.2026"
+    },
+    {
+      "external_id": "009903001040-000199",
+      "booked_at": "2026-07-26",
+      "direction": "OUT",
+      "amount_rub": "71459.48",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000200",
+      "booked_at": "2026-07-28",
+      "direction": "IN",
+      "amount_rub": "133113.32",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.07.2026"
+    },
+    {
+      "external_id": "009903001040-000201",
+      "booked_at": "2026-08-01",
+      "direction": "IN",
+      "amount_rub": "64033.73",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000202",
+      "booked_at": "2026-08-01",
+      "direction": "IN",
+      "amount_rub": "120328.03",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.08.2026"
+    },
+    {
+      "external_id": "009903001040-000203",
+      "booked_at": "2026-08-04",
+      "direction": "IN",
+      "amount_rub": "129409.40",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.08.2026"
+    },
+    {
+      "external_id": "009903001040-000204",
+      "booked_at": "2026-08-06",
+      "direction": "IN",
+      "amount_rub": "59566.27",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000205",
+      "booked_at": "2026-08-08",
+      "direction": "OUT",
+      "amount_rub": "73042.43",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 08.2026"
+    },
+    {
+      "external_id": "009903001040-000206",
+      "booked_at": "2026-08-08",
+      "direction": "OUT",
+      "amount_rub": "15720.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000207",
+      "booked_at": "2026-08-08",
+      "direction": "IN",
+      "amount_rub": "6700.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000208",
+      "booked_at": "2026-08-10",
+      "direction": "OUT",
+      "amount_rub": "66829.74",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000209",
+      "booked_at": "2026-08-11",
+      "direction": "OUT",
+      "amount_rub": "84157.57",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 08.2026"
+    },
+    {
+      "external_id": "009903001040-000210",
+      "booked_at": "2026-08-13",
+      "direction": "IN",
+      "amount_rub": "99895.01",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.08.2026"
+    },
+    {
+      "external_id": "009903001040-000211",
+      "booked_at": "2026-08-16",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000212",
+      "booked_at": "2026-08-18",
+      "direction": "IN",
+      "amount_rub": "114652.18",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.08.2026"
+    },
+    {
+      "external_id": "009903001040-000213",
+      "booked_at": "2026-08-19",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000214",
+      "booked_at": "2026-08-21",
+      "direction": "OUT",
+      "amount_rub": "67448.54",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000215",
+      "booked_at": "2026-08-22",
+      "direction": "IN",
+      "amount_rub": "119192.86",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.08.2026"
+    },
+    {
+      "external_id": "009903001040-000216",
+      "booked_at": "2026-08-25",
+      "direction": "OUT",
+      "amount_rub": "49503.53",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000217",
+      "booked_at": "2026-08-26",
+      "direction": "IN",
+      "amount_rub": "116922.52",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.08.2026"
+    },
+    {
+      "external_id": "009903001040-000218",
+      "booked_at": "2026-08-28",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 08.2026"
+    },
+    {
+      "external_id": "009903001040-000219",
+      "booked_at": "2026-08-28",
+      "direction": "OUT",
+      "amount_rub": "62498.19",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000220",
+      "booked_at": "2026-08-28",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000221",
+      "booked_at": "2026-09-01",
+      "direction": "OUT",
+      "amount_rub": "72935.13",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 09.2026"
+    },
+    {
+      "external_id": "009903001040-000222",
+      "booked_at": "2026-09-02",
+      "direction": "OUT",
+      "amount_rub": "84264.87",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 09.2026"
+    },
+    {
+      "external_id": "009903001040-000223",
+      "booked_at": "2026-09-03",
+      "direction": "IN",
+      "amount_rub": "122088.07",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.09.2026"
+    },
+    {
+      "external_id": "009903001040-000224",
+      "booked_at": "2026-09-04",
+      "direction": "OUT",
+      "amount_rub": "62677.94",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000225",
+      "booked_at": "2026-09-11",
+      "direction": "IN",
+      "amount_rub": "108165.74",
+      "counterparty": {
+        "inn": "0098000300",
+        "name": "ООО «Покупатель C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.09.2026"
+    },
+    {
+      "external_id": "009903001040-000226",
+      "booked_at": "2026-09-11",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 09.2026"
+    },
+    {
+      "external_id": "009903001040-000227",
+      "booked_at": "2026-09-11",
+      "direction": "OUT",
+      "amount_rub": "54447.52",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000228",
+      "booked_at": "2026-09-12",
+      "direction": "IN",
+      "amount_rub": "118875.22",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.09.2026"
+    },
+    {
+      "external_id": "009903001040-000229",
+      "booked_at": "2026-09-12",
+      "direction": "OUT",
+      "amount_rub": "70908.38",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000230",
+      "booked_at": "2026-09-12",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000231",
+      "booked_at": "2026-09-13",
+      "direction": "IN",
+      "amount_rub": "114591.47",
+      "counterparty": {
+        "inn": "0098000318",
+        "name": "ООО «Покупатель C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.09.2026"
+    },
+    {
+      "external_id": "009903001040-000232",
+      "booked_at": "2026-09-18",
+      "direction": "IN",
+      "amount_rub": "61504.30",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000233",
+      "booked_at": "2026-09-19",
+      "direction": "IN",
+      "amount_rub": "14236.00",
+      "counterparty": {
+        "inn": "0098000364",
+        "name": "ООО «Поставщик C3-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000234",
+      "booked_at": "2026-09-20",
+      "direction": "IN",
+      "amount_rub": "124229.96",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.09.2026"
+    },
+    {
+      "external_id": "009903001040-000235",
+      "booked_at": "2026-09-20",
+      "direction": "OUT",
+      "amount_rub": "52400.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "009903001040-000236",
+      "booked_at": "2026-09-21",
+      "direction": "OUT",
+      "amount_rub": "15720.00",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "009903001040-000237",
+      "booked_at": "2026-09-22",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "009903001040",
+        "name": "ИП Соколова А. В. (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "009903001040-000238",
+      "booked_at": "2026-09-23",
+      "direction": "OUT",
+      "amount_rub": "58246.16",
+      "counterparty": {
+        "inn": "0098000357",
+        "name": "ООО «Поставщик C3-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "009903001040-000239",
+      "booked_at": "2026-09-24",
+      "direction": "IN",
+      "amount_rub": "62095.70",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "009903001040-000240",
+      "booked_at": "2026-09-26",
+      "direction": "IN",
+      "amount_rub": "112449.54",
+      "counterparty": {
+        "inn": "0098000325",
+        "name": "ООО «Покупатель C3-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.09.2026"
+    }
+  ]
+}

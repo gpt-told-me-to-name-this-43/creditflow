@@ -1,0 +1,3041 @@
+{
+  "account_masked": "40702 •••• 0012",
+  "transactions": [
+    {
+      "external_id": "0099010012-000001",
+      "booked_at": "2025-10-02",
+      "direction": "OUT",
+      "amount_rub": "64435.48",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000002",
+      "booked_at": "2025-10-03",
+      "direction": "IN",
+      "amount_rub": "14788.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000003",
+      "booked_at": "2025-10-04",
+      "direction": "IN",
+      "amount_rub": "75742.58",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000004",
+      "booked_at": "2025-10-05",
+      "direction": "IN",
+      "amount_rub": "148322.14",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.10.2025"
+    },
+    {
+      "external_id": "0099010012-000005",
+      "booked_at": "2025-10-05",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000006",
+      "booked_at": "2025-10-06",
+      "direction": "OUT",
+      "amount_rub": "78080.66",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000007",
+      "booked_at": "2025-10-06",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000008",
+      "booked_at": "2025-10-08",
+      "direction": "IN",
+      "amount_rub": "114093.95",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.10.2025"
+    },
+    {
+      "external_id": "0099010012-000009",
+      "booked_at": "2025-10-08",
+      "direction": "OUT",
+      "amount_rub": "62919.35",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000010",
+      "booked_at": "2025-10-09",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000011",
+      "booked_at": "2025-10-13",
+      "direction": "IN",
+      "amount_rub": "122651.00",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.10.2025"
+    },
+    {
+      "external_id": "0099010012-000012",
+      "booked_at": "2025-10-13",
+      "direction": "OUT",
+      "amount_rub": "18000.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000013",
+      "booked_at": "2025-10-14",
+      "direction": "IN",
+      "amount_rub": "136912.75",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.10.2025"
+    },
+    {
+      "external_id": "0099010012-000014",
+      "booked_at": "2025-10-15",
+      "direction": "OUT",
+      "amount_rub": "92755.11",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 10.2025"
+    },
+    {
+      "external_id": "0099010012-000015",
+      "booked_at": "2025-10-20",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 10.2025"
+    },
+    {
+      "external_id": "0099010012-000016",
+      "booked_at": "2025-10-21",
+      "direction": "IN",
+      "amount_rub": "161157.75",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.10.2025"
+    },
+    {
+      "external_id": "0099010012-000017",
+      "booked_at": "2025-10-22",
+      "direction": "IN",
+      "amount_rub": "166862.41",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.10.2025"
+    },
+    {
+      "external_id": "0099010012-000018",
+      "booked_at": "2025-10-22",
+      "direction": "OUT",
+      "amount_rub": "87244.89",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 10.2025"
+    },
+    {
+      "external_id": "0099010012-000019",
+      "booked_at": "2025-10-26",
+      "direction": "OUT",
+      "amount_rub": "76564.51",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000020",
+      "booked_at": "2025-10-26",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000021",
+      "booked_at": "2025-10-27",
+      "direction": "IN",
+      "amount_rub": "74257.42",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000022",
+      "booked_at": "2025-10-28",
+      "direction": "IN",
+      "amount_rub": "1000000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Выдача кредита по договору № 451"
+    },
+    {
+      "external_id": "0099010012-000023",
+      "booked_at": "2025-11-01",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000024",
+      "booked_at": "2025-11-04",
+      "direction": "OUT",
+      "amount_rub": "75547.35",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000025",
+      "booked_at": "2025-11-06",
+      "direction": "OUT",
+      "amount_rub": "18000.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000026",
+      "booked_at": "2025-11-10",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000027",
+      "booked_at": "2025-11-11",
+      "direction": "IN",
+      "amount_rub": "14101.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000028",
+      "booked_at": "2025-11-13",
+      "direction": "IN",
+      "amount_rub": "164607.67",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.11.2025"
+    },
+    {
+      "external_id": "0099010012-000029",
+      "booked_at": "2025-11-14",
+      "direction": "IN",
+      "amount_rub": "78609.63",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000030",
+      "booked_at": "2025-11-15",
+      "direction": "OUT",
+      "amount_rub": "93214.28",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 11.2025"
+    },
+    {
+      "external_id": "0099010012-000031",
+      "booked_at": "2025-11-16",
+      "direction": "IN",
+      "amount_rub": "71390.37",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000032",
+      "booked_at": "2025-11-16",
+      "direction": "OUT",
+      "amount_rub": "64475.75",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000033",
+      "booked_at": "2025-11-18",
+      "direction": "IN",
+      "amount_rub": "137646.07",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.11.2025"
+    },
+    {
+      "external_id": "0099010012-000034",
+      "booked_at": "2025-11-18",
+      "direction": "OUT",
+      "amount_rub": "86785.72",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 11.2025"
+    },
+    {
+      "external_id": "0099010012-000035",
+      "booked_at": "2025-11-18",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000036",
+      "booked_at": "2025-11-19",
+      "direction": "IN",
+      "amount_rub": "153255.46",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.11.2025"
+    },
+    {
+      "external_id": "0099010012-000037",
+      "booked_at": "2025-11-19",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 11.2025"
+    },
+    {
+      "external_id": "0099010012-000038",
+      "booked_at": "2025-11-20",
+      "direction": "IN",
+      "amount_rub": "124874.79",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.11.2025"
+    },
+    {
+      "external_id": "0099010012-000039",
+      "booked_at": "2025-11-23",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000040",
+      "booked_at": "2025-11-24",
+      "direction": "IN",
+      "amount_rub": "131969.94",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.11.2025"
+    },
+    {
+      "external_id": "0099010012-000041",
+      "booked_at": "2025-11-25",
+      "direction": "IN",
+      "amount_rub": "137646.07",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.11.2025"
+    },
+    {
+      "external_id": "0099010012-000042",
+      "booked_at": "2025-11-27",
+      "direction": "OUT",
+      "amount_rub": "67080.83",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000043",
+      "booked_at": "2025-11-28",
+      "direction": "OUT",
+      "amount_rub": "74896.07",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000044",
+      "booked_at": "2025-12-01",
+      "direction": "OUT",
+      "amount_rub": "95530.73",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 12.2025"
+    },
+    {
+      "external_id": "0099010012-000045",
+      "booked_at": "2025-12-02",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000046",
+      "booked_at": "2025-12-04",
+      "direction": "IN",
+      "amount_rub": "164925.37",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.12.2025"
+    },
+    {
+      "external_id": "0099010012-000047",
+      "booked_at": "2025-12-06",
+      "direction": "IN",
+      "amount_rub": "143781.09",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.12.2025"
+    },
+    {
+      "external_id": "0099010012-000048",
+      "booked_at": "2025-12-06",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000049",
+      "booked_at": "2025-12-08",
+      "direction": "IN",
+      "amount_rub": "73529.42",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000050",
+      "booked_at": "2025-12-09",
+      "direction": "IN",
+      "amount_rub": "136733.00",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.12.2025"
+    },
+    {
+      "external_id": "0099010012-000051",
+      "booked_at": "2025-12-09",
+      "direction": "OUT",
+      "amount_rub": "69773.21",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000052",
+      "booked_at": "2025-12-10",
+      "direction": "OUT",
+      "amount_rub": "84469.27",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 12.2025"
+    },
+    {
+      "external_id": "0099010012-000053",
+      "booked_at": "2025-12-10",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 12.2025"
+    },
+    {
+      "external_id": "0099010012-000054",
+      "booked_at": "2025-12-10",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000055",
+      "booked_at": "2025-12-12",
+      "direction": "IN",
+      "amount_rub": "124046.43",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.12.2025"
+    },
+    {
+      "external_id": "0099010012-000056",
+      "booked_at": "2025-12-13",
+      "direction": "OUT",
+      "amount_rub": "67592.78",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000057",
+      "booked_at": "2025-12-15",
+      "direction": "IN",
+      "amount_rub": "14396.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000058",
+      "booked_at": "2025-12-17",
+      "direction": "OUT",
+      "amount_rub": "18000.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000059",
+      "booked_at": "2025-12-18",
+      "direction": "IN",
+      "amount_rub": "129684.93",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.12.2025"
+    },
+    {
+      "external_id": "0099010012-000060",
+      "booked_at": "2025-12-19",
+      "direction": "OUT",
+      "amount_rub": "62505.15",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000061",
+      "booked_at": "2025-12-21",
+      "direction": "OUT",
+      "amount_rub": "82128.86",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000062",
+      "booked_at": "2025-12-22",
+      "direction": "IN",
+      "amount_rub": "150829.18",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.12.2025"
+    },
+    {
+      "external_id": "0099010012-000063",
+      "booked_at": "2025-12-26",
+      "direction": "IN",
+      "amount_rub": "76470.58",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000064",
+      "booked_at": "2025-12-27",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000065",
+      "booked_at": "2026-01-02",
+      "direction": "IN",
+      "amount_rub": "145508.50",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.01.2026"
+    },
+    {
+      "external_id": "0099010012-000066",
+      "booked_at": "2026-01-02",
+      "direction": "IN",
+      "amount_rub": "11591.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000067",
+      "booked_at": "2026-01-03",
+      "direction": "IN",
+      "amount_rub": "152711.86",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.01.2026"
+    },
+    {
+      "external_id": "0099010012-000068",
+      "booked_at": "2026-01-03",
+      "direction": "IN",
+      "amount_rub": "146949.15",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.01.2026"
+    },
+    {
+      "external_id": "0099010012-000069",
+      "booked_at": "2026-01-04",
+      "direction": "OUT",
+      "amount_rub": "74490.56",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000070",
+      "booked_at": "2026-01-05",
+      "direction": "IN",
+      "amount_rub": "129661.01",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.01.2026"
+    },
+    {
+      "external_id": "0099010012-000071",
+      "booked_at": "2026-01-05",
+      "direction": "OUT",
+      "amount_rub": "18000.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000072",
+      "booked_at": "2026-01-06",
+      "direction": "OUT",
+      "amount_rub": "97363.63",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 01.2026"
+    },
+    {
+      "external_id": "0099010012-000073",
+      "booked_at": "2026-01-10",
+      "direction": "IN",
+      "amount_rub": "115254.23",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.01.2026"
+    },
+    {
+      "external_id": "0099010012-000074",
+      "booked_at": "2026-01-12",
+      "direction": "IN",
+      "amount_rub": "85175.88",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000075",
+      "booked_at": "2026-01-14",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000076",
+      "booked_at": "2026-01-16",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 01.2026"
+    },
+    {
+      "external_id": "0099010012-000077",
+      "booked_at": "2026-01-17",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000078",
+      "booked_at": "2026-01-19",
+      "direction": "OUT",
+      "amount_rub": "82636.37",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 01.2026"
+    },
+    {
+      "external_id": "0099010012-000079",
+      "booked_at": "2026-01-20",
+      "direction": "OUT",
+      "amount_rub": "62518.86",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000080",
+      "booked_at": "2026-01-21",
+      "direction": "OUT",
+      "amount_rub": "75155.66",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000081",
+      "booked_at": "2026-01-22",
+      "direction": "IN",
+      "amount_rub": "64824.12",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000082",
+      "booked_at": "2026-01-23",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000083",
+      "booked_at": "2026-01-26",
+      "direction": "OUT",
+      "amount_rub": "69834.92",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000084",
+      "booked_at": "2026-01-26",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000085",
+      "booked_at": "2026-01-27",
+      "direction": "IN",
+      "amount_rub": "159915.25",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.01.2026"
+    },
+    {
+      "external_id": "0099010012-000086",
+      "booked_at": "2026-02-02",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000087",
+      "booked_at": "2026-02-03",
+      "direction": "OUT",
+      "amount_rub": "75691.22",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000088",
+      "booked_at": "2026-02-05",
+      "direction": "IN",
+      "amount_rub": "156688.41",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.02.2026"
+    },
+    {
+      "external_id": "0099010012-000089",
+      "booked_at": "2026-02-05",
+      "direction": "IN",
+      "amount_rub": "156688.41",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.02.2026"
+    },
+    {
+      "external_id": "0099010012-000090",
+      "booked_at": "2026-02-06",
+      "direction": "OUT",
+      "amount_rub": "69662.70",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000091",
+      "booked_at": "2026-02-08",
+      "direction": "IN",
+      "amount_rub": "141435.59",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.02.2026"
+    },
+    {
+      "external_id": "0099010012-000092",
+      "booked_at": "2026-02-09",
+      "direction": "IN",
+      "amount_rub": "87500.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000093",
+      "booked_at": "2026-02-10",
+      "direction": "IN",
+      "amount_rub": "126182.70",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.02.2026"
+    },
+    {
+      "external_id": "0099010012-000094",
+      "booked_at": "2026-02-10",
+      "direction": "OUT",
+      "amount_rub": "101489.36",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 02.2026"
+    },
+    {
+      "external_id": "0099010012-000095",
+      "booked_at": "2026-02-10",
+      "direction": "IN",
+      "amount_rub": "6112.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000096",
+      "booked_at": "2026-02-11",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000097",
+      "booked_at": "2026-02-12",
+      "direction": "OUT",
+      "amount_rub": "62964.37",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000098",
+      "booked_at": "2026-02-13",
+      "direction": "IN",
+      "amount_rub": "145595.43",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.02.2026"
+    },
+    {
+      "external_id": "0099010012-000099",
+      "booked_at": "2026-02-14",
+      "direction": "OUT",
+      "amount_rub": "78510.64",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 02.2026"
+    },
+    {
+      "external_id": "0099010012-000100",
+      "booked_at": "2026-02-14",
+      "direction": "OUT",
+      "amount_rub": "73681.71",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000101",
+      "booked_at": "2026-02-22",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000102",
+      "booked_at": "2026-02-23",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000103",
+      "booked_at": "2026-02-24",
+      "direction": "IN",
+      "amount_rub": "123409.46",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.02.2026"
+    },
+    {
+      "external_id": "0099010012-000104",
+      "booked_at": "2026-02-26",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 02.2026"
+    },
+    {
+      "external_id": "0099010012-000105",
+      "booked_at": "2026-02-28",
+      "direction": "IN",
+      "amount_rub": "62500.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000106",
+      "booked_at": "2026-02-28",
+      "direction": "OUT",
+      "amount_rub": "18000.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000107",
+      "booked_at": "2026-03-05",
+      "direction": "OUT",
+      "amount_rub": "18000.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000108",
+      "booked_at": "2026-03-06",
+      "direction": "OUT",
+      "amount_rub": "78960.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000109",
+      "booked_at": "2026-03-06",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000110",
+      "booked_at": "2026-03-07",
+      "direction": "IN",
+      "amount_rub": "84375.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000111",
+      "booked_at": "2026-03-07",
+      "direction": "OUT",
+      "amount_rub": "85170.73",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 03.2026"
+    },
+    {
+      "external_id": "0099010012-000112",
+      "booked_at": "2026-03-08",
+      "direction": "IN",
+      "amount_rub": "65625.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000113",
+      "booked_at": "2026-03-10",
+      "direction": "IN",
+      "amount_rub": "166059.60",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.03.2026"
+    },
+    {
+      "external_id": "0099010012-000114",
+      "booked_at": "2026-03-12",
+      "direction": "OUT",
+      "amount_rub": "63698.82",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000115",
+      "booked_at": "2026-03-13",
+      "direction": "OUT",
+      "amount_rub": "94829.27",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 03.2026"
+    },
+    {
+      "external_id": "0099010012-000116",
+      "booked_at": "2026-03-14",
+      "direction": "OUT",
+      "amount_rub": "65025.88",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000117",
+      "booked_at": "2026-03-14",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000118",
+      "booked_at": "2026-03-16",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000119",
+      "booked_at": "2026-03-17",
+      "direction": "IN",
+      "amount_rub": "116804.63",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.03.2026"
+    },
+    {
+      "external_id": "0099010012-000120",
+      "booked_at": "2026-03-18",
+      "direction": "IN",
+      "amount_rub": "8529.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000121",
+      "booked_at": "2026-03-19",
+      "direction": "OUT",
+      "amount_rub": "60000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 03.2026"
+    },
+    {
+      "external_id": "0099010012-000122",
+      "booked_at": "2026-03-19",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000123",
+      "booked_at": "2026-03-21",
+      "direction": "IN",
+      "amount_rub": "163245.03",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.03.2026"
+    },
+    {
+      "external_id": "0099010012-000124",
+      "booked_at": "2026-03-22",
+      "direction": "IN",
+      "amount_rub": "139321.19",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.03.2026"
+    },
+    {
+      "external_id": "0099010012-000125",
+      "booked_at": "2026-03-23",
+      "direction": "IN",
+      "amount_rub": "137913.93",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.03.2026"
+    },
+    {
+      "external_id": "0099010012-000126",
+      "booked_at": "2026-03-23",
+      "direction": "OUT",
+      "amount_rub": "74315.30",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000127",
+      "booked_at": "2026-03-27",
+      "direction": "IN",
+      "amount_rub": "126655.62",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.03.2026"
+    },
+    {
+      "external_id": "0099010012-000128",
+      "booked_at": "2026-04-04",
+      "direction": "IN",
+      "amount_rub": "137837.83",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.04.2026"
+    },
+    {
+      "external_id": "0099010012-000129",
+      "booked_at": "2026-04-05",
+      "direction": "IN",
+      "amount_rub": "74261.65",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000130",
+      "booked_at": "2026-04-05",
+      "direction": "OUT",
+      "amount_rub": "74158.32",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000131",
+      "booked_at": "2026-04-06",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000132",
+      "booked_at": "2026-04-07",
+      "direction": "IN",
+      "amount_rub": "175743.24",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.04.2026"
+    },
+    {
+      "external_id": "0099010012-000133",
+      "booked_at": "2026-04-10",
+      "direction": "IN",
+      "amount_rub": "143006.75",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.04.2026"
+    },
+    {
+      "external_id": "0099010012-000134",
+      "booked_at": "2026-04-11",
+      "direction": "IN",
+      "amount_rub": "156790.57",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.04.2026"
+    },
+    {
+      "external_id": "0099010012-000135",
+      "booked_at": "2026-04-14",
+      "direction": "IN",
+      "amount_rub": "141283.78",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.04.2026"
+    },
+    {
+      "external_id": "0099010012-000136",
+      "booked_at": "2026-04-14",
+      "direction": "OUT",
+      "amount_rub": "94766.36",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 04.2026"
+    },
+    {
+      "external_id": "0099010012-000137",
+      "booked_at": "2026-04-15",
+      "direction": "OUT",
+      "amount_rub": "100233.64",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 04.2026"
+    },
+    {
+      "external_id": "0099010012-000138",
+      "booked_at": "2026-04-19",
+      "direction": "IN",
+      "amount_rub": "137837.83",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.04.2026"
+    },
+    {
+      "external_id": "0099010012-000139",
+      "booked_at": "2026-04-19",
+      "direction": "OUT",
+      "amount_rub": "19500.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000140",
+      "booked_at": "2026-04-19",
+      "direction": "IN",
+      "amount_rub": "12850.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000141",
+      "booked_at": "2026-04-21",
+      "direction": "OUT",
+      "amount_rub": "83025.06",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000142",
+      "booked_at": "2026-04-24",
+      "direction": "IN",
+      "amount_rub": "83238.35",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000143",
+      "booked_at": "2026-04-25",
+      "direction": "OUT",
+      "amount_rub": "79800.79",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000144",
+      "booked_at": "2026-04-25",
+      "direction": "OUT",
+      "amount_rub": "68515.83",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000145",
+      "booked_at": "2026-04-27",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 04.2026"
+    },
+    {
+      "external_id": "0099010012-000146",
+      "booked_at": "2026-04-28",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000147",
+      "booked_at": "2026-04-28",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000148",
+      "booked_at": "2026-04-28",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000149",
+      "booked_at": "2026-05-01",
+      "direction": "OUT",
+      "amount_rub": "19500.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000150",
+      "booked_at": "2026-05-02",
+      "direction": "IN",
+      "amount_rub": "156149.22",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.05.2026"
+    },
+    {
+      "external_id": "0099010012-000151",
+      "booked_at": "2026-05-04",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000152",
+      "booked_at": "2026-05-06",
+      "direction": "IN",
+      "amount_rub": "154618.35",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.05.2026"
+    },
+    {
+      "external_id": "0099010012-000153",
+      "booked_at": "2026-05-07",
+      "direction": "OUT",
+      "amount_rub": "62315.92",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000154",
+      "booked_at": "2026-05-09",
+      "direction": "IN",
+      "amount_rub": "163803.60",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.05.2026"
+    },
+    {
+      "external_id": "0099010012-000155",
+      "booked_at": "2026-05-09",
+      "direction": "OUT",
+      "amount_rub": "85874.39",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000156",
+      "booked_at": "2026-05-10",
+      "direction": "OUT",
+      "amount_rub": "74475.12",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000157",
+      "booked_at": "2026-05-12",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000158",
+      "booked_at": "2026-05-16",
+      "direction": "OUT",
+      "amount_rub": "94295.77",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 05.2026"
+    },
+    {
+      "external_id": "0099010012-000159",
+      "booked_at": "2026-05-16",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000160",
+      "booked_at": "2026-05-17",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 05.2026"
+    },
+    {
+      "external_id": "0099010012-000161",
+      "booked_at": "2026-05-18",
+      "direction": "IN",
+      "amount_rub": "84295.78",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000162",
+      "booked_at": "2026-05-19",
+      "direction": "IN",
+      "amount_rub": "128593.48",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.05.2026"
+    },
+    {
+      "external_id": "0099010012-000163",
+      "booked_at": "2026-05-19",
+      "direction": "OUT",
+      "amount_rub": "100704.23",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 05.2026"
+    },
+    {
+      "external_id": "0099010012-000164",
+      "booked_at": "2026-05-19",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000165",
+      "booked_at": "2026-05-21",
+      "direction": "IN",
+      "amount_rub": "73204.22",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000166",
+      "booked_at": "2026-05-21",
+      "direction": "IN",
+      "amount_rub": "7109.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000167",
+      "booked_at": "2026-05-25",
+      "direction": "IN",
+      "amount_rub": "156149.25",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.05.2026"
+    },
+    {
+      "external_id": "0099010012-000168",
+      "booked_at": "2026-05-25",
+      "direction": "OUT",
+      "amount_rub": "82834.57",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000169",
+      "booked_at": "2026-05-27",
+      "direction": "IN",
+      "amount_rub": "133186.10",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.05.2026"
+    },
+    {
+      "external_id": "0099010012-000170",
+      "booked_at": "2026-06-01",
+      "direction": "IN",
+      "amount_rub": "144485.66",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.06.2026"
+    },
+    {
+      "external_id": "0099010012-000171",
+      "booked_at": "2026-06-03",
+      "direction": "OUT",
+      "amount_rub": "111708.55",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 06.2026"
+    },
+    {
+      "external_id": "0099010012-000172",
+      "booked_at": "2026-06-04",
+      "direction": "OUT",
+      "amount_rub": "83291.45",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 06.2026"
+    },
+    {
+      "external_id": "0099010012-000173",
+      "booked_at": "2026-06-05",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 06.2026"
+    },
+    {
+      "external_id": "0099010012-000174",
+      "booked_at": "2026-06-05",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000175",
+      "booked_at": "2026-06-05",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000176",
+      "booked_at": "2026-06-05",
+      "direction": "IN",
+      "amount_rub": "14246.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000177",
+      "booked_at": "2026-06-07",
+      "direction": "IN",
+      "amount_rub": "156526.13",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.06.2026"
+    },
+    {
+      "external_id": "0099010012-000178",
+      "booked_at": "2026-06-13",
+      "direction": "IN",
+      "amount_rub": "75886.37",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000179",
+      "booked_at": "2026-06-14",
+      "direction": "IN",
+      "amount_rub": "81613.63",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000180",
+      "booked_at": "2026-06-14",
+      "direction": "IN",
+      "amount_rub": "173081.78",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.06.2026"
+    },
+    {
+      "external_id": "0099010012-000181",
+      "booked_at": "2026-06-15",
+      "direction": "IN",
+      "amount_rub": "124919.93",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.06.2026"
+    },
+    {
+      "external_id": "0099010012-000182",
+      "booked_at": "2026-06-15",
+      "direction": "OUT",
+      "amount_rub": "62942.21",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000183",
+      "booked_at": "2026-06-16",
+      "direction": "IN",
+      "amount_rub": "162546.37",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.06.2026"
+    },
+    {
+      "external_id": "0099010012-000184",
+      "booked_at": "2026-06-16",
+      "direction": "OUT",
+      "amount_rub": "65244.97",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000185",
+      "booked_at": "2026-06-20",
+      "direction": "OUT",
+      "amount_rub": "92110.56",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000186",
+      "booked_at": "2026-06-22",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000187",
+      "booked_at": "2026-06-23",
+      "direction": "IN",
+      "amount_rub": "130940.13",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.06.2026"
+    },
+    {
+      "external_id": "0099010012-000188",
+      "booked_at": "2026-06-24",
+      "direction": "OUT",
+      "amount_rub": "19500.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000189",
+      "booked_at": "2026-06-24",
+      "direction": "OUT",
+      "amount_rub": "85202.26",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000190",
+      "booked_at": "2026-06-26",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000191",
+      "booked_at": "2026-07-03",
+      "direction": "IN",
+      "amount_rub": "149468.59",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.07.2026"
+    },
+    {
+      "external_id": "0099010012-000192",
+      "booked_at": "2026-07-03",
+      "direction": "IN",
+      "amount_rub": "14046.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000193",
+      "booked_at": "2026-07-05",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000194",
+      "booked_at": "2026-07-07",
+      "direction": "OUT",
+      "amount_rub": "67378.46",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000195",
+      "booked_at": "2026-07-08",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000196",
+      "booked_at": "2026-07-09",
+      "direction": "IN",
+      "amount_rub": "149468.59",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.07.2026"
+    },
+    {
+      "external_id": "0099010012-000197",
+      "booked_at": "2026-07-12",
+      "direction": "IN",
+      "amount_rub": "169589.37",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.07.2026"
+    },
+    {
+      "external_id": "0099010012-000198",
+      "booked_at": "2026-07-12",
+      "direction": "IN",
+      "amount_rub": "125036.23",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.07.2026"
+    },
+    {
+      "external_id": "0099010012-000199",
+      "booked_at": "2026-07-15",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000200",
+      "booked_at": "2026-07-17",
+      "direction": "OUT",
+      "amount_rub": "95660.38",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 07.2026"
+    },
+    {
+      "external_id": "0099010012-000201",
+      "booked_at": "2026-07-17",
+      "direction": "OUT",
+      "amount_rub": "75035.08",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000202",
+      "booked_at": "2026-07-17",
+      "direction": "OUT",
+      "amount_rub": "77332.08",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000203",
+      "booked_at": "2026-07-20",
+      "direction": "IN",
+      "amount_rub": "133659.42",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.07.2026"
+    },
+    {
+      "external_id": "0099010012-000204",
+      "booked_at": "2026-07-20",
+      "direction": "OUT",
+      "amount_rub": "99339.62",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 07.2026"
+    },
+    {
+      "external_id": "0099010012-000205",
+      "booked_at": "2026-07-20",
+      "direction": "OUT",
+      "amount_rub": "85754.38",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000206",
+      "booked_at": "2026-07-21",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000207",
+      "booked_at": "2026-07-21",
+      "direction": "OUT",
+      "amount_rub": "19500.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000208",
+      "booked_at": "2026-07-22",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 07.2026"
+    },
+    {
+      "external_id": "0099010012-000209",
+      "booked_at": "2026-07-23",
+      "direction": "IN",
+      "amount_rub": "80443.54",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000210",
+      "booked_at": "2026-07-24",
+      "direction": "IN",
+      "amount_rub": "77056.46",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000211",
+      "booked_at": "2026-07-28",
+      "direction": "IN",
+      "amount_rub": "165277.80",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.07.2026"
+    },
+    {
+      "external_id": "0099010012-000212",
+      "booked_at": "2026-08-01",
+      "direction": "IN",
+      "amount_rub": "84926.48",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000213",
+      "booked_at": "2026-08-06",
+      "direction": "OUT",
+      "amount_rub": "71453.46",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000214",
+      "booked_at": "2026-08-07",
+      "direction": "IN",
+      "amount_rub": "122051.28",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.08.2026"
+    },
+    {
+      "external_id": "0099010012-000215",
+      "booked_at": "2026-08-11",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000216",
+      "booked_at": "2026-08-13",
+      "direction": "IN",
+      "amount_rub": "72573.52",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000217",
+      "booked_at": "2026-08-15",
+      "direction": "OUT",
+      "amount_rub": "78744.63",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000218",
+      "booked_at": "2026-08-15",
+      "direction": "IN",
+      "amount_rub": "10254.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000219",
+      "booked_at": "2026-08-16",
+      "direction": "OUT",
+      "amount_rub": "77286.40",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000220",
+      "booked_at": "2026-08-18",
+      "direction": "OUT",
+      "amount_rub": "107198.96",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 08.2026"
+    },
+    {
+      "external_id": "0099010012-000221",
+      "booked_at": "2026-08-18",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 08.2026"
+    },
+    {
+      "external_id": "0099010012-000222",
+      "booked_at": "2026-08-19",
+      "direction": "IN",
+      "amount_rub": "158666.66",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.08.2026"
+    },
+    {
+      "external_id": "0099010012-000223",
+      "booked_at": "2026-08-19",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000224",
+      "booked_at": "2026-08-20",
+      "direction": "OUT",
+      "amount_rub": "78015.51",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000225",
+      "booked_at": "2026-08-22",
+      "direction": "IN",
+      "amount_rub": "172397.43",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.08.2026"
+    },
+    {
+      "external_id": "0099010012-000226",
+      "booked_at": "2026-08-23",
+      "direction": "IN",
+      "amount_rub": "134256.41",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.08.2026"
+    },
+    {
+      "external_id": "0099010012-000227",
+      "booked_at": "2026-08-24",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000228",
+      "booked_at": "2026-08-26",
+      "direction": "OUT",
+      "amount_rub": "87801.04",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 08.2026"
+    },
+    {
+      "external_id": "0099010012-000229",
+      "booked_at": "2026-08-26",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000230",
+      "booked_at": "2026-08-26",
+      "direction": "OUT",
+      "amount_rub": "19500.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000231",
+      "booked_at": "2026-08-27",
+      "direction": "IN",
+      "amount_rub": "170871.79",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.08.2026"
+    },
+    {
+      "external_id": "0099010012-000232",
+      "booked_at": "2026-08-28",
+      "direction": "IN",
+      "amount_rub": "134256.43",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.08.2026"
+    },
+    {
+      "external_id": "0099010012-000233",
+      "booked_at": "2026-09-02",
+      "direction": "OUT",
+      "amount_rub": "99251.49",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 09.2026"
+    },
+    {
+      "external_id": "0099010012-000234",
+      "booked_at": "2026-09-03",
+      "direction": "IN",
+      "amount_rub": "159086.10",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 5 от 01.09.2026"
+    },
+    {
+      "external_id": "0099010012-000235",
+      "booked_at": "2026-09-05",
+      "direction": "IN",
+      "amount_rub": "140211.48",
+      "counterparty": {
+        "inn": "0098000124",
+        "name": "ООО «Покупатель C1-3»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 4 от 01.09.2026"
+    },
+    {
+      "external_id": "0099010012-000236",
+      "booked_at": "2026-09-06",
+      "direction": "IN",
+      "amount_rub": "82347.72",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000237",
+      "booked_at": "2026-09-06",
+      "direction": "IN",
+      "amount_rub": "153693.35",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 1 от 01.09.2026"
+    },
+    {
+      "external_id": "0099010012-000238",
+      "booked_at": "2026-09-09",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000029",
+        "name": "УФК по г. Москве (ИФНС № 99)",
+        "is_bank": false
+      },
+      "purpose": "Налог по УСН. КБК 18210501011011000110"
+    },
+    {
+      "external_id": "0099010012-000239",
+      "booked_at": "2026-09-10",
+      "direction": "OUT",
+      "amount_rub": "83993.91",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000240",
+      "booked_at": "2026-09-10",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    },
+    {
+      "external_id": "0099010012-000241",
+      "booked_at": "2026-09-11",
+      "direction": "OUT",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Погашение кредита и процентов по дог. № 451"
+    },
+    {
+      "external_id": "0099010012-000242",
+      "booked_at": "2026-09-12",
+      "direction": "OUT",
+      "amount_rub": "65000.00",
+      "counterparty": {
+        "inn": "0098000036",
+        "name": "ООО «Аренда-Демо»",
+        "is_bank": false
+      },
+      "purpose": "Арендная плата по договору № 15 за 09.2026"
+    },
+    {
+      "external_id": "0099010012-000243",
+      "booked_at": "2026-09-13",
+      "direction": "IN",
+      "amount_rub": "140211.50",
+      "counterparty": {
+        "inn": "0098000117",
+        "name": "ООО «Покупатель C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 6 от 01.09.2026"
+    },
+    {
+      "external_id": "0099010012-000244",
+      "booked_at": "2026-09-15",
+      "direction": "IN",
+      "amount_rub": "75152.28",
+      "counterparty": {
+        "inn": "0098000011",
+        "name": "АО «Демо-Банк»",
+        "is_bank": true
+      },
+      "purpose": "Зачисление средств по операциям эквайринга"
+    },
+    {
+      "external_id": "0099010012-000245",
+      "booked_at": "2026-09-18",
+      "direction": "IN",
+      "amount_rub": "156389.72",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 2 от 01.09.2026"
+    },
+    {
+      "external_id": "0099010012-000246",
+      "booked_at": "2026-09-19",
+      "direction": "OUT",
+      "amount_rub": "19500.00",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Перевод по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000247",
+      "booked_at": "2026-09-20",
+      "direction": "OUT",
+      "amount_rub": "60208.02",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000248",
+      "booked_at": "2026-09-22",
+      "direction": "OUT",
+      "amount_rub": "75817.54",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000249",
+      "booked_at": "2026-09-23",
+      "direction": "IN",
+      "amount_rub": "9088.00",
+      "counterparty": {
+        "inn": "0098000163",
+        "name": "ООО «Поставщик C1-2»",
+        "is_bank": false
+      },
+      "purpose": "Возврат по договору № 7-П"
+    },
+    {
+      "external_id": "0099010012-000250",
+      "booked_at": "2026-09-25",
+      "direction": "IN",
+      "amount_rub": "142907.85",
+      "counterparty": {
+        "inn": "0098000100",
+        "name": "ООО «Покупатель C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата по счёту № 3 от 01.09.2026"
+    },
+    {
+      "external_id": "0099010012-000251",
+      "booked_at": "2026-09-25",
+      "direction": "OUT",
+      "amount_rub": "85480.53",
+      "counterparty": {
+        "inn": "0098000156",
+        "name": "ООО «Поставщик C1-1»",
+        "is_bank": false
+      },
+      "purpose": "Оплата поставки по счёту № 31"
+    },
+    {
+      "external_id": "0099010012-000252",
+      "booked_at": "2026-09-26",
+      "direction": "OUT",
+      "amount_rub": "95748.51",
+      "counterparty": {
+        "inn": null,
+        "name": "Сотрудники (зарплатный реестр)",
+        "is_bank": false
+      },
+      "purpose": "Перечисление заработной платы за 09.2026"
+    },
+    {
+      "external_id": "0099010012-000253",
+      "booked_at": "2026-09-26",
+      "direction": "IN",
+      "amount_rub": "50000.00",
+      "counterparty": {
+        "inn": "0099010012",
+        "name": "ООО «ТехСервис» (счёт в другом банке)",
+        "is_bank": false
+      },
+      "purpose": "Перевод собственных средств между счетами"
+    }
+  ]
+}
