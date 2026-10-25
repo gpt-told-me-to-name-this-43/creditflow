@@ -3809,7 +3809,7 @@ export interface operations {
                      *         "login": "director.bakery@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C2 · ООО «Пекарня Плюс», 0099020010. Заявок нет: подать инвестиционный, 3 000 000 ₽ на 36 мес. → COUNTER_OFFER_CANDIDATE, лимит 2 340 000; оффер 2 340 000 / 36 → принять → подписать"
+                     *         "scenario": "C2 · ООО «Пекарня Плюс», 0099020010 (не привязана). Привязать ИНН, подать инвестиционный, 3 000 000 ₽ на 36 мес. → COUNTER_OFFER_CANDIDATE, лимит 2 340 000; оффер 2 340 000 / 36 → принять → подписать"
                      *       },
                      *       {
                      *         "label": "Соколова Алёна Викторовна",
@@ -3823,7 +3823,7 @@ export interface operations {
                      *         "login": "director.newstart@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C4 · ООО «Новый Старт», 0099040017. Заявок нет: подать инвестиционный, 500 000 ₽ на 24 мес. → BLOCKED_BY_RULE: ACCOUNT_HISTORY_INSUFFICIENT, менеджеру доступен только REJECT"
+                     *         "scenario": "C4 · ООО «Новый Старт», 0099040017 (не привязана). Привязать ИНН, подать инвестиционный, 500 000 ₽ на 24 мес. → BLOCKED_BY_RULE: ACCOUNT_HISTORY_INSUFFICIENT, менеджеру доступен только REJECT"
                      *       },
                      *       {
                      *         "label": "Векторов Андрей Игоревич",
@@ -3851,7 +3851,7 @@ export interface operations {
                      *         "login": "accountant.bakery@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "Бухгалтер «Пекарни Плюс» (не руководитель). Привязать ИНН 0099020010 → 403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП (привязка — #5)"
+                     *         "scenario": "Бухгалтер «Пекарни Плюс» (не руководитель). Привязать ИНН 0099020010 → 403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП"
                      *       },
                      *       {
                      *         "label": "Анна Менеджерова",
