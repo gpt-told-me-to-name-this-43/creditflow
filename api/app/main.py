@@ -2,28 +2,43 @@
 
 import asyncio
 import contextlib
-import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
 from app.api import test_reset
 from app.api.examples import preserve_nullable_examples
-from app.api.routers import ROUTERS as CONTRACT_ROUTERS
+from app.api.routers import IMPLEMENTED_ROUTERS, STUB_ROUTERS
 from app.applications.ai_reports import recover_stale_ai_reports
+from app.auth.router import router as auth_router
 from app.contracts.service import DISBURSE_DELAY_SECONDS, recover_pending_disbursements
 from app.core.config import AppEnv, Settings
-from app.core.db import create_engine, create_sessionmaker
+from app.core.db import create_engine, create_session_factory
 from app.core.errors import install_error_handlers
 from app.core.health import router as health_router
-from app.core.idempotency import install_idempotency_handlers
+from app.core.idempotency import install_idempotency
+from app.core.logs import configure_logging, get_logger
+from app.core.middleware import RequestContextMiddleware
+from app.core.ratelimit import RateLimits
 from app.extsim_client import ExtSimClient
+from app.onboarding.consents import current_consents
+from app.onboarding.router import public_router as consents_router
+from app.onboarding.router import router as onboarding_router
 from app.scoring.categorization import load_rules
 
 API_PREFIX = "/api/v1"
 RECOVERY_INTERVAL_SECONDS = 15.0
-logger = logging.getLogger("app.main")
+logger = get_logger("app.main")
+
+# Настоящие роутеры #5 и #7 монтируются везде, стабы #8 — только вне production.
+ACCESS_ROUTERS: tuple[APIRouter, ...] = (
+    auth_router,
+    consents_router,
+    onboarding_router,
+    *IMPLEMENTED_ROUTERS,
+)
+CONTRACT_ROUTERS: tuple[APIRouter, ...] = (*ACCESS_ROUTERS, *STUB_ROUTERS)
 
 
 @asynccontextmanager
@@ -32,8 +47,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Правила категоризации валидируются при старте (design §3.4): битый YAML роняет
     # запуск api, а не первый Submit. Делаем это до открытия пула БД и клиента ext-sim.
     app.state.categorization_rules = load_rules()
+    current_consents()  # тексты согласий — тоже при старте
     app.state.engine = create_engine(settings.database_url)
-    app.state.sessionmaker = create_sessionmaker(app.state.engine)
+    app.state.session_factory = create_session_factory(app.state.engine)
     app.state.disburse_delay = DISBURSE_DELAY_SECONDS
     app.state.ext_sim = ExtSimClient(settings.ext_sim_base_url)
     # design §3.2: фоновые процессы восстанавливаются при старте и раз в 15 с.
@@ -55,8 +71,10 @@ async def recover_once(app: FastAPI) -> None:
     """Идемпотентно закрывает зависшие AI-заключения и выдачи. Сбой БД не роняет api."""
     settings: Settings = app.state.settings
     try:
-        await recover_stale_ai_reports(app.state.sessionmaker, settings.llm_report_deadline_seconds)
-        await recover_pending_disbursements(app.state.sessionmaker)
+        await recover_stale_ai_reports(
+            app.state.session_factory, settings.llm_report_deadline_seconds
+        )
+        await recover_pending_disbursements(app.state.session_factory)
     except Exception:
         logger.exception("recovery: проход не удался, повтор в следующем цикле")
 
@@ -70,6 +88,7 @@ async def _recovery_loop(app: FastAPI, interval: float) -> None:
 def create_app(settings: Settings | None = None) -> FastAPI:
     # Settings() валидирует окружение: в production тестовые флаги роняют старт.
     settings = settings or Settings()
+    configure_logging()
     app = FastAPI(
         title="CreditFlow API",
         version="1.0.0",
@@ -85,9 +104,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "Interpret и preview не сохраняют данные. GET никогда не меняет состояние. "
             "Кнопки клиента определяет allowed_actions; polling каждые 5 с, в SIGNED — 2 с, "
             "завершается при ISSUED/REJECTED/DECLINED. "
-            "Сейчас маршруты контракта — фиксированные стабы #6 в local/test: проверяют "
-            "только наличие Bearer. JWT/RBAC и владение — #5, бизнес-операции — #7, AI — #8. "
-            "В production до реализации этих проверок доступен только health. "
+            "Вход, роли и онбординг реализованы (#5): JWT HS256 и роль проверяются у каждого "
+            "защищённого маршрута. Конвейер заявок реализован (#7). Interpret, ai-report и "
+            "ai-feedback пока — фиксированные стабы в local/test (#8). "
             "Тестовый reset не входит в публикуемый контракт."
         ),
         servers=[{"url": "/", "description": "Текущий origin: SPA и API за nginx"}],
@@ -103,22 +122,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = settings
+    app.state.rate_limits = RateLimits()
     install_error_handlers(app)
-    install_idempotency_handlers(app)
+    install_idempotency(app)
+    app.add_middleware(RequestContextMiddleware)
     app.include_router(health_router, prefix=API_PREFIX)
-    # Стабы контракта v1 (#6); реализации заменяют их по модулям в #5/#7/#8.
-    # Стабы контракта #6 не проверяют токен (только наличие Bearer, app/core/security.py)
-    # и отдают фиксированные данные. В production их не монтируем вовсе: до #5 маршруты
-    # отвечают 404, и стабом нельзя воспользоваться как настоящим API.
+    for router in ACCESS_ROUTERS:
+        app.include_router(router, prefix=API_PREFIX)
+    # Стабы #8 проверяют JWT и роль, но отдают фиксированные данные без владения и
+    # состояния. В production их не монтируем: маршруты отвечают 404.
+    mounted = ACCESS_ROUTERS
     if settings.app_env is AppEnv.PRODUCTION:
-        logger.warning("APP_ENV=production: стабы контракта v1 не подключены (до #5)")
+        logger.warning("APP_ENV=production: стабы #8 не подключены")
+        if settings.demo_auth_enabled:
+            logger.warning("APP_ENV=production: DEMO_AUTH_ENABLED=true — демо-учётки и demo_code")
     else:
-        for router in CONTRACT_ROUTERS:
+        for router in STUB_ROUTERS:
             app.include_router(router, prefix=API_PREFIX)
+        mounted = CONTRACT_ROUTERS
     # design §4: при TEST_RESET_ENABLED=false роутер не монтируется вовсе → 404
     if settings.app_env in {AppEnv.LOCAL, AppEnv.TEST} and settings.test_reset_enabled:
         app.include_router(test_reset.router, prefix=API_PREFIX)
-    preserve_nullable_examples(app, CONTRACT_ROUTERS, API_PREFIX)
+    preserve_nullable_examples(app, mounted, API_PREFIX)
     return app
 
 

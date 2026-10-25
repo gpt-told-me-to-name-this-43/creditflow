@@ -72,7 +72,7 @@ async def reset(
     state = request.app.state
     await reset_database(
         state.engine,
-        state.sessionmaker,
+        state.session_factory,
         state.ext_sim,
         state.categorization_rules,
         state.settings,

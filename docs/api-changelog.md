@@ -47,18 +47,32 @@
 `GET /credit-products`, `POST/GET /applications`, `GET/PATCH /applications/{id}`, `submit`,
 `info-response`, `offer/accept`, `offer/decline`, `contract`, `sign/challenge`, `sign`,
 `GET /manager/applications`, карточка, `decisions`, `offer-preview`, `GET /manager/stats`,
-`POST /_test/reset` (не входит в публикуемый контракт). Стабами остаются #5 (`auth/login`,
-`auth/me`, `company-binding`, `GET /company`) и #8 (`interpret`, `ai-report`, `ai-feedback`).
+`POST /_test/reset` (не входит в публикуемый контракт). Стабами остаются только маршруты #8
+(`interpret`, `ai-report`, `ai-feedback`). Реализованные маршруты #7, как и #5, смонтированы
+во всех окружениях, включая production.
 
 - Совместимо, описания: из `POST /applications` и `offer-preview` убраны оговорки про стаб.
 - **Заметно фронту:** `DemoAccount.scenario` теперь полный текст «компания. что попробовать →
   ожидаемый результат» (тот же, что в docs/demo-data.md, раздел 0), а не код `C1`…`C7`.
   Экрану входа достаточно показывать поле как есть; словарь по кодам больше не совпадёт.
-- **Заметно фронту:** реализованные маршруты проверяют JWT (подпись `APP_SECRET_KEY`, срок,
-  роль) вместо одного наличия Bearer. Пока `POST /auth/login` — стаб (#5), токен для ручной
-  проверки выдаёт `make dev-token`; полноценный вход с фронта заработает вместе с #5.
+- Доступ — зависимости #5 (`current_user`, `require_role`); без привязанной компании
+  `/applications*` — `409 COMPANY_NOT_BOUND`. Для Bruno и ручной проверки T1 токен без пароля
+  выдаёт `make dev-token`.
 - Поведение: `sign/challenge` увеличивает `revision` (как и было описано в контракте);
   договор появляется при переходе в `APPROVED`, до этого `GET /contract` — 404.
+
+## Не выпущено — вход, роли и онбординг (#5)
+
+- **Изменилось в `docs/openapi.json`:** только `info.description`. Прежний текст говорил,
+  что стабы проверяют лишь наличие Bearer и что в production доступен только health;
+  теперь это неверно. Пути, схемы, статусы, коды ошибок и `security` не менялись.
+- **Поведение без изменения схем:** auth, `consents/texts`, `company-binding` и
+  `GET /company` реализованы и смонтированы во всех окружениях, включая production.
+  Клиентские и менеджерские стабы проверяют подпись JWT и роль: произвольный Bearer
+  получает `401`, чужая роль — `403 FORBIDDEN`. `sign/challenge` ограничен 5 выдачами
+  на заявку за 15 минут (`429 CHALLENGE_ISSUE`, как и было описано в контракте).
+- **Совместимость:** совместимо. Фронту ничего менять не нужно: клиент уже берёт токен
+  из `POST /auth/login`; `pnpm generate:api` не меняет `schema.d.ts`.
 
 ## Не выпущено — финализация Design 2.5 (2026-10-23)
 

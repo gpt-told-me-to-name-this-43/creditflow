@@ -4,6 +4,7 @@ import ast
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -13,8 +14,14 @@ SCENARIOS = REPO_ROOT / "docs" / "test-scenarios.md"
 TESTS = REPO_ROOT / "api" / "tests" / "applications"
 
 
+def _test_file(name: str) -> Path:
+    # Тесты конвейера — в tests/applications/, общие (#5, например идемпотентность) — в tests/.
+    local = TESTS / name
+    return local if local.is_file() else TESTS.parent / name
+
+
 def _functions(path: str) -> set[str]:
-    tree = ast.parse((TESTS / path).read_text(encoding="utf-8"))
+    tree = ast.parse(_test_file(path).read_text(encoding="utf-8"))
     return {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef | ast.AsyncFunctionDef)}
 
 
@@ -28,7 +35,7 @@ def test_every_scenario_has_existing_autotests() -> None:
         current = None
         for file, name, short in refs:
             current = file or current
-            assert current and (TESTS / current).is_file(), row
+            assert current and _test_file(current).is_file(), row
             target = name or short
             if target:
                 assert target in _functions(current), f"{current}::{target}"

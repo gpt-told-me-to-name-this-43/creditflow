@@ -18,10 +18,8 @@ from app.api.stubs import (
     _build_stats,
 )
 from app.applications import repo
-from app.core.db import DbSession
+from app.applications.deps import DbSession, Idem, Manager, require_manager
 from app.core.errors import errors
-from app.core.idempotency import Idem
-from app.core.security import Manager, require_manager
 from app.manager import service, views
 from app.manager.stats import manager_stats
 from app.schemas.common import ErrorCode as E

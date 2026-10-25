@@ -17,10 +17,18 @@ from app.core.health import HealthResponse
 from app.main import create_app
 from app.schemas import client as client_schemas
 from app.schemas.common import ErrorCode
+from tests.conftest import CLIENT_LOGIN, MANAGER_LOGIN, bearer
 
 APP_ID = "7f3e2a10-0000-4000-8000-000000000001"
 IDEM = {"Idempotency-Key": "test-key-0001"}
-AUTH = {"Authorization": "Bearer contract-stub-token"}
+# Настоящие JWT демо-учёток (#5): стабы проверяют подпись и роль.
+AUTH = bearer(CLIENT_LOGIN)
+MANAGER_AUTH = bearer(MANAGER_LOGIN)
+
+
+def auth_for(path: str) -> dict[str, str]:
+    return MANAGER_AUTH if path.startswith("/manager") else AUTH
+
 
 # (method, path, body, headers) — ровно таблица эндпоинтов #6 (кроме /health и /_test/reset).
 ENDPOINTS: list[tuple[str, str, dict[str, Any] | None, dict[str, str]]] = [
@@ -83,29 +91,27 @@ ENDPOINTS: list[tuple[str, str, dict[str, Any] | None, dict[str, str]]] = [
     ("GET", "/manager/stats", None, {}),
 ]
 
-# Реализованные маршруты (#7) проверяются интеграционно в tests/applications/ — с настоящим
-# JWT и БД; здесь — только оставшиеся стабы (#5, #8) и регистрация всех путей в OpenAPI.
-STUB_PATHS = {
-    "/auth/login",
-    "/auth/me",
-    "/auth/demo-accounts",
-    "/consents/texts",
-    "/onboarding/company-binding",
-    "/company",
-    f"/applications/{APP_ID}/interpret",
-    f"/manager/applications/{APP_ID}/ai-report",
-    f"/manager/applications/{APP_ID}/ai-feedback",
-}
-STUBS = [e for e in ENDPOINTS if e[1] in STUB_PATHS]
-
 FORBIDDEN_CLIENT_FIELDS = re.compile(
     r"score|dscr|limit|reason_codes|positive_codes|blocking|suggested|rule_trace|ai_|comment|risk"
 )
 
 
+# Настоящие маршруты проверяют свои тесты: #5 — test_auth.py и test_onboarding.py,
+# #7 — tests/applications/ (живая БД). Здесь — только оставшиеся стабы #8.
+STUB_PATHS = {
+    f"/applications/{APP_ID}/interpret",
+    f"/manager/applications/{APP_ID}/ai-report",
+    f"/manager/applications/{APP_ID}/ai-feedback",
+}
+STUB_ENDPOINTS = [e for e in ENDPOINTS if e[1] in STUB_PATHS]
+
+
 @pytest.fixture
-def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings(demo_auth_enabled=True))
+def app(
+    make_settings: Callable[..., Settings], db_reset: None, running: Callable[[Any], Any]
+) -> FastAPI:
+    app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
+    return app
 
 
 def _template(path: str) -> str:
@@ -121,13 +127,14 @@ def test_all_contract_routes_registered(app: FastAPI) -> None:
     assert expected <= declared, sorted(expected - declared)
 
 
-@pytest.mark.parametrize(("method", "path", "body", "headers"), STUBS, ids=lambda v: str(v))
+@pytest.mark.parametrize(
+    ("method", "path", "body", "headers"), STUB_ENDPOINTS, ids=lambda v: str(v)
+)
 def test_stub_passes_response_model(
     app: FastAPI, method: str, path: str, body: dict[str, Any] | None, headers: dict[str, str]
 ) -> None:
-    # TestClient без контекстного менеджера: lifespan (БД, ext-sim) стабам не нужен.
     response = TestClient(app).request(
-        method, "/api/v1" + path, json=body, headers={**AUTH, **headers}
+        method, "/api/v1" + path, json=body, headers={**auth_for(path), **headers}
     )
     assert response.status_code < 300, response.text  # response_model валидирует ответ стаба
 
@@ -139,7 +146,7 @@ def test_idempotency_key_is_required_in_contract(app: FastAPI) -> None:
 
 
 def test_errors_use_envelope(app: FastAPI) -> None:
-    client = TestClient(app, headers=AUTH)
+    client = TestClient(app, headers=MANAGER_AUTH)
     assert (
         client.get("/api/v1/manager/applications/not-a-uuid/ai-report").json()["error"]["code"]
         == "VALIDATION_ERROR"

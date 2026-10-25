@@ -206,8 +206,8 @@ async def test_restart_in_signed_is_recovered(
                 "UPDATE contracts SET status = 'SIGNED', signed_at = now() - interval '11 seconds'"
             )
         )
-    assert await recover_pending_disbursements(app.state.sessionmaker) == 1
-    assert await recover_pending_disbursements(app.state.sessionmaker) == 0  # идемпотентно
+    assert await recover_pending_disbursements(app.state.session_factory) == 1
+    assert await recover_pending_disbursements(app.state.session_factory) == 0  # идемпотентно
     view = (await api.get(f"/applications/{app_id}", headers=headers)).json()
     assert view["status"] == "ISSUED"
     # создание, submit, APPROVE, выдача (SIGNED выставлен в обход API)
@@ -221,7 +221,7 @@ async def test_fresh_signed_is_not_recovered_early(
     async with db.begin() as conn:
         await conn.execute(sa.text("UPDATE applications SET status = 'SIGNED'"))
         await conn.execute(sa.text("UPDATE contracts SET status = 'SIGNED', signed_at = now()"))
-    assert await recover_pending_disbursements(app.state.sessionmaker) == 0
+    assert await recover_pending_disbursements(app.state.session_factory) == 0
 
 
 async def test_m12_schedule_through_offer_contract(

@@ -13,10 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.applications import fsm, repo
 from app.applications.catalog import CatalogProduct
 from app.applications.scoring_store import Current, add_scoring, load_current
+from app.auth.deps import CurrentUser
 from app.contracts.service import create_contract
 from app.core.errors import AppError
 from app.core.idempotency import Idempotency
-from app.core.security import CurrentUser
 from app.db.models import Application, CreditDecision, CreditProduct, InfoRequest, Offer
 from app.manager.offers import check_offer, preview, raise_for_decision
 from app.schemas.common import ErrorCode, ValidationDetail, ValidationDetails

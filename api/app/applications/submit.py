@@ -24,10 +24,10 @@ from app.applications import ai_reports, fsm, repo
 from app.applications.catalog import CatalogProduct, unmet_constraints
 from app.applications.scoring_store import ScoringInputs, add_proposal, add_scoring
 from app.applications.views import client_view
+from app.auth.deps import CurrentUser
 from app.core.config import Settings
 from app.core.errors import AppError
 from app.core.idempotency import Idempotency
-from app.core.security import CurrentUser
 from app.db.models import (
     AccountTransaction,
     Application,
@@ -35,13 +35,13 @@ from app.db.models import (
     Consent,
     CreditProduct,
     ExternalSnapshot,
-    User,
 )
 from app.extsim_client import ExtSimClient
-from app.extsim_client.dto import EgrulCompany, StatementPeriod, SubmitData
+from app.extsim_client.dto import EgrulCompany, RegistryRecord, StatementPeriod, SubmitData
 from app.extsim_client.errors import ExtSimError
-from app.onboarding.authority import applicant_of, is_authorized
-from app.onboarding.consents import BKI_VERSION
+from app.onboarding.authorization import is_authorized_applicant
+from app.onboarding.consents import current_version
+from app.schemas.auth import ConsentType
 from app.schemas.client import ClientApplicationView
 from app.schemas.common import (
     ApplicationIncompleteDetails,
@@ -107,6 +107,7 @@ async def _bki_consent(
     application_id: uuid.UUID,
     company_id: uuid.UUID,
     user_id: uuid.UUID,
+    version: str,
 ) -> uuid.UUID:
     """Шаг 2: создать или переиспользовать согласие; отдельная транзакция, переживает сбой."""
     async with sessions() as session, session.begin():
@@ -117,7 +118,7 @@ async def _bki_consent(
                 company_id=company_id,
                 application_id=application_id,
                 type="BKI_REQUEST",
-                text_version=BKI_VERSION,
+                text_version=version,
             )
             .on_conflict_do_nothing(index_elements=["application_id", "type", "text_version"])
         )
@@ -125,11 +126,16 @@ async def _bki_consent(
             select(Consent.id).where(
                 Consent.application_id == application_id,
                 Consent.type == "BKI_REQUEST",
-                Consent.text_version == BKI_VERSION,
+                Consent.text_version == version,
             )
         )
     assert consent_id is not None
     return consent_id
+
+
+def _applicant_inn(record: RegistryRecord) -> str:
+    """ИНН руководителя (ЕГРЮЛ) или самого ИП: его переводы — OWNER_TRANSFER."""
+    return record.director.inn if isinstance(record, EgrulCompany) else record.inn
 
 
 def _transactions(data: SubmitData) -> list[StatementTransaction]:
@@ -167,21 +173,20 @@ async def submit(
     product = CatalogProduct.from_row(product_row) if product_row else None
     _precheck(application, revision, product)
     assert product is not None
-    if bki_consent_version != BKI_VERSION:
+    bki_version = current_version(ConsentType.BKI_REQUEST)
+    if bki_consent_version != bki_version:
         raise AppError(
             ErrorCode.CONSENT_REQUIRED, "Подтвердите актуальное согласие на запрос в БКИ"
         )
     company = await session.get(Company, application.company_id)
-    owner = await session.get(User, user.id)
-    assert company is not None and owner is not None
+    assert company is not None
     company_id, company_inn = company.id, company.inn
-    person_inn, full_name = owner.person_inn, owner.full_name
     # Читающая транзакция не держится во время внешних вызовов; после rollback объекты
     # сессии истекают, поэтому дальше — только скопированные значения.
     await session.rollback()
 
     # 2. Согласие БКИ.
-    consent_id = await _bki_consent(sessions, application_id, company_id, user.id)
+    consent_id = await _bki_consent(sessions, application_id, company_id, user.id, bki_version)
 
     # 3. Внешние данные — только в память.
     try:
@@ -192,7 +197,7 @@ async def submit(
         raise AppError(
             ErrorCode.PROVIDER_UNAVAILABLE, "Внешний сервис недоступен, повторите позже"
         ) from exc
-    director_inn, _ = applicant_of(data.registry)
+    director_inn = _applicant_inn(data.registry)
     categorized = categorize(
         _transactions(data),
         rules,
@@ -216,7 +221,8 @@ async def submit(
         bki = Bki(data.bki.summary_status.value)
         blocking = stop_factors(
             registry_status=Registry(data.registry.status.value),
-            applicant_authorized=is_authorized(data.registry, person_inn, full_name),
+            # повторная сверка руководителя: ФИО и ИНН учётки — из БД на этот запрос
+            applicant_authorized=is_authorized_applicant(data.registry, user),
             bankruptcy=data.fns.bankruptcy,
             active_account_blocks=data.fns.active_account_blocks,
             features=features,

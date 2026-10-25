@@ -1,4 +1,7 @@
-"""JWT демо-учётки для ручной проверки API до #5 (вход и привязка компании ещё стабы).
+"""JWT демо-учётки без пароля и привязка компании в обход проверки полномочий.
+
+Нужен для Bruno и ручной проверки: T1 (сбой БКИ) не принадлежит ни одной демо-учётке,
+поэтому привязать её через POST /onboarding/company-binding нельзя.
 
 Запуск из каталога `api` с переменными из `.env` (так делает `make dev-token`):
 
@@ -18,10 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api"))
 
 import sqlalchemy as sa
 
+from app.auth.tokens import issue_token
 from app.core.config import Settings
 from app.core.db import create_engine
-from app.core.security import encode_token
-from app.schemas.auth import Role
 
 FIXTURES = Path(__file__).resolve().parents[1] / "ext-sim" / "fixtures"
 
@@ -71,7 +73,7 @@ async def run(email: str, bind: str | None) -> str:
                 )
     finally:
         await engine.dispose()
-    return encode_token(user.id, Role(user.role), settings.app_secret_key)
+    return issue_token(user.id, user.role, settings.app_secret_key)
 
 
 def main() -> None:

@@ -13,8 +13,8 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.applications import fsm, repo
+from app.auth.deps import CurrentUser
 from app.core.errors import AppError
-from app.core.security import CurrentUser
 from app.db.models import Application, CreditProduct
 from app.schemas.client import ApplicationCreate, ApplicationPatch, FieldSource, TermsField
 from app.schemas.common import ErrorCode, ValidationDetail, ValidationDetails

@@ -24,12 +24,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from alembic import command
 from app import seed
+from app.auth.tokens import issue_token
 from app.core.config import Settings
 from app.core.db import create_engine
-from app.core.security import encode_token
 from app.extsim_client import ExtSimClient
 from app.main import create_app
-from app.schemas.auth import Role
 from tests.applications.extsim_fake import FakeExtSim
 from tests.conftest import EXT_SIM_URL, REPO_ROOT, TEST_DATABASE_URL, TEST_SECRET_KEY
 
@@ -125,7 +124,7 @@ def as_user(db: AsyncEngine) -> AsUser:
                     sa.text("SELECT id, role FROM users WHERE email = :e"), {"e": email}
                 )
             ).one()
-        token = encode_token(row.id, Role(row.role), TEST_SECRET_KEY)
+        token = issue_token(row.id, row.role, TEST_SECRET_KEY)
         return {"Authorization": f"Bearer {token}"}
 
     return headers

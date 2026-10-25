@@ -14,35 +14,54 @@ from app.core.config import Settings
 from app.core.errors import install_error_handlers
 from app.main import create_app
 from app.schemas.common import ERROR_STATUS, ErrorCode
-from tests.test_contract import APP_ID, AUTH
+from tests.test_contract import APP_ID, AUTH, MANAGER_AUTH
 
 
 @pytest.fixture
-def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings(demo_auth_enabled=True))
+def app(
+    make_settings: Callable[..., Settings], db_reset: None, running: Callable[[Any], Any]
+) -> FastAPI:
+    app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
+    return app
 
 
-# --- 1. Стабы с «проверкой» только наличия Bearer не доступны в production -----------------
+# --- 1. Стабы #8 не доступны в production; #5 и #7 — настоящие маршруты, доступны ------
 
 
 def test_stubs_not_mounted_in_production(make_settings: Callable[..., Settings]) -> None:
     app = create_app(make_settings(app_env="production"))
-    paths = app.openapi()["paths"]
-    assert set(paths) == {"/api/v1/health"}
-    client = TestClient(app, headers=AUTH)
-    assert client.get("/api/v1/applications").status_code == 404
-    assert (
-        client.post("/api/v1/auth/login", json={"login": "x", "password": "y"}).status_code == 404
-    )
+    paths = set(app.openapi()["paths"])
+    assert {
+        "/api/v1/health",
+        "/api/v1/auth/login",
+        "/api/v1/onboarding/company-binding",
+        "/api/v1/applications",
+        "/api/v1/manager/stats",
+    } <= paths
+    assert not {p for p in paths if p.endswith(("/interpret", "/ai-report", "/ai-feedback"))}
+    client = TestClient(app, headers=MANAGER_AUTH)
+    assert client.get(f"/api/v1/manager/applications/{APP_ID}/ai-report").status_code == 404
 
 
-def test_any_bearer_is_accepted_outside_production(app: FastAPI) -> None:
-    """Ограничение оставшихся стабов #6: токен не проверяется. Реализованные маршруты (#7)
-    проверяют JWT — tests/applications/test_auth.py."""
-    path = f"/api/v1/manager/applications/{APP_ID}/ai-report"
+def test_stub_routes_verify_jwt_and_role(app: FastAPI) -> None:
+    """С #5 стабы (#8) проверяют подпись токена и роль, а не только наличие Bearer."""
     client = TestClient(app, headers={"Authorization": "Bearer not-a-jwt"})
-    assert client.get(path).status_code == 200
-    assert TestClient(app).get(path).status_code == 401
+    assert client.get(f"/api/v1/manager/applications/{APP_ID}/ai-report").status_code == 401
+    assert (
+        TestClient(app).get(f"/api/v1/manager/applications/{APP_ID}/ai-report").status_code == 401
+    )
+    assert (
+        TestClient(app, headers=AUTH)
+        .get(f"/api/v1/manager/applications/{APP_ID}/ai-report")
+        .status_code
+        == 403
+    )
+    assert (
+        TestClient(app, headers=MANAGER_AUTH)
+        .get(f"/api/v1/manager/applications/{APP_ID}/ai-report")
+        .status_code
+        == 200
+    )
 
 
 # --- 3. Примеры OpenAPI не исполняют endpoint --------------------------------------------

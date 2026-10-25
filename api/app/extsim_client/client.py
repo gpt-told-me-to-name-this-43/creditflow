@@ -15,6 +15,7 @@ from uuid import UUID
 import httpx
 from pydantic import BaseModel, ValidationError
 
+from app.core.request_context import request_id_var
 from app.extsim_client.dto import (
     BankStatement,
     BkiReport,
@@ -156,6 +157,8 @@ class ExtSimClient:
         params: dict[str, str] | None = None,
         json: dict[str, Any] | None = None,
     ) -> httpx.Response:
+        # По умолчанию — id текущего запроса api: один id в логах nginx, api и ext-sim.
+        request_id = request_id or request_id_var.get()
         headers = {"X-Request-ID": request_id} if request_id else {}
         reason = ""
         status_code: int | None = None

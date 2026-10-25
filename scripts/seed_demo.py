@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api"))
 
 from app.core.config import Settings
-from app.core.db import create_engine, create_sessionmaker
+from app.core.db import create_engine, create_session_factory
 from app.demo.reset import reset_database
 from app.extsim_client import ExtSimClient
 from app.scoring.categorization import load_rules
@@ -31,7 +31,7 @@ async def run(demo: bool) -> None:
     started = time.perf_counter()
     try:
         await reset_database(
-            engine, create_sessionmaker(engine), ext_sim, load_rules(), settings, demo=demo
+            engine, create_session_factory(engine), ext_sim, load_rules(), settings, demo=demo
         )
     finally:
         await ext_sim.aclose()

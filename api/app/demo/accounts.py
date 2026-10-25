@@ -31,8 +31,8 @@ SCENARIOS = (
     ),
     DemoScenario(
         "director.bakery@creditflow.demo",
-        "C2 · ООО «Пекарня Плюс», 0099020010",
-        "Заявок нет: подать инвестиционный, 3 000 000 ₽ на 36 мес.",
+        "C2 · ООО «Пекарня Плюс», 0099020010 (не привязана)",
+        "Привязать ИНН, подать инвестиционный, 3 000 000 ₽ на 36 мес.",
         "COUNTER_OFFER_CANDIDATE, лимит 2 340 000; оффер 2 340 000 / 36 → принять → подписать",
     ),
     DemoScenario(
@@ -43,8 +43,8 @@ SCENARIOS = (
     ),
     DemoScenario(
         "director.newstart@creditflow.demo",
-        "C4 · ООО «Новый Старт», 0099040017",
-        "Заявок нет: подать инвестиционный, 500 000 ₽ на 24 мес.",
+        "C4 · ООО «Новый Старт», 0099040017 (не привязана)",
+        "Привязать ИНН, подать инвестиционный, 500 000 ₽ на 24 мес.",
         "BLOCKED_BY_RULE: ACCOUNT_HISTORY_INSUFFICIENT, менеджеру доступен только REJECT",
     ),
     DemoScenario(
@@ -69,7 +69,7 @@ SCENARIOS = (
         "accountant.bakery@creditflow.demo",
         "Бухгалтер «Пекарни Плюс» (не руководитель)",
         "Привязать ИНН 0099020010",
-        "403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП (привязка — #5)",
+        "403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП",
     ),
     DemoScenario(
         "manager.anna@creditflow.demo",

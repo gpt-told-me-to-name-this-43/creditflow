@@ -12,10 +12,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.applications import fsm, repo
 from app.applications.views import client_view
+from app.auth.deps import CurrentUser
 from app.contracts import service as contracts
 from app.core.errors import AppError
 from app.core.idempotency import Idempotency
-from app.core.security import CurrentUser
 from app.db.models import Application, CreditDecision, InfoRequest, Offer
 from app.schemas.client import ClientApplicationView
 from app.schemas.common import ErrorCode

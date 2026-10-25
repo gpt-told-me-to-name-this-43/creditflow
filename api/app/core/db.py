@@ -1,14 +1,11 @@
-"""Подключение к PostgreSQL, общий `Base` для моделей SQLAlchemy и сессия на запрос.
+"""Подключение к PostgreSQL, сессия на запрос и общий `Base` для моделей SQLAlchemy.
 
-Транзакции открывает сервис явно (`async with session.begin()`): изменяющая операция —
-одна транзакция с `SELECT … FOR UPDATE` (design.md §3.7). Чтение без `begin()` закрывается
-откатом при выходе из сессии, поэтому `GET` ничего не фиксирует в БД.
+`Base.metadata` используется Alembic и генератором ER.
 """
 
-from collections.abc import AsyncIterator
-from typing import Annotated
+from collections.abc import AsyncGenerator
 
-from fastapi import Depends, Request
+from fastapi import Request
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -35,23 +32,20 @@ def create_engine(database_url: str) -> AsyncEngine:
     return create_async_engine(
         database_url,
         pool_pre_ping=True,
+        # Значения параметров не попадают в текст исключений SQLAlchemy (#5, логи).
+        hide_parameters=True,
         connect_args={"connect_timeout": 3},
     )
 
 
-def create_sessionmaker(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
-    # expire_on_commit=False: после COMMIT ответ строится из уже загруженных объектов
+def create_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    # Создаётся один раз в lifespan и хранится в app.state.session_factory.
     return async_sessionmaker(engine, expire_on_commit=False)
 
 
-def sessionmaker_of(request: Request) -> async_sessionmaker[AsyncSession]:
-    sessions: async_sessionmaker[AsyncSession] = request.app.state.sessionmaker
-    return sessions
-
-
-async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
-    async with sessionmaker_of(request)() as session:
+async def get_db(request: Request) -> AsyncGenerator[AsyncSession, None]:
+    """Сессия на запрос. Транзакцией управляет вызывающий код (`commit()` или
+    `async with session.begin()`); незакоммиченное откатывается при закрытии сессии."""
+    factory: async_sessionmaker[AsyncSession] = request.app.state.session_factory
+    async with factory() as session:
         yield session
-
-
-DbSession = Annotated[AsyncSession, Depends(get_session)]

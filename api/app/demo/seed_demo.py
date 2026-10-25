@@ -7,14 +7,14 @@
 
 | Компания | После seed |
 | C1 | прошлые заявки (ISSUED и др.), можно подать новую |
-| C2, C4 | компания привязана, заявок нет — путь с нуля |
+| C2, C4 | компания не привязана, заявок нет — путь с нуля |
 | C3 | NEED_INFO с вопросом |
 | C5 | REJECTED по стоп-фактору |
 | C6 | UNDER_REVIEW, BLOCKED_BY_RULE |
 | C7 | UNDER_REVIEW, MANUAL_REVIEW |
 | история | 9 решённых заявок для сводки |
 
-Привязка компаний — напрямую в БД: `company-binding` реализует #5.
+Привязка компаний — сервисом `bind_company` (#5), как POST /onboarding/company-binding.
 """
 
 import uuid
@@ -27,16 +27,16 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.applications import responses, service
 from app.applications.submit import submit
+from app.auth.deps import CurrentUser
 from app.contracts import service as contracts
 from app.core.config import Settings
 from app.core.idempotency import Idempotency
-from app.core.security import CurrentUser
-from app.db.models import Application, Company, User
+from app.db.models import Application, User
 from app.extsim_client import ExtSimClient
 from app.manager import service as manager_service
-from app.onboarding.authority import company_fields
-from app.onboarding.consents import BKI_VERSION
-from app.schemas.auth import Role
+from app.onboarding.consents import current_version
+from app.onboarding.service import bind_company
+from app.schemas.auth import CompanyBindingRequest, ConsentType, Role
 from app.schemas.client import ApplicationCreate, ApplicationPatch
 from app.schemas.manager import (
     ApproveDecision,
@@ -48,6 +48,8 @@ from app.schemas.manager import (
 from app.scoring.categorization import RuleSet
 
 MANAGER_EMAIL = "manager.anna@creditflow.demo"
+# C2 и C4 — путь с нуля: компания не привязана, привязка — часть сценария.
+BOUND = ("C1", "C3", "C5", "C6", "C7")
 
 
 @dataclass(frozen=True)
@@ -117,10 +119,10 @@ class _NoKey(Idempotency):
     """Seed вызывает сервисы напрямую, без HTTP и Idempotency-Key."""
 
     def __init__(self) -> None:
-        super().__init__(uuid.UUID(int=0), "seed", datetime.now(UTC))
+        super().__init__(user_id=uuid.UUID(int=0), key="seed", token=datetime.now(UTC))
 
-    async def complete(self, session: AsyncSession, status_code: int, body: Any) -> None:
-        self.completed = True
+    async def complete(self, session: AsyncSession, status_code: int, payload: Any) -> Any:
+        return payload
 
 
 class DemoSeeder:
@@ -135,25 +137,27 @@ class DemoSeeder:
         self.users: dict[str, CurrentUser] = {}
         self.history: list[tuple[uuid.UUID, int]] = []  # (заявка, часов до решения)
 
+    async def user(self, email: str) -> CurrentUser:
+        async with self.sessions() as session:
+            row = await session.scalar(select(User).where(User.email == email))
+        assert row is not None
+        return CurrentUser(row.id, Role(row.role), row.full_name, row.person_inn, row.company_id)
+
     async def bind(self, code: str) -> CurrentUser:
-        """Привязка компании из реестра ext-sim — та же запись, что сделает #5."""
+        """Привязка компании тем же сервисом, что POST /onboarding/company-binding (#5)."""
         client = CLIENTS[code]
-        record = await self.ext_sim.get_registry_record(client.inn)
-        async with self.sessions() as session, session.begin():
-            company = Company(id=uuid.uuid4(), **company_fields(record))
-            session.add(company)
-            user = await session.scalar(select(User).where(User.email == client.email))
-            assert user is not None
-            user.company_id = company.id
-            current = CurrentUser(user.id, Role(user.role), user.full_name, company.id)
+        user = await self.user(client.email)
+        request = CompanyBindingRequest(
+            inn=client.inn, pd_consent_version=current_version(ConsentType.PD_PROCESSING)
+        )
+        async with self.sessions() as session:
+            company = await bind_company(session, self.ext_sim, user, request)
+        current = CurrentUser(user.id, user.role, user.full_name, user.person_inn, company.id)
         self.users[code] = current
         return current
 
     async def manager(self) -> CurrentUser:
-        async with self.sessions() as session:
-            user = await session.scalar(select(User).where(User.email == MANAGER_EMAIL))
-        assert user is not None
-        return CurrentUser(user.id, Role.MANAGER, user.full_name, None)
+        return await self.user(MANAGER_EMAIL)
 
     async def submitted(self, code: str, **override: Any) -> tuple[uuid.UUID, int]:
         user = self.users[code]
@@ -173,7 +177,7 @@ class DemoSeeder:
                 user,
                 app_id,
                 2,
-                BKI_VERSION,
+                current_version(ConsentType.BKI_REQUEST),
                 _NoKey(),
             )
         await self.finish_ai(result.report_id, result.generation_id)
@@ -226,7 +230,7 @@ class DemoSeeder:
         await contracts.disburse(self.sessions, app_id)
 
     async def run(self) -> None:
-        for code in CLIENTS:
+        for code in BOUND:
             await self.bind(code)
         reject_low = {"action": "REJECT", "client_reason_code": "LOW_SCORE", "comment": "История"}
 

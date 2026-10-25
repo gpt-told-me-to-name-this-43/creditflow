@@ -96,11 +96,10 @@ async def test_demo_reset_state(api: httpx.AsyncClient, db: AsyncEngine, as_user
         decided = await conn.scalar(
             sa.text("SELECT count(DISTINCT application_id) FROM credit_decisions")
         )
+    # C2 и C4 — путь с нуля через онбординг #5: компании нет, пока клиент не привяжет ИНН.
     assert current == {
         "0099010012": "REJECTED",  # C1: последняя прошлая заявка; новую подать можно
-        "0099020010": None,  # C2: путь с нуля
         "009903001040": "NEED_INFO",
-        "0099040017": None,  # C4: путь с нуля
         "0099050015": "REJECTED",
         "0099060013": "UNDER_REVIEW",
         "009907001027": "UNDER_REVIEW",

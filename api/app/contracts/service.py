@@ -1,6 +1,7 @@
 """ContractService: договор, подписание кодом из UI, смоделированная выдача (design §3.3, §3.7).
 
 - Договор создаётся в той же транзакции, что переход в `APPROVED` (APPROVE или accept_offer).
+- Не больше 5 выдач кода на заявку за 15 минут — `limit_challenge_issue` (#5) на маршруте.
 - Подписание — простая электронная подпись: одноразовый код показывается в UI
   (`demo_code` только при DEMO_AUTH_ENABLED). Без SMS, email и реальной ЭП. Код не логируется,
   в БД — только HMAC.
@@ -45,8 +46,6 @@ logger = logging.getLogger("app.contracts")
 
 CHALLENGE_TTL = timedelta(minutes=5)
 MAX_ATTEMPTS = 3
-CHALLENGE_WINDOW = timedelta(minutes=15)
-MAX_CHALLENGES_PER_WINDOW = 5
 DISBURSE_DELAY_SECONDS = (3.0, 5.0)
 DISBURSE_AFTER = timedelta(seconds=10)  # recover_pending_disbursements: SIGNED старше 10 с
 DEFAULT_ACCOUNT = "40702 •••• 0000"
@@ -165,23 +164,6 @@ async def issue_challenge(
         repo.ensure_revision(application, revision)
         now = await session.scalar(select(func.clock_timestamp()))
         assert now is not None
-        recent = list(
-            await session.scalars(
-                select(SignChallenge.created_at)
-                .where(
-                    SignChallenge.application_id == application_id,
-                    SignChallenge.created_at > now - CHALLENGE_WINDOW,
-                )
-                .order_by(SignChallenge.created_at)
-            )
-        )
-        if len(recent) >= MAX_CHALLENGES_PER_WINDOW:
-            wait = max(1, int((recent[0] + CHALLENGE_WINDOW - now).total_seconds()) + 1)
-            raise AppError(
-                ErrorCode.TOO_MANY_ATTEMPTS,
-                "Слишком много кодов, попробуйте позже",
-                TooManyAttemptsDetails(scope="CHALLENGE_ISSUE", retry_after_seconds=wait),
-            )
         # новый код делает прежние недействительными
         await session.execute(
             update(SignChallenge)

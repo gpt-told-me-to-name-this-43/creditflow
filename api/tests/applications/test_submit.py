@@ -125,8 +125,8 @@ async def test_stale_pending_report_is_recovered(
                 "updated_at = now() - interval '2 minutes'"
             )
         )
-    assert await recover_stale_ai_reports(app.state.sessionmaker, 60) == 1
-    assert await recover_stale_ai_reports(app.state.sessionmaker, 60) == 0  # идемпотентно
+    assert await recover_stale_ai_reports(app.state.session_factory, 60) == 1
+    assert await recover_stale_ai_reports(app.state.session_factory, 60) == 0  # идемпотентно
     async with db.connect() as conn:
         row = (await conn.execute(sa.text("SELECT status, fallback_reason FROM ai_reports"))).one()
     assert tuple(row) == ("FALLBACK", "TIMEOUT")

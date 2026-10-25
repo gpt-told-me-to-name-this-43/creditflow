@@ -7,10 +7,12 @@
 заявки и решения — #7, AI — #8. Сигнатуры при этом не меняются (иначе — label
 `contract-change` и запись в docs/api-changelog.md).
 
-Защищённые роутеры требуют только наличие Bearer (app/core/security.py): это не
-аутентификация и не RBAC, поэтому при APP_ENV=production стабы не монтируются.
-RBAC (`require_role` на уровне роутера) подключается в #5; матрица «роль × эндпоинт»
-строится из `app.routes`, поэтому роутеры уже разделены по ролям.
+Auth и онбординг реализованы (#5: app/auth, app/onboarding), конвейер заявок — #7
+(app/applications, app/manager): здесь их builder-функции примеров OpenAPI и оставшиеся
+стабы #8 (interpret, ai-report, ai-feedback). Доступ к ним проверяется по-настоящему: JWT
+и роль на уровне роутера (`require_role`, #5), поэтому матрица «роль × эндпоинт» проверяет и стабы.
+Данные стабов фиксированные, без владения и состояния, поэтому при APP_ENV=production
+стабы не монтируются.
 """
 
 from datetime import date, datetime, timedelta
@@ -18,25 +20,15 @@ from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Request
 
 from app.api.examples import EXAMPLE_NOW, example_from
 from app.applications.catalog import CatalogProduct, match_products
+from app.auth.deps import require_role
 from app.core.config import Settings
-from app.core.errors import AppError, errors
-from app.core.security import require_bearer
-from app.demo.accounts import SCENARIOS
-from app.onboarding.consents import TEXTS as CONSENT_TEXTS
-from app.schemas.auth import (
-    Company,
-    CompanyBindingRequest,
-    ConsentText,
-    DemoAccount,
-    LoginRequest,
-    Me,
-    Role,
-    TokenResponse,
-)
+from app.core.errors import errors
+from app.core.idempotency import IdempotencyKeyHeader
+from app.schemas.auth import Role
 from app.schemas.client import (
     AmountSuggestion,
     ApplicationCreate,
@@ -95,23 +87,18 @@ from app.schemas.manager import (
 )
 from app.scoring.money import money_str
 from app.scoring.schedule import build_schedule
-from app.seed import DEMO_PASSWORD, DEMO_USERS, PRODUCTS
+from app.seed import PRODUCTS
 
-IdempotencyKey = Annotated[
-    str, Header(alias="Idempotency-Key", min_length=8, max_length=128, description="UUID запроса")
-]
+IdempotencyKey = IdempotencyKeyHeader
 
 _ID = UUID("7f3e2a10-0000-4000-8000-000000000001")
 # Фиксированное время демо-данных (= APP_AS_OF_DATE): прошлые события C2 и OpenAPI-примеры.
 # Для того, что должно быть «в будущем» относительно запроса (expires_at), — текущее время.
 _NOW = EXAMPLE_NOW
 
-auth_router = APIRouter(prefix="/auth", tags=["auth"])
-public_router = APIRouter(tags=["onboarding"])
-onboarding_router = APIRouter(tags=["onboarding"], dependencies=[Depends(require_bearer)])
-client_router = APIRouter(tags=["client"], dependencies=[Depends(require_bearer)])
+client_router = APIRouter(tags=["client"], dependencies=[Depends(require_role(Role.CLIENT))])
 manager_router = APIRouter(
-    prefix="/manager", tags=["manager"], dependencies=[Depends(require_bearer)]
+    prefix="/manager", tags=["manager"], dependencies=[Depends(require_role(Role.MANAGER))]
 )
 
 
@@ -202,136 +189,6 @@ def _client_app(status: ApplicationStatus = ApplicationStatus.DRAFT) -> ClientAp
             for i, step in enumerate(chain)
         ],
     )
-
-
-# --- Auth (#5) -------------------------------------------------------------------------
-
-
-def _build_login() -> TokenResponse:
-    return TokenResponse(access_token="stub.jwt.token", expires_in=8 * 3600)
-
-
-@auth_router.post(
-    "/login",
-    response_model=TokenResponse,
-    responses=errors(E.INVALID_CREDENTIALS, E.TOO_MANY_ATTEMPTS, public=True, not_found=False),
-)
-@example_from(_build_login)
-async def login(body: LoginRequest) -> TokenResponse:
-    return _build_login()
-
-
-def _build_me() -> Me:
-    return Me(id=_ID, role=Role.CLIENT, full_name="Кузнецова Анна Михайловна", company_id=None)
-
-
-@auth_router.get(
-    "/me",
-    response_model=Me,
-    responses=errors(role=False, not_found=False, validation=False),
-    dependencies=[Depends(require_bearer)],
-)
-@example_from(_build_me)
-async def me() -> Me:
-    return _build_me()
-
-
-def _build_demo_accounts() -> list[DemoAccount]:
-    # Текст сценариев — тот же, что в docs/demo-data.md (app/demo/accounts.py, #7).
-    by_login = {s.login: s for s in SCENARIOS}
-    return [
-        DemoAccount(
-            login=user.email,
-            password=DEMO_PASSWORD,
-            role=Role(user.role),
-            label=user.full_name,
-            scenario=by_login[user.email].text,
-        )
-        for user in DEMO_USERS
-    ]
-
-
-@auth_router.get(
-    "/demo-accounts",
-    response_model=list[DemoAccount],
-    responses=errors(public=True, validation=False),
-    description="Публичный маршрут. При DEMO_AUTH_ENABLED=false возвращает 404.",
-)
-@example_from(_build_demo_accounts)
-async def demo_accounts(settings: AppSettings) -> list[DemoAccount]:
-    if not settings.demo_auth_enabled:
-        raise AppError(E.NOT_FOUND, "Not Found")
-    return _build_demo_accounts()
-
-
-# --- Онбординг (#5) --------------------------------------------------------------------
-
-
-def _build_consent_texts() -> list[ConsentText]:
-    return list(CONSENT_TEXTS)
-
-
-@public_router.get(
-    "/consents/texts",
-    response_model=list[ConsentText],
-    responses=errors(public=True, not_found=False, validation=False),
-)
-@example_from(_build_consent_texts)
-async def consent_texts() -> list[ConsentText]:
-    return _build_consent_texts()
-
-
-def _build_company_binding(body: CompanyBindingRequest) -> Company:
-    return Company(
-        id=_ID,
-        inn=body.inn,
-        legal_form="LLC",
-        name="ООО «Пекарня Плюс»",
-        okved_main="10.71",
-        registered_at=date(2023, 10, 21),
-        bound_at=_NOW,
-    )
-
-
-@onboarding_router.post(
-    "/onboarding/company-binding",
-    response_model=Company,
-    responses=errors(
-        E.INVALID_INN,
-        E.CONSENT_REQUIRED,
-        E.COMPANY_NOT_IN_REGISTRY,
-        E.APPLICANT_NOT_AUTHORIZED,
-        E.COMPANY_ALREADY_BOUND,
-        E.USER_ALREADY_BOUND,
-        E.PROVIDER_UNAVAILABLE,
-        not_found=False,
-    ),
-)
-@example_from(_build_company_binding)
-async def company_binding(body: CompanyBindingRequest) -> Company:
-    return _build_company_binding(body)
-
-
-def _build_company() -> Company:
-    return Company(
-        id=_ID,
-        inn="0099020010",
-        legal_form="LLC",
-        name="ООО «Пекарня Плюс»",
-        okved_main="10.71",
-        registered_at=date(2023, 10, 21),
-        bound_at=_NOW,
-    )
-
-
-@onboarding_router.get(
-    "/company",
-    response_model=Company,
-    responses=errors(E.COMPANY_NOT_BOUND, not_found=False, validation=False),
-)
-@example_from(_build_company)
-async def company() -> Company:
-    return _build_company()
 
 
 # --- Клиент (#7, #9) -------------------------------------------------------------------
@@ -748,3 +605,6 @@ def _build_stats() -> ManagerStats:
         ai_feedback_up_share={},
         ai_feedback_groups=[],
     )
+
+
+STUB_ROUTERS = (client_router, manager_router)

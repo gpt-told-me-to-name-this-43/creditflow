@@ -1,4 +1,4 @@
-"""Клиентские маршруты черновика (#7): каталог, создание, список, карточка, PATCH.
+"""Клиентские маршруты конвейера (#7): каталог, черновик, submit, ответы, договор, подпись.
 
 Заменяют одноимённые стабы контракта v1: пути, модели, ошибки и описания прежние,
 примеры OpenAPI строят те же builder-функции из `app.api.stubs`.
@@ -26,13 +26,18 @@ from app.api.stubs import (
     _build_submit,
 )
 from app.applications import ai_reports, catalog, repo, responses, service
+from app.applications.deps import (
+    BoundClient,
+    DbSession,
+    Idem,
+    require_client,
+    session_factory,
+)
 from app.applications.submit import submit as run_submit
 from app.applications.views import client_view
 from app.contracts import service as contracts
-from app.core.db import DbSession, sessionmaker_of
 from app.core.errors import AppError, errors
-from app.core.idempotency import Idem
-from app.core.security import BoundClient, require_client
+from app.core.ratelimit import limit_challenge_issue
 from app.schemas.client import (
     ApplicationCreate,
     ApplicationPatch,
@@ -181,7 +186,7 @@ async def submit(
     request: Request,
     background: BackgroundTasks,
 ) -> ClientApplicationView:
-    sessions = sessionmaker_of(request)
+    sessions = session_factory(request)
     result = await run_submit(
         session,
         sessions,
@@ -302,6 +307,7 @@ async def contract(application_id: UUID, user: BoundClient, session: DbSession) 
     "Не более 5 challenge на заявку за 15 минут: 429 scope CHALLENGE_ISSUE и Retry-After. "
     "Не требует Idempotency-Key. В sign передать revision из этого ответа. "
     "demo_code показывать только из ответа API; отсутствует при DEMO_AUTH_ENABLED=false.",
+    dependencies=[Depends(limit_challenge_issue)],
 )
 @example_from(_build_sign_challenge)
 async def sign_challenge(
@@ -366,7 +372,7 @@ async def sign(
     # после COMMIT: смоделированная выдача; при падении процесса — recover_pending_disbursements
     background.add_task(
         contracts.disburse_later,
-        sessionmaker_of(request),
+        session_factory(request),
         application_id,
         request.app.state.disburse_delay,
     )

@@ -15,8 +15,8 @@ from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 from pydantic import TypeAdapter, ValidationError
 
-from app.api.routers import ROUTERS
 from app.core.config import Settings
+from app.main import CONTRACT_ROUTERS as ROUTERS
 from app.main import create_app
 from app.schemas.client import InterpretResponse
 from app.schemas.common import ERROR_STATUS, ErrorCode, ErrorEnvelope
@@ -35,8 +35,11 @@ DECISIONS = f"/api/v1/manager/applications/{APP_ID}/decisions"
 
 
 @pytest.fixture
-def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings(demo_auth_enabled=True))
+def app(
+    make_settings: Callable[..., Settings], db_reset: None, running: Callable[[Any], Any]
+) -> FastAPI:
+    app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
+    return app
 
 
 def test_bearer_security_matches_route_boundary(app: FastAPI) -> None:
