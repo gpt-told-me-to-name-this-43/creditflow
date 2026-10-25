@@ -14,7 +14,7 @@ TEST_DATABASE_URL ?= postgresql+psycopg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@
 
 .PHONY: help up down dev up-llm \
 	test test-api test-ext-sim test-web lint lint-api lint-ext-sim lint-web \
-	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi api-matrix er demo-data \
+	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi api-matrix er demo-data audit licenses \
 	demo-reset llm-check llm-record eval-intent eval-injection e2e load
 
 help: ## Список целей
@@ -91,6 +91,24 @@ er: ## docs/er.md из метаданных SQLAlchemy
 demo-data: ## Перегенерировать фикстуры ext-sim (реестр, ФНС, БКИ, выписки) — детерминированно
 	python3 scripts/gen_registry_ids.py
 	python3 scripts/gen_statements.py
+
+## --- Цепочка поставки (#5; CI: .github/workflows/supply-chain.yml) ---
+
+PIP_AUDIT := pip-audit==2.10.1
+
+audit: ## pip-audit api/ext-sim и pnpm audit --prod: падение на high и critical
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf "$$tmp"' EXIT; \
+	for svc in api ext-sim; do \
+	  (cd $$svc && uv export --quiet --frozen --no-dev --no-emit-project --format requirements-txt -o "$$tmp/$$svc.txt"); \
+	  uvx "$(PIP_AUDIT)" -r "$$tmp/$$svc.txt" --require-hashes --disable-pip --progress-spinner off \
+	    -f json -o "$$tmp/$$svc.json" || true; \
+	done; \
+	python3 scripts/ci/audit_severity.py "$$tmp/api.json" "$$tmp/ext-sim.json"
+	cd web && pnpm audit --prod --audit-level high
+
+licenses: ## docs/licenses/*.csv и THIRD_PARTY_NOTICES.md; GPL/AGPL роняют проверку
+	scripts/ci/licenses.sh
+	python3 scripts/ci/licenses.py check docs/licenses/*.csv
 
 ## --- Ещё не реализовано: цели падают, чтобы не создавать видимость работы ---
 
