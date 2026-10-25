@@ -73,20 +73,25 @@ async def login(
         if retry_after is not None:
             raise too_many_attempts("LOGIN", retry_after)
     login_key = body.login.strip().casefold()
-    retry_after = limits.login_failures.retry_after(login_key)
+    retry_after = limits.login_failures.acquire(login_key)
     if retry_after is not None:
         raise too_many_attempts("LOGIN", retry_after)
-    user = (
-        await session.execute(
-            select(User.id, User.role, User.password_hash).where(
-                func.lower(User.email) == login_key
+    try:
+        user = (
+            await session.execute(
+                select(User.id, User.role, User.password_hash).where(
+                    func.lower(User.email) == login_key
+                )
             )
+        ).one_or_none()
+        # argon2 занимает процессор ~десятки мс: в пуле потоков, чтобы не блокировать
+        # event loop.
+        valid = await run_in_threadpool(
+            _verify, user.password_hash if user else _DUMMY_HASH, body.password
         )
-    ).one_or_none()
-    # argon2 занимает процессор ~десятки мс: в пуле потоков, чтобы не блокировать event loop.
-    valid = await run_in_threadpool(
-        _verify, user.password_hash if user else _DUMMY_HASH, body.password
-    )
+    except BaseException:
+        limits.login_failures.release(login_key)
+        raise
     if user is None or not valid:
         limits.login_failures.failure(login_key)
         logger.info("login failed")

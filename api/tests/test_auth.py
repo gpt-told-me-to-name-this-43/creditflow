@@ -1,10 +1,12 @@
 """Вход, JWT и лимиты входа (#5)."""
 
+import asyncio
 import uuid
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import httpx
 import jwt
 import pytest
 from fastapi import FastAPI
@@ -14,7 +16,7 @@ from starlette.requests import Request
 from app.auth import router as auth_router
 from app.auth.tokens import issue_token
 from app.core.config import DEMO_SECRET_KEY, Settings
-from app.core.ratelimit import RateLimits
+from app.core.ratelimit import LOGIN_FAILURE_THRESHOLD, RateLimits
 from app.core.security import client_ip
 from app.main import create_app
 from app.seed import DEMO_PASSWORD, DEMO_USERS
@@ -185,6 +187,11 @@ def _past(hours: int) -> int:
         pytest.param(_token(sub=str(uuid.uuid4())), id="unknown-user"),
         pytest.param(_token(role="MANAGER"), id="role-differs-from-db"),
         pytest.param("not.a.jwt", id="garbage"),
+        pytest.param(_token(sub=12345), id="sub-not-string"),
+        pytest.param(_token(role=["CLIENT"]), id="role-not-string"),
+        pytest.param(_token(jti=12345), id="jti-not-string"),
+        pytest.param(_token(jti=""), id="jti-empty"),
+        pytest.param(_token(iat="now"), id="iat-not-number"),
     ],
 )
 def test_invalid_tokens_are_401(app: FastAPI, token: str, request: pytest.FixtureRequest) -> None:
@@ -375,3 +382,27 @@ def test_client_ip_trusts_only_proxies(
     make_settings: Callable[..., Settings], peer: str, real_ip: str | None, expected: str
 ) -> None:
     assert client_ip(_request(peer, real_ip, make_settings())) == expected
+
+
+async def test_concurrent_failures_cannot_exceed_threshold(
+    make_settings: Callable[..., Settings],
+    db_reset: None,
+    serve: Callable[[Any], Awaitable[httpx.AsyncClient]],
+) -> None:
+    """Попытки одного логина с разных IP одновременно: проверка блокировки не должна
+    пропускать больше LOGIN_FAILURE_THRESHOLD паролей до записи неудач."""
+    api = await serve(create_app(make_settings()))
+
+    async def attempt(i: int) -> int:
+        response = await api.post(
+            LOGIN,
+            json={"login": CLIENT_LOGIN, "password": f"wrong-{i}"},
+            headers={"X-Real-IP": f"198.51.100.{i}"},
+        )
+        return response.status_code
+
+    statuses = await asyncio.gather(*(attempt(i) for i in range(30)))
+    assert statuses.count(401) == LOGIN_FAILURE_THRESHOLD
+    assert statuses.count(429) == 30 - LOGIN_FAILURE_THRESHOLD
+    locked = await api.post(LOGIN, json={"login": CLIENT_LOGIN, "password": DEMO_PASSWORD})
+    assert locked.status_code == 429

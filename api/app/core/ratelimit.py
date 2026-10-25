@@ -6,7 +6,8 @@
 - `/auth/login`: 5 неудачных попыток подряд на один логин (`LoginFailureLock`) закрывают
   вход по нему на 15 минут, даже с верным паролем. Счётчик сбрасывается успешным входом,
   окончанием блокировки или 15 минутами без неудачных попыток. Блокировка ставится и на
-  несуществующий логин, чтобы ответ не выдавал, есть ли такая учётка.
+  несуществующий логин, чтобы ответ не выдавал, есть ли такая учётка. Попытка бронируется
+  до проверки пароля: параллельные запросы не проверят больше 5 паролей до блокировки.
 - `POST …/sign/challenge`: `limit_challenge_issue` — не больше 5 выданных challenge на
   заявку за 15 минут. Запрос, завершившийся ошибкой, слот не занимает.
 
@@ -97,6 +98,7 @@ class LoginFailureLock:
     ) -> None:
         self.threshold, self.lock_seconds, self._clock = threshold, lock_seconds, clock
         self._state: dict[str, _Failures] = {}
+        self._pending: dict[str, int] = {}
 
     def _current(self, login: str, now: float) -> _Failures | None:
         state = self._state.get(login)
@@ -112,14 +114,28 @@ class LoginFailureLock:
             return None
         return state
 
-    def retry_after(self, login: str) -> int | None:
+    def acquire(self, login: str) -> int | None:
+        """Бронирует попытку до проверки пароля. Бронь считается неудачей, пока попытка
+        не завершилась: параллельные запросы не проверят больше `threshold` паролей.
+        Вход закрыт — возвращается Retry-After в секундах."""
         now = self._clock()
         state = self._current(login, now)
-        if state is None or state.locked_until is None:
-            return None
-        return _ceil_seconds(state.locked_until - now)
+        if state is not None and state.locked_until is not None:
+            return _ceil_seconds(state.locked_until - now)
+        pending = self._pending.get(login, 0)
+        if (state.count if state else 0) + pending >= self.threshold:
+            return 1  # закрыт ли вход, решит исход уже начатых попыток
+        self._pending[login] = pending + 1
+        return None
+
+    def release(self, login: str) -> None:
+        """Снимает бронь без результата: попытка оборвалась ошибкой."""
+        pending = self._pending.pop(login, 0) - 1
+        if pending > 0:
+            self._pending[login] = pending
 
     def failure(self, login: str) -> None:
+        self.release(login)
         now = self._clock()
         state = self._current(login, now)
         if state is None:
@@ -133,6 +149,7 @@ class LoginFailureLock:
             state.locked_until = now + self.lock_seconds
 
     def success(self, login: str) -> None:
+        self.release(login)
         self._state.pop(login, None)
 
 

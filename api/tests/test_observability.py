@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 import pytest
 import respx
+import sqlalchemy as sa
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -220,3 +221,23 @@ def test_unhandled_error_has_envelope_and_headers(
     assert response.headers["Cache-Control"] == "no-store"
     error = [line for line in log_lines(capsys.readouterr().out) if line["event"] != "request"]
     assert error and error[0]["request_id"] == "rid-500"
+
+
+def test_db_error_does_not_log_sql_parameters(
+    app: FastAPI, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Текст ошибки драйвера SQLAlchemy по умолчанию содержит `[parameters: …]`: значения
+    из запроса (тексты клиента, хеши) попали бы в трассировку необработанного исключения."""
+    configure_logging()
+    secret = "текст-клиента-не-для-логов"
+
+    @app.get("/api/v1/_db_boom")
+    async def db_boom() -> None:
+        async with app.state.session_factory() as session:
+            await session.execute(sa.text("SELECT CAST(:v AS integer)"), {"v": secret})
+
+    response = TestClient(app).get("/api/v1/_db_boom")
+    assert response.status_code == 500
+    output = capsys.readouterr().out
+    assert "DataError" in output  # исключение действительно залогировано
+    assert secret not in output

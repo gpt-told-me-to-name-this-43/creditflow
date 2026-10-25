@@ -9,7 +9,7 @@ import json
 import uuid
 from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Any
 
 import httpx
@@ -54,6 +54,8 @@ class Behaviour:
     raise_after_commit: bool = False
     raise_before_commit: bool = False
     gate: asyncio.Event | None = None
+    commit_gate: asyncio.Event | None = None
+    at_commit: asyncio.Event = field(default_factory=asyncio.Event)
     entered: asyncio.Event = field(default_factory=asyncio.Event)
 
 
@@ -82,6 +84,9 @@ def make_router(behaviour: Behaviour) -> APIRouter:
         )
         payload = {"effect_id": effect, "item_id": str(item_id), "revision": body.revision + 1}
         stored = await idem.complete(session, 201, payload)
+        if behaviour.commit_gate is not None:
+            behaviour.at_commit.set()
+            await behaviour.commit_gate.wait()
         if behaviour.raise_before_commit:
             raise RuntimeError("сбой до COMMIT")
         await session.commit()
@@ -432,3 +437,28 @@ def test_openapi_has_single_idempotency_header(make_settings: Callable[..., Sett
     app.include_router(make_router(Behaviour()), prefix="/api/v1")
     params = app.openapi()["paths"]["/api/v1/_idem/items/{item_id}/act"]["post"]["parameters"]
     assert [p["name"] for p in params if p["in"] == "header"] == ["Idempotency-Key"]
+
+
+async def test_takeover_waits_for_completed_but_uncommitted_request(
+    api: httpx.AsyncClient, behaviour: Behaviour, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A выполнил complete(), но ещё не закоммитил, а запись уже «устарела». Перехват B
+    ждёт блокировку строки и после COMMIT A получает сохранённый ответ, а не второй
+    эффект."""
+    import app.core.idempotency as idempotency
+
+    monkeypatch.setattr(idempotency, "STALE_AFTER", timedelta(0))
+    commit_a = behaviour.commit_gate = asyncio.Event()
+    first = asyncio.ensure_future(act(api))
+    await asyncio.wait_for(behaviour.at_commit.wait(), 5)
+    behaviour.commit_gate = None
+    second = asyncio.ensure_future(act(api))
+    await asyncio.sleep(0.3)
+    assert not second.done()  # UPDATE перехвата ждёт блокировку строки у A
+    commit_a.set()
+    a, b = await asyncio.wait_for(asyncio.gather(first, second), 5)
+    assert (a.status_code, b.status_code) == (201, 201)
+    assert a.json() == b.json()
+    assert behaviour.calls == 1
+    assert effects() == 1
+    assert keys() == [("key-00000001", "COMPLETED", 201)]

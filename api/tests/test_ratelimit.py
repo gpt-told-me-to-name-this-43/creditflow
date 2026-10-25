@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.config import Settings
-from app.core.ratelimit import RateLimits, SlidingWindow
+from app.core.ratelimit import LoginFailureLock, RateLimits, SlidingWindow
 from app.main import create_app
 from tests.conftest import CLIENT_LOGIN, bearer
 from tests.test_auth import FakeClock
@@ -77,3 +77,19 @@ def test_sliding_window_unit() -> None:
     assert window.acquire("k") is None
     clock.now += 6.5
     assert window.acquire("k") is None
+
+
+def test_login_lock_counts_attempts_in_flight() -> None:
+    clock = FakeClock()
+    lock = LoginFailureLock(threshold=3, lock_seconds=60, clock=clock)
+    assert [lock.acquire("u") for _ in range(4)] == [None, None, None, 1]
+    lock.release("u")  # попытка оборвалась ошибкой: бронь снята, неудачи нет
+    assert lock.acquire("u") is None
+    for _ in range(3):
+        lock.failure("u")
+    assert lock.acquire("u") == 60  # три неудачи — вход закрыт
+    clock.now += 60
+    assert lock.acquire("u") is None
+    lock.success("u")
+    assert lock.acquire("u") is None
+    assert lock._pending == {"u": 1}
