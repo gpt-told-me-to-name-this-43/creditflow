@@ -5,6 +5,7 @@ description = "CreditFlow: симулятор внешних систем (ЕГ�
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.159.1",
+    "pyyaml==5.3",
     "uvicorn>=0.54.0",
 ]
 

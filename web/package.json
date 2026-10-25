@@ -25,6 +25,7 @@
     "@tanstack/react-table": "^9.3.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lodash": "4.17.15",
     "lucide-react": "^1.61.0",
     "openapi-fetch": "^0.17.0",
     "radix-ui": "^1.8.1",
