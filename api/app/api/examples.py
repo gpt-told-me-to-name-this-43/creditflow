@@ -107,7 +107,8 @@ def _example_kwargs(builder: Callable[..., Any], body: BaseModel | None) -> dict
         "body": body,
         "application_id": UUID(EXAMPLE_ID),
         "now": EXAMPLE_NOW,
-        "settings": Settings(demo_auth_enabled=True),
+        # model_construct: пример не зависит от окружения (APP_SECRET_KEY и т. п.)
+        "settings": Settings.model_construct(demo_auth_enabled=True),
     }
     kwargs: dict[str, Any] = {}
     for name, param in inspect.signature(builder).parameters.items():

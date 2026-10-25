@@ -1,19 +1,15 @@
-"""Bearer-контракт #6 — только форма, НЕ аутентификация.
+"""Схема Bearer для OpenAPI и определение IP клиента за доверенным прокси (#5).
 
-`require_bearer` проверяет лишь наличие заголовка `Authorization: Bearer <что угодно>`:
-подпись, срок, пользователь и роль не проверяются, RBAC нет. Этого достаточно, чтобы
-фронт генерировал клиент с securitySchemes и получал 401 без заголовка, но не для
-защиты данных. Поэтому защищённые стабы не монтируются при APP_ENV=production
-(`app.main.create_app`). Проверку JWT HS256 и `require_role` добавляет #5.
+Проверка токена — `app.auth.deps.current_user`; здесь только объявление схемы, чтобы
+`security` операций в OpenAPI не зависел от реализации.
 """
 
-from typing import Annotated
+from ipaddress import ip_address
 
-from fastapi import Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Request
+from fastapi.security import HTTPBearer
 
-from app.core.errors import AppError
-from app.schemas.common import ErrorCode
+from app.core.config import Settings
 
 bearer = HTTPBearer(
     scheme_name="BearerAuth",
@@ -26,8 +22,19 @@ bearer = HTTPBearer(
 )
 
 
-async def require_bearer(
-    credentials: Annotated[HTTPAuthorizationCredentials | None, Security(bearer)],
-) -> None:
-    if credentials is None:
-        raise AppError(ErrorCode.UNAUTHORIZED, "Требуется Bearer-токен")
+def client_ip(request: Request) -> str:
+    """IP клиента для лимитов. `X-Real-IP` выставляет nginx (`$remote_addr`, перезаписывая
+    входящий); верим ему, только если соединение пришло от доверенного прокси."""
+    peer = request.client.host if request.client else ""
+    settings: Settings = request.app.state.settings
+    try:
+        peer_ip = ip_address(peer)
+    except ValueError:
+        return peer
+    if any(peer_ip in net for net in settings.trusted_proxy_cidrs):
+        forwarded = request.headers.get("x-real-ip", "").strip()
+        try:
+            return str(ip_address(forwarded))
+        except ValueError:
+            pass
+    return peer

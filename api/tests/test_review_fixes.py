@@ -14,33 +14,44 @@ from app.core.config import Settings
 from app.core.errors import install_error_handlers
 from app.main import create_app
 from app.schemas.common import ERROR_STATUS, ErrorCode
-from tests.test_contract import APP_ID, AUTH
+from tests.test_contract import APP_ID, AUTH, MANAGER_AUTH
 
 
 @pytest.fixture
-def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings(demo_auth_enabled=True))
+def app(
+    make_settings: Callable[..., Settings], db_reset: None, running: Callable[[Any], Any]
+) -> FastAPI:
+    app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
+    return app
 
 
-# --- 1. Стабы с «проверкой» только наличия Bearer не доступны в production -----------------
+# --- 1. Стабы #7/#8 не доступны в production; auth и онбординг (#5) — доступны ----------
 
 
 def test_stubs_not_mounted_in_production(make_settings: Callable[..., Settings]) -> None:
     app = create_app(make_settings(app_env="production"))
     paths = app.openapi()["paths"]
-    assert set(paths) == {"/api/v1/health"}
+    assert set(paths) == {
+        "/api/v1/health",
+        "/api/v1/auth/login",
+        "/api/v1/auth/me",
+        "/api/v1/auth/demo-accounts",
+        "/api/v1/consents/texts",
+        "/api/v1/onboarding/company-binding",
+        "/api/v1/company",
+    }
     client = TestClient(app, headers=AUTH)
     assert client.get("/api/v1/applications").status_code == 404
-    assert (
-        client.post("/api/v1/auth/login", json={"login": "x", "password": "y"}).status_code == 404
-    )
+    assert client.get("/api/v1/manager/stats").status_code == 404
 
 
-def test_any_bearer_is_accepted_outside_production(app: FastAPI) -> None:
-    """Фиксирует честное ограничение #6: токен не проверяется (JWT и RBAC — #5)."""
+def test_stub_routes_verify_jwt_and_role(app: FastAPI) -> None:
+    """С #5 стабы проверяют подпись токена и роль, а не только наличие Bearer."""
     client = TestClient(app, headers={"Authorization": "Bearer not-a-jwt"})
-    assert client.get("/api/v1/manager/stats").status_code == 200
+    assert client.get("/api/v1/manager/stats").status_code == 401
     assert TestClient(app).get("/api/v1/manager/stats").status_code == 401
+    assert TestClient(app, headers=AUTH).get("/api/v1/manager/stats").status_code == 403
+    assert TestClient(app, headers=MANAGER_AUTH).get("/api/v1/manager/stats").status_code == 200
 
 
 # --- 3. Примеры OpenAPI не исполняют endpoint --------------------------------------------

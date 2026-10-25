@@ -77,8 +77,12 @@ fmt-web:
 
 ## --- Контракты ---
 
+# Экспорт OpenAPI создаёт приложение, а оно без APP_SECRET_KEY ≥ 32 байт не стартует (#5).
+# Ключ здесь — заглушка только для экспорта: токены им не подписываются.
+OPENAPI_EXPORT_ENV := APP_ENV=local APP_SECRET_KEY=openapi-export-placeholder-not-a-secret
+
 openapi: ## docs/openapi.json и docs/openapi-ext-sim.json
-	cd api && uv run python ../scripts/export_openapi.py app.main:app ../docs/openapi.json
+	cd api && $(OPENAPI_EXPORT_ENV) uv run python ../scripts/export_openapi.py app.main:app ../docs/openapi.json
 	cd ext-sim && uv run python ../scripts/export_openapi.py app.main:app ../docs/openapi-ext-sim.json
 
 api-matrix: ## docs/api-matrix.md из независимого api/contract/http_matrix.yaml

@@ -76,3 +76,21 @@ def test_reset_contract_only_exposed_when_enabled(make_settings: Callable[..., S
         )
     production = create_app(make_settings(app_env="production", test_reset_enabled=False)).openapi()
     assert URL not in production["paths"]
+
+
+@pytest.mark.parametrize("token", [None, "x" * 32])
+@pytest.mark.parametrize("query", [{"mode": "drop"}, {"mode": "clean"}, {}])
+def test_rejection_is_byte_identical_to_unknown_route(
+    make_settings: Callable[..., Settings], token: str | None, query: dict[str, str]
+) -> None:
+    """design §4: неверный токен (в том числе с неверным mode) — тот же 404, что у
+    незарегистрированного маршрута: статус, тело и заголовки."""
+    client = TestClient(create_app(make_settings(test_reset_enabled=True, test_reset_token=TOKEN)))
+    headers = {"X-Request-ID": "same-request-id"}
+    if token is not None:
+        headers["X-Test-Reset-Token"] = token
+    rejected = client.post(URL, params=query, headers=headers)
+    unknown = client.post("/api/v1/_test/no-such-route", params=query, headers=headers)
+    assert rejected.status_code == unknown.status_code == 404
+    assert rejected.content == unknown.content
+    assert rejected.headers.items() == unknown.headers.items()
