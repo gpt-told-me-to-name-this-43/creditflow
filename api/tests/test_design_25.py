@@ -5,6 +5,7 @@
 
 import subprocess
 import sys
+from collections.abc import Callable
 from typing import Annotated, Any
 from uuid import UUID
 
@@ -15,6 +16,7 @@ from pydantic import ValidationError
 
 from app.api.examples import REQUEST_EXAMPLES
 from app.api.stubs import _build_manager_card
+from app.core.config import Settings
 from app.core.errors import AppError, install_error_handlers
 from app.schemas.client import ApplicationCreate, ApplicationPatch, InterpretRequest
 from app.schemas.common import (
@@ -265,12 +267,19 @@ def test_ai_success_status_examples() -> None:
     ],
 )
 def test_real_route_validation_uses_json_field_paths(
-    method: str, path: str, body: dict[str, Any], field: str
+    make_settings: Callable[..., Settings],
+    db_reset: None,
+    running: Callable[[Any], Any],
+    method: str,
+    path: str,
+    body: dict[str, Any],
+    field: str,
 ) -> None:
     from app.main import create_app
-    from tests.test_contract import AUTH, IDEM
+    from tests.test_contract import IDEM, auth_for
 
-    response = TestClient(create_app(), headers={**AUTH, **IDEM}).request(
+    app = running(create_app(make_settings()))
+    response = TestClient(app, headers={**auth_for(path), **IDEM}).request(
         method, "/api/v1" + path, json=body
     )
     assert response.status_code == 422

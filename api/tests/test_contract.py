@@ -17,10 +17,18 @@ from app.core.health import HealthResponse
 from app.main import create_app
 from app.schemas import client as client_schemas
 from app.schemas.common import ErrorCode
+from tests.conftest import CLIENT_LOGIN, MANAGER_LOGIN, bearer
 
 APP_ID = "7f3e2a10-0000-4000-8000-000000000001"
 IDEM = {"Idempotency-Key": "test-key-0001"}
-AUTH = {"Authorization": "Bearer contract-stub-token"}
+# Настоящие JWT демо-учёток (#5): стабы проверяют подпись и роль.
+AUTH = bearer(CLIENT_LOGIN)
+MANAGER_AUTH = bearer(MANAGER_LOGIN)
+
+
+def auth_for(path: str) -> dict[str, str]:
+    return MANAGER_AUTH if path.startswith("/manager") else AUTH
+
 
 # (method, path, body, headers) — ровно таблица эндпоинтов #6 (кроме /health и /_test/reset).
 ENDPOINTS: list[tuple[str, str, dict[str, Any] | None, dict[str, str]]] = [
@@ -88,9 +96,17 @@ FORBIDDEN_CLIENT_FIELDS = re.compile(
 )
 
 
+# Auth и онбординг — настоящие (#5), их ветки проверяют test_auth.py и test_onboarding.py.
+REAL = ("/auth/", "/consents/", "/onboarding/", "/company")
+STUB_ENDPOINTS = [e for e in ENDPOINTS if not e[1].startswith(REAL)]
+
+
 @pytest.fixture
-def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings(demo_auth_enabled=True))
+def app(
+    make_settings: Callable[..., Settings], db_reset: None, running: Callable[[Any], Any]
+) -> FastAPI:
+    app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
+    return app
 
 
 def _template(path: str) -> str:
@@ -106,13 +122,14 @@ def test_all_contract_routes_registered(app: FastAPI) -> None:
     assert expected <= declared, sorted(expected - declared)
 
 
-@pytest.mark.parametrize(("method", "path", "body", "headers"), ENDPOINTS, ids=lambda v: str(v))
+@pytest.mark.parametrize(
+    ("method", "path", "body", "headers"), STUB_ENDPOINTS, ids=lambda v: str(v)
+)
 def test_stub_passes_response_model(
     app: FastAPI, method: str, path: str, body: dict[str, Any] | None, headers: dict[str, str]
 ) -> None:
-    # TestClient без контекстного менеджера: lifespan (БД, ext-sim) стабам не нужен.
     response = TestClient(app).request(
-        method, "/api/v1" + path, json=body, headers={**AUTH, **headers}
+        method, "/api/v1" + path, json=body, headers={**auth_for(path), **headers}
     )
     assert response.status_code < 300, response.text  # response_model валидирует ответ стаба
 

@@ -28,7 +28,7 @@ from app.schemas.manager import (
     OfferPreviewResponse,
 )
 from tests.conftest import REPO_ROOT, ext_sim_examples
-from tests.test_contract import APP_ID, AUTH, ENDPOINTS, IDEM
+from tests.test_contract import APP_ID, AUTH, ENDPOINTS, IDEM, MANAGER_AUTH
 
 PUBLIC = {"/auth/login", "/auth/demo-accounts", "/consents/texts", "/health"}
 CARD_PATH = "/api/v1/manager/applications/{application_id}"
@@ -36,8 +36,11 @@ DECISIONS = f"/api/v1/manager/applications/{APP_ID}/decisions"
 
 
 @pytest.fixture
-def app(make_settings: Callable[..., Settings]) -> FastAPI:
-    return create_app(make_settings(demo_auth_enabled=True))
+def app(
+    make_settings: Callable[..., Settings], db_reset: None, running: Callable[[Any], Any]
+) -> FastAPI:
+    app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
+    return app
 
 
 def test_bearer_security_matches_route_boundary(app: FastAPI) -> None:
@@ -84,8 +87,14 @@ def test_demo_accounts_disabled_without_flag(make_settings: Callable[..., Settin
 
 
 @pytest.mark.parametrize("enabled", [True, False])
-def test_signing_code_only_in_demo(make_settings: Callable[..., Settings], enabled: bool) -> None:
-    client = TestClient(create_app(make_settings(demo_auth_enabled=enabled)), headers=AUTH)
+def test_signing_code_only_in_demo(
+    make_settings: Callable[..., Settings],
+    db_reset: None,
+    running: Callable[[Any], Any],
+    enabled: bool,
+) -> None:
+    app = running(create_app(make_settings(demo_auth_enabled=enabled)))
+    client = TestClient(app, headers=AUTH)
     before = datetime.now(UTC)
     response = client.post(f"/api/v1/applications/{APP_ID}/sign/challenge", json={"revision": 3})
     after = datetime.now(UTC)
@@ -133,7 +142,7 @@ VALID_DECISIONS = [
 
 @pytest.mark.parametrize("body", VALID_DECISIONS)
 def test_action_specific_decisions_accepted(app: FastAPI, body: dict[str, Any]) -> None:
-    response = TestClient(app, headers=AUTH).post(
+    response = TestClient(app, headers=MANAGER_AUTH).post(
         DECISIONS, json={"revision": 2, **body}, headers=IDEM
     )
     assert response.status_code == 201, response.text
@@ -179,7 +188,7 @@ def test_action_specific_decisions_accepted(app: FastAPI, body: dict[str, Any]) 
     ],
 )
 def test_invalid_decisions_rejected(app: FastAPI, body: dict[str, Any]) -> None:
-    response = TestClient(app, headers=AUTH).post(
+    response = TestClient(app, headers=MANAGER_AUTH).post(
         DECISIONS, json={"revision": 2, **body}, headers=IDEM
     )
     assert response.status_code == 422, response.text
@@ -394,7 +403,9 @@ def test_financial_examples_balance_and_match_c2(app: FastAPI) -> None:
         assert balance == Decimal(row.balance_after_rub)
     assert balance == 0
     assert sum(Decimal(r.interest_rub) for r in rows) == Decimal(contract.overpayment_rub)
-    scoring = client.get(f"/api/v1/manager/applications/{APP_ID}").json()["scoring"]
+    scoring = client.get(f"/api/v1/manager/applications/{APP_ID}", headers=MANAGER_AUTH).json()[
+        "scoring"
+    ]
     assert len(scoring["monthly"]) == 12
     assert sum(scoring["factor_points"].values()) == scoring["score"] == 63
     assert scoring["dscr"] == "1.10"

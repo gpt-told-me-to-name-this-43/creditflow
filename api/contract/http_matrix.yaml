@@ -28,7 +28,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: GET
   path: /api/v1/auth/me
   access: Bearer
@@ -47,7 +47,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: GET
   path: /api/v1/auth/demo-accounts
   access: public
@@ -66,7 +66,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: GET
   path: /api/v1/consents/texts
   access: public
@@ -81,7 +81,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: POST
   path: /api/v1/onboarding/company-binding
   access: CLIENT
@@ -118,7 +118,7 @@ operations:
       codes:
       - PROVIDER_UNAVAILABLE
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: GET
   path: /api/v1/company
   access: CLIENT
@@ -145,7 +145,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: GET
   path: /api/v1/credit-products
   access: CLIENT
@@ -172,7 +172,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications
   access: CLIENT
@@ -205,7 +205,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/applications
   access: CLIENT
@@ -232,7 +232,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/applications/{application_id}
   access: CLIENT
@@ -267,7 +267,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: PATCH
   path: /api/v1/applications/{application_id}
   access: CLIENT
@@ -304,7 +304,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/interpret
   access: CLIENT
@@ -340,7 +340,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/submit
   access: CLIENT
@@ -383,7 +383,7 @@ operations:
       codes:
       - PROVIDER_UNAVAILABLE
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/info-response
   access: CLIENT
@@ -422,7 +422,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/offer/accept
   access: CLIENT
@@ -461,7 +461,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/offer/decline
   access: CLIENT
@@ -500,7 +500,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/applications/{application_id}/contract
   access: CLIENT
@@ -535,7 +535,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/sign/challenge
   access: CLIENT
@@ -577,7 +577,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/applications/{application_id}/sign
   access: CLIENT
@@ -623,7 +623,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/manager/applications
   access: MANAGER
@@ -650,7 +650,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/manager/applications/{application_id}
   access: MANAGER
@@ -681,7 +681,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/manager/applications/{application_id}/decisions
   access: MANAGER
@@ -721,7 +721,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/manager/applications/{application_id}/offer-preview
   access: MANAGER
@@ -756,7 +756,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/manager/applications/{application_id}/ai-report
   access: MANAGER
@@ -787,7 +787,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/manager/applications/{application_id}/ai-report
   access: MANAGER
@@ -820,7 +820,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: POST
   path: /api/v1/manager/applications/{application_id}/ai-feedback
   access: MANAGER
@@ -851,7 +851,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/manager/stats
   access: MANAGER
@@ -874,7 +874,7 @@ operations:
       model: ErrorEnvelope
       codes:
       - SERVICE_UNAVAILABLE
-  condition: 'local/test; production: health only'
+  condition: 'local/test; production: не смонтирован до #7/#8'
 - method: GET
   path: /api/v1/health
   access: public
@@ -883,7 +883,7 @@ operations:
       model: HealthResponse
     503:
       model: HealthResponse
-  condition: 'local/test; production: health only'
+  condition: local/test/production
 - method: POST
   path: /api/v1/_test/reset
   access: TestResetToken

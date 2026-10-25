@@ -1,10 +1,18 @@
-"""Подключение к PostgreSQL и общий `Base` для моделей SQLAlchemy.
+"""Подключение к PostgreSQL, сессия на запрос и общий `Base` для моделей SQLAlchemy.
 
-Таблицы появятся в #6; `Base.metadata` уже используется Alembic и генератором ER.
+`Base.metadata` используется Alembic и генератором ER.
 """
 
+from collections.abc import AsyncGenerator
+
+from fastapi import Request
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase
 
 NAMING_CONVENTION = {
@@ -24,5 +32,20 @@ def create_engine(database_url: str) -> AsyncEngine:
     return create_async_engine(
         database_url,
         pool_pre_ping=True,
+        # Значения параметров не попадают в текст исключений SQLAlchemy (#5, логи).
+        hide_parameters=True,
         connect_args={"connect_timeout": 3},
     )
+
+
+def create_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    # Создаётся один раз в lifespan и хранится в app.state.session_factory.
+    return async_sessionmaker(engine, expire_on_commit=False)
+
+
+async def get_db(request: Request) -> AsyncGenerator[AsyncSession, None]:
+    """Сессия на запрос. Транзакцией управляет вызывающий код (`commit()` или
+    `async with session.begin()`); незакоммиченное откатывается при закрытии сессии."""
+    factory: async_sessionmaker[AsyncSession] = request.app.state.session_factory
+    async with factory() as session:
+        yield session
