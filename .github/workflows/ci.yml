@@ -114,7 +114,7 @@ jobs:
           cache-dependency-glob: "**/uv.lock"
       - run: uv sync --locked --directory api
       - run: uv sync --locked --directory ext-sim
-      - run: make openapi er api-matrix
+      - run: make openapi er api-matrix state-machine demo-accounts bru-export
       # issue #6: «повторный запуск генератора побайтно совпадает — проверяется в CI»
       - run: make demo-data
       - name: ext-sim/fixtures совпадают с генераторами
@@ -126,6 +126,58 @@ jobs:
           git status --porcelain docs/
           git diff --exit-code docs/
           test -z "$(git status --porcelain docs/)"
+
+  # issue #7: Bruno-коллекция целиком против настоящих api и ext-sim (без Docker).
+  bruno:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: creditflow
+          POSTGRES_USER: creditflow
+          POSTGRES_PASSWORD: creditflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U creditflow -d creditflow"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://creditflow:creditflow@localhost:5432/creditflow
+      APP_ENV: test
+      APP_SECRET_KEY: ci-only-jwt-secret-0123456789abcdef
+      DEMO_AUTH_ENABLED: "true"
+      TEST_RESET_ENABLED: "true"
+      TEST_RESET_TOKEN: ci-only-reset-token-0123456789abcdef
+      EXT_SIM_BASE_URL: http://localhost:8001
+      API_URL: http://localhost:8000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: uv sync --locked --directory api
+      - run: uv sync --locked --directory ext-sim
+      - name: ext-sim и api
+        run: |
+          (cd ext-sim && uv run uvicorn app.main:app --port 8001 > ../ext-sim.log 2>&1 &)
+          (cd api && uv run alembic upgrade head && uv run python -m app.seed)
+          (cd api && uv run uvicorn app.main:app --port 8000 > ../api.log 2>&1 &)
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8000/api/v1/health | grep -q '"ext_sim":"ok"' && exit 0
+            sleep 1
+          done
+          exit 1
+      - run: scripts/bru_run.sh
+      - if: failure()
+        run: cat api.log ext-sim.log
 
   docker:
     runs-on: ubuntu-latest

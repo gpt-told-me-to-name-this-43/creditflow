@@ -13,22 +13,24 @@ RBAC (`require_role` на уровне роутера) подключается 
 строится из `app.routes`, поэтому роутеры уже разделены по ролям.
 """
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, Query, Request
+from fastapi import APIRouter, Depends, Header, Request
 
-from app.api.examples import EXAMPLE_NOW, attach_examples, example_from
+from app.api.examples import EXAMPLE_NOW, example_from
+from app.applications.catalog import CatalogProduct, match_products
 from app.core.config import Settings
 from app.core.errors import AppError, errors
 from app.core.security import require_bearer
+from app.demo.accounts import SCENARIOS
+from app.onboarding.consents import TEXTS as CONSENT_TEXTS
 from app.schemas.auth import (
     Company,
     CompanyBindingRequest,
     ConsentText,
-    ConsentType,
     DemoAccount,
     LoginRequest,
     Me,
@@ -62,7 +64,6 @@ from app.schemas.client import (
     TimelineEvent,
 )
 from app.schemas.common import ErrorCode as E
-from app.schemas.common import ProductConstraint
 from app.schemas.enums import (
     AiReportStatus,
     ApplicationStatus,
@@ -86,7 +87,6 @@ from app.schemas.manager import (
     ManagerStats,
     MonthlyFeature,
     OfferConstraints,
-    OfferPreviewRequest,
     OfferPreviewResponse,
     Proposal,
     QueueItem,
@@ -94,8 +94,6 @@ from app.schemas.manager import (
     Scoring,
 )
 from app.scoring.money import money_str
-from app.scoring.risk import Product as RiskProduct
-from app.scoring.risk import monthly_payment
 from app.scoring.schedule import build_schedule
 from app.seed import DEMO_PASSWORD, DEMO_USERS, PRODUCTS
 
@@ -239,15 +237,17 @@ async def me() -> Me:
 
 
 def _build_demo_accounts() -> list[DemoAccount]:
+    # Текст сценариев — тот же, что в docs/demo-data.md (app/demo/accounts.py, #7).
+    by_login = {s.login: s for s in SCENARIOS}
     return [
         DemoAccount(
             login=user.email,
             password=DEMO_PASSWORD,
             role=Role(user.role),
             label=user.full_name,
-            scenario=(f"C{i + 1}" if i < 7 else "Отказ полномочий" if i == 7 else "MANAGER"),
+            scenario=by_login[user.email].text,
         )
-        for i, user in enumerate(DEMO_USERS)
+        for user in DEMO_USERS
     ]
 
 
@@ -268,18 +268,7 @@ async def demo_accounts(settings: AppSettings) -> list[DemoAccount]:
 
 
 def _build_consent_texts() -> list[ConsentText]:
-    return [
-        ConsentText(
-            type=ConsentType.PD_PROCESSING,
-            version="pd-v1",
-            text="Согласен на обработку персональных данных для рассмотрения заявки (демо).",
-        ),
-        ConsentText(
-            type=ConsentType.BKI_REQUEST,
-            version="bki-v1",
-            text="Согласен на запрос кредитного отчёта в БКИ для рассмотрения заявки (демо).",
-        ),
-    ]
+    return list(CONSENT_TEXTS)
 
 
 @public_router.get(
@@ -353,72 +342,10 @@ def _build_credit_products(
     amount: int | None = 3_000_000,
     term: int | None = 36,
 ) -> list[CreditProduct]:
-    """Каталог — `seed.PRODUCTS` (тот же, что в БД), подбор — по правилу design §3.3:
-    продукт подходит, если цель входит в `allowed_purposes`, а сумма и срок — в его пределы.
-    Незаданный фильтр не проверяется. Платёж — функцией ядра, только для подходящего
-    продукта при известных сумме и сроке. Значения по умолчанию — запрос C2 для примера
-    OpenAPI; endpoint всегда передаёт фактические query-параметры."""
-    result = []
-    for p in PRODUCTS:
-        unmet = []
-        if purpose is not None and purpose not in p["allowed_purposes"]:
-            unmet.append(ProductConstraint.PURPOSE_NOT_ALLOWED)
-        if amount is not None and amount < p["min_amount_rub"]:
-            unmet.append(ProductConstraint.AMOUNT_BELOW_PRODUCT_MIN)
-        if amount is not None and amount > p["max_amount_rub"]:
-            unmet.append(ProductConstraint.AMOUNT_ABOVE_PRODUCT_MAX)
-        if term is not None and term < p["min_term_months"]:
-            unmet.append(ProductConstraint.TERM_BELOW_PRODUCT_MIN)
-        if term is not None and term > p["max_term_months"]:
-            unmet.append(ProductConstraint.TERM_ABOVE_PRODUCT_MAX)
-        payment = None
-        if not unmet and amount is not None and term is not None:
-            product = RiskProduct(
-                p["id"],
-                p["annual_rate_pct"],
-                p["min_amount_rub"],
-                p["max_amount_rub"],
-                p["min_term_months"],
-                p["max_term_months"],
-            )
-            payment = money_str(monthly_payment(product, Decimal(amount), term))
-        result.append(
-            CreditProduct(
-                id=p["id"],
-                name=p["name"],
-                allowed_purposes=list(p["allowed_purposes"]),
-                min_amount_rub=money_str(p["min_amount_rub"]),
-                max_amount_rub=money_str(p["max_amount_rub"]),
-                min_term_months=p["min_term_months"],
-                max_term_months=p["max_term_months"],
-                annual_rate_pct=money_str(p["annual_rate_pct"]),
-                suitable=not unmet,
-                monthly_payment_rub=payment,
-                unmet_constraints=unmet,
-            )
-        )
-    return result
-
-
-@client_router.get(
-    "/credit-products",
-    response_model=list[CreditProduct],
-    responses=errors(not_found=False),
-    description=(
-        "Оба продукта каталога с подбором по design §3.3. Незаданный фильтр не проверяется; "
-        "`monthly_payment_rub` — только для подходящего продукта при заданных amount и term. "
-        "`unmet_constraints`: PURPOSE_NOT_ALLOWED, AMOUNT_BELOW_PRODUCT_MIN, "
-        "AMOUNT_ABOVE_PRODUCT_MAX, TERM_BELOW_PRODUCT_MIN, TERM_ABOVE_PRODUCT_MAX. "
-        "Пример ответа — для `?purpose=EQUIPMENT&amount=3000000&term=36` (C2)."
-    ),
-)
-@example_from(_build_credit_products)
-async def credit_products(
-    purpose: PurposeCode | None = None,
-    amount: Annotated[int | None, Query(gt=0)] = None,
-    term: Annotated[int | None, Query(ge=1, le=120)] = None,
-) -> list[CreditProduct]:
-    return _build_credit_products(purpose, amount, term)
+    """Пример ответа: каталог — `seed.PRODUCTS` (тот же, что в БД), подбор —
+    та же функция `match_products`, что у реализации (app/applications/router.py).
+    Значения по умолчанию — запрос C2 для примера OpenAPI."""
+    return match_products([CatalogProduct.from_seed(p) for p in PRODUCTS], purpose, amount, term)
 
 
 def _build_create_application(body: ApplicationCreate) -> ClientApplicationView:
@@ -439,37 +366,8 @@ def _build_create_application(body: ApplicationCreate) -> ClientApplicationView:
     )
 
 
-@client_router.post(
-    "/applications",
-    response_model=ClientApplicationView,
-    status_code=201,
-    responses={
-        200: {
-            "model": ClientApplicationView,
-            "description": "Существующий DRAFT; тело не применяется",
-        },
-        **errors(E.COMPANY_NOT_BOUND, not_found=False),
-    },
-    description="201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. "
-    "Стаб всегда возвращает 201, состояние не хранит; конкурентная реализация — #7.",
-)
-@example_from(_build_create_application)
-async def create_application(body: ApplicationCreate) -> ClientApplicationView:
-    return _build_create_application(body)
-
-
 def _build_list_applications() -> list[ClientApplicationView]:
     return [_client_app()]
-
-
-@client_router.get(
-    "/applications",
-    response_model=list[ClientApplicationView],
-    responses=errors(E.COMPANY_NOT_BOUND, not_found=False, validation=False),
-)
-@example_from(_build_list_applications)
-async def list_applications() -> list[ClientApplicationView]:
-    return _build_list_applications()
 
 
 def _build_get_application(
@@ -478,33 +376,8 @@ def _build_get_application(
     return _client_app(status)
 
 
-@client_router.get(
-    "/applications/{application_id}",
-    response_model=ClientApplicationView,
-    responses=errors(
-        E.COMPANY_NOT_BOUND,
-    ),
-)
-@example_from(_build_get_application)
-async def get_application(application_id: UUID) -> ClientApplicationView:
-    return _build_get_application()
-
-
 def _build_patch_application(body: ApplicationPatch) -> ClientApplicationView:
     return _client_app().model_copy(update={"revision": body.revision + 1})
-
-
-@client_router.patch(
-    "/applications/{application_id}",
-    response_model=ClientApplicationView,
-    responses=errors(E.COMPANY_NOT_BOUND, E.REVISION_CONFLICT, E.INVALID_STATUS_TRANSITION),
-    description="Сохранение подтверждённых полей черновика, только DRAFT. "
-    "Пропуск поля оставляет значение, null очищает. terms_source вычисляет сервер. "
-    "Успех увеличивает revision; следующий запрос использует revision из ответа.",
-)
-@example_from(_build_patch_application)
-async def patch_application(application_id: UUID, body: ApplicationPatch) -> ClientApplicationView:
-    return _build_patch_application(body)
 
 
 def _build_interpret() -> InterpretResponse:
@@ -546,40 +419,6 @@ def _build_submit(body: SubmitRequest) -> ClientApplicationView:
     )
 
 
-@client_router.post(
-    "/applications/{application_id}/submit",
-    response_model=ClientApplicationView,
-    responses=errors(
-        E.COMPANY_NOT_BOUND,
-        E.REVISION_CONFLICT,
-        E.INVALID_STATUS_TRANSITION,
-        E.IDEMPOTENCY_IN_PROGRESS,
-        E.CONSENT_REQUIRED,
-        E.APPLICATION_INCOMPLETE,
-        E.PRODUCT_NOT_ELIGIBLE,
-        E.IDEMPOTENCY_KEY_REUSED,
-        E.PROVIDER_UNAVAILABLE,
-    ),
-    description="DRAFT → UNDER_REVIEW. Только заполненная заявка с подходящим продуктом "
-    "и актуальным bki_consent_version после явного согласия. Синхронный сбор источников "
-    "и расчёт; AI-заключение в фоне. 503 PROVIDER_UNAVAILABLE сохраняет DRAFT: можно "
-    "повторить тот же запрос с тем же Idempotency-Key.",
-)
-@example_from(_build_submit)
-async def submit(
-    application_id: UUID, body: SubmitRequest, idempotency_key: IdempotencyKey
-) -> ClientApplicationView:
-    return _build_submit(body)
-
-
-_IDEMPOTENT_409_422 = (
-    E.REVISION_CONFLICT,
-    E.INVALID_STATUS_TRANSITION,
-    E.IDEMPOTENCY_IN_PROGRESS,
-    E.IDEMPOTENCY_KEY_REUSED,
-)
-
-
 def _build_info_response(body: InfoResponseRequest) -> ClientApplicationView:
     view = _client_app(ApplicationStatus.NEED_INFO)
     return view.model_copy(
@@ -604,52 +443,16 @@ def _build_info_response(body: InfoResponseRequest) -> ClientApplicationView:
     )
 
 
-@client_router.post(
-    "/applications/{application_id}/info-response",
-    response_model=ClientApplicationView,
-    responses=errors(E.COMPANY_NOT_BOUND, *_IDEMPOTENT_409_422),
-)
-@example_from(_build_info_response)
-async def info_response(
-    application_id: UUID, body: InfoResponseRequest, idempotency_key: IdempotencyKey
-) -> ClientApplicationView:
-    return _build_info_response(body)
-
-
 def _build_offer_accept(body: RevisionRequest) -> ClientApplicationView:
     return _client_app(ApplicationStatus.APPROVED).model_copy(
         update={"revision": body.revision + 1}
     )
 
 
-@client_router.post(
-    "/applications/{application_id}/offer/accept",
-    response_model=ClientApplicationView,
-    responses=errors(E.COMPANY_NOT_BOUND, *_IDEMPOTENT_409_422),
-)
-@example_from(_build_offer_accept)
-async def offer_accept(
-    application_id: UUID, body: RevisionRequest, idempotency_key: IdempotencyKey
-) -> ClientApplicationView:
-    return _build_offer_accept(body)
-
-
 def _build_offer_decline(body: RevisionRequest) -> ClientApplicationView:
     return _client_app(ApplicationStatus.DECLINED).model_copy(
         update={"revision": body.revision + 1}
     )
-
-
-@client_router.post(
-    "/applications/{application_id}/offer/decline",
-    response_model=ClientApplicationView,
-    responses=errors(E.COMPANY_NOT_BOUND, *_IDEMPOTENT_409_422),
-)
-@example_from(_build_offer_decline)
-async def offer_decline(
-    application_id: UUID, body: RevisionRequest, idempotency_key: IdempotencyKey
-) -> ClientApplicationView:
-    return _build_offer_decline(body)
 
 
 def _build_contract() -> ContractView:
@@ -683,18 +486,6 @@ def _build_contract() -> ContractView:
     )
 
 
-@client_router.get(
-    "/applications/{application_id}/contract",
-    response_model=ContractView,
-    responses=errors(
-        E.COMPANY_NOT_BOUND,
-    ),
-)
-@example_from(_build_contract)
-async def contract(application_id: UUID) -> ContractView:
-    return _build_contract()
-
-
 SIGN_CHALLENGE_TTL = timedelta(minutes=5)  # design §3.5: TTL кода подписания 5 минут
 
 
@@ -712,59 +503,8 @@ def _build_sign_challenge(
     )
 
 
-@client_router.post(
-    "/applications/{application_id}/sign/challenge",
-    response_model=SignChallenge,
-    response_model_exclude_none=True,
-    responses=errors(
-        E.COMPANY_NOT_BOUND,
-        E.REVISION_CONFLICT,
-        E.INVALID_STATUS_TRANSITION,
-        E.TOO_MANY_ATTEMPTS,
-        challenge=True,
-    ),
-    description="Только APPROVED; UI предварительно получает подтверждение ознакомления "
-    "с договором. Выдаёт новый код на 5 минут и инвалидирует предыдущий; максимум 3 попытки. "
-    "Не более 5 challenge на заявку за 15 минут: 429 scope CHALLENGE_ISSUE и Retry-After. "
-    "Не требует Idempotency-Key. В sign передать revision из этого ответа. "
-    "demo_code показывать только из ответа API; отсутствует при DEMO_AUTH_ENABLED=false.",
-)
-@example_from(_build_sign_challenge)
-async def sign_challenge(
-    application_id: UUID, body: RevisionRequest, settings: AppSettings
-) -> SignChallenge:
-    return _build_sign_challenge(settings, datetime.now(UTC), body)
-
-
 def _build_sign(body: SignRequest) -> ClientApplicationView:
     return _client_app(ApplicationStatus.SIGNED).model_copy(update={"revision": body.revision + 1})
-
-
-@client_router.post(
-    "/applications/{application_id}/sign",
-    response_model=ClientApplicationView,
-    responses=errors(
-        E.COMPANY_NOT_BOUND,
-        *_IDEMPOTENT_409_422,
-        E.SIGN_CODE_INVALID,
-        E.SIGN_CHALLENGE_EXPIRED,
-        E.TOO_MANY_ATTEMPTS,
-        signing=True,
-    ),
-    description="APPROVED → SIGNED с актуальной revision из challenge. Неверный код — "
-    "422 SIGN_CODE_INVALID с details.remaining_attempts; третья неверная попытка — "
-    "429 scope SIGN_ATTEMPTS без Retry-After, challenge недействителен. "
-    "Неизвестный, чужой, просроченный, использованный или заменённый challenge — "
-    "422 SIGN_CHALLENGE_EXPIRED. "
-    "Неуспешная попытка не меняет revision заявки. Успех запускает выдачу SYSTEM: "
-    "SIGNED → ISSUED через 3–5 с; опрашивать карточку каждые 2 с. Повтор успешного "
-    "запроса с тем же ключом возвращает сохранённый ответ.",
-)
-@example_from(_build_sign)
-async def sign(
-    application_id: UUID, body: SignRequest, idempotency_key: IdempotencyKey
-) -> ClientApplicationView:
-    return _build_sign(body)
 
 
 # --- Менеджер (#7, #8, #10) ------------------------------------------------------------
@@ -785,14 +525,6 @@ def _build_queue() -> list[QueueItem]:
             blocking_codes=[],
         )
     ]
-
-
-@manager_router.get(
-    "/applications", response_model=list[QueueItem], responses=errors(not_found=False)
-)
-@example_from(_build_queue)
-async def queue(status: ApplicationStatus | None = None) -> list[QueueItem]:
-    return _build_queue()
 
 
 def _build_manager_card(application_id: UUID) -> ManagerApplicationView:
@@ -918,14 +650,6 @@ def _build_manager_card(application_id: UUID) -> ManagerApplicationView:
     )
 
 
-@manager_router.get(
-    "/applications/{application_id}", response_model=ManagerApplicationView, responses=errors()
-)
-@example_from(_build_manager_card)
-async def manager_card(application_id: UUID) -> ManagerApplicationView:
-    return _build_manager_card(application_id)
-
-
 def _build_decisions(body: DecisionRequest) -> DecisionResponse:
     statuses = {
         ManagerAction.APPROVE: ApplicationStatus.APPROVED,
@@ -936,19 +660,6 @@ def _build_decisions(body: DecisionRequest) -> DecisionResponse:
     return DecisionResponse(
         decision_id=_ID, status=statuses[body.action], revision=body.revision + 1
     )
-
-
-@manager_router.post(
-    "/applications/{application_id}/decisions",
-    response_model=DecisionResponse,
-    status_code=201,
-    responses=errors(*_IDEMPOTENT_409_422, E.ACTION_NOT_ALLOWED, E.AMOUNT_ABOVE_LIMIT),
-)
-@example_from(_build_decisions)
-async def decisions(
-    application_id: UUID, body: DecisionRequest, idempotency_key: IdempotencyKey
-) -> DecisionResponse:
-    return _build_decisions(body)
 
 
 def _build_offer_preview() -> OfferPreviewResponse:
@@ -962,22 +673,6 @@ def _build_offer_preview() -> OfferPreviewResponse:
         valid=True,
         violations=[],
     )
-
-
-@manager_router.post(
-    "/applications/{application_id}/offer-preview",
-    response_model=OfferPreviewResponse,
-    responses=errors(E.INVALID_STATUS_TRANSITION),
-    description="Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. "
-    "Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; "
-    "вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED "
-    "или невычислимых условиях все метрики null, valid=false и violations непустой. "
-    "Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий "
-    "совпадают с COUNTER_OFFER в decisions; реализация — #7. Стаб возвращает пример C2.",
-)
-@example_from(_build_offer_preview)
-async def offer_preview(application_id: UUID, body: OfferPreviewRequest) -> OfferPreviewResponse:
-    return _build_offer_preview()
 
 
 def _ai_report() -> AiReportView:
@@ -1053,16 +748,3 @@ def _build_stats() -> ManagerStats:
         ai_feedback_up_share={},
         ai_feedback_groups=[],
     )
-
-
-@manager_router.get(
-    "/stats", response_model=ManagerStats, responses=errors(not_found=False, validation=False)
-)
-@example_from(_build_stats)
-async def stats() -> ManagerStats:
-    return _build_stats()
-
-
-ROUTERS = (auth_router, public_router, onboarding_router, client_router, manager_router)
-# Примеры запросов/ответов в OpenAPI — из builder-функций стабов (app/api/examples.py).
-attach_examples(ROUTERS)

@@ -1,0 +1,25 @@
+meta {
+  name: Заявка глазами клиента
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c2Token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.offer.term_months: eq 54
+  res.body.offer.amount_rub: eq "3000000.00"
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

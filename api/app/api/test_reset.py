@@ -1,6 +1,6 @@
 """`POST /_test/reset?mode=clean|demo` — служебный сброс для e2e (design.md §4).
 
-Контракт #6; сама очистка БД и загрузка демо-состояния — в #7 (`make demo-reset`).
+Очистка БД и демо-состояние — `app/demo/reset.py` (#7, `make demo-reset`).
 
 - Роутер монтируется только при `TEST_RESET_ENABLED=true` (иначе 404 и нет в OpenAPI);
   в production включённый флаг уже роняет старт (`Settings`).
@@ -18,6 +18,7 @@ from fastapi.security import APIKeyHeader
 
 from app.core.config import Settings
 from app.core.errors import AppError, errors
+from app.demo.reset import reset_database
 from app.schemas.common import ErrorCode, Schema
 
 logger = logging.getLogger("app.test_reset")
@@ -62,10 +63,20 @@ router = APIRouter(prefix="/_test", tags=["service"], dependencies=[Depends(requ
         200: {"content": {"application/json": {"example": {"mode": "clean"}}}},
     },
     description="Только local/test при TEST_RESET_ENABLED=true и TEST_RESET_TOKEN ≥ 32 байт. "
-    "Контрактный стаб: возвращает выбранный mode, очистка БД и seed реализуются в #7.",
+    "clean — пустые таблицы и базовый seed; demo — базовый seed и демо-состояние (#7).",
 )
 async def reset(
+    request: Request,
     mode: Annotated[Literal["clean", "demo"], Query(examples=["clean", "demo"])],
 ) -> TestResetResult:
-    logger.info("test reset: mode=%s (стаб #6, очистка — в #7)", mode)
+    state = request.app.state
+    await reset_database(
+        state.engine,
+        state.sessionmaker,
+        state.ext_sim,
+        state.categorization_rules,
+        state.settings,
+        demo=mode == "demo",
+    )
+    logger.info("test reset: mode=%s", mode)
     return TestResetResult(mode=mode)

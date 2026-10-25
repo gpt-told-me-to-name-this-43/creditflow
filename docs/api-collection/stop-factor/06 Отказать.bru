@@ -1,0 +1,41 @@
+meta {
+  name: Отказать
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/manager/applications/{{appId}}/decisions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "action": "REJECT",
+    "client_reason_code": "TAX_AUTHORITY_RESTRICTIONS",
+    "comment": "Блокировки ФНС"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.status: eq REJECTED
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

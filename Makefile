@@ -11,11 +11,13 @@ POSTGRES_DB ?= creditflow
 POSTGRES_USER ?= creditflow
 POSTGRES_PASSWORD ?= creditflow
 TEST_DATABASE_URL ?= postgresql+psycopg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)
+# API для make demo-reset / clean-reset / bru: web (nginx) из make up или make dev.
+API_URL ?= http://localhost:8080/api/v1
 
 .PHONY: help up down dev up-llm \
 	test test-api test-ext-sim test-web lint lint-api lint-ext-sim lint-web \
-	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi api-matrix er demo-data \
-	demo-reset llm-check llm-record eval-intent eval-injection e2e load
+	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi api-matrix er state-machine demo-accounts bru-export demo-data \
+	dev-token demo-reset clean-reset bru llm-check llm-record eval-intent eval-injection e2e load
 
 help: ## Список целей
 	@grep -hE '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -39,6 +41,10 @@ migrate: ## alembic upgrade head в запущенном api
 
 seed: ## Базовый seed в запущенном api (идемпотентный)
 	$(COMPOSE) exec api python -m app.seed
+
+dev-token: ## JWT демо-учётки для ручной проверки: make -s dev-token EMAIL=… [INN=…] (до #5)
+	@cd api && DATABASE_URL='$(TEST_DATABASE_URL)' APP_SECRET_KEY='$(APP_SECRET_KEY)' \
+		uv run python ../scripts/dev_token.py '$(EMAIL)' $(if $(INN),--bind '$(INN)')
 
 ## --- Проверки ---
 
@@ -84,6 +90,15 @@ openapi: ## docs/openapi.json и docs/openapi-ext-sim.json
 api-matrix: ## docs/api-matrix.md из независимого api/contract/http_matrix.yaml
 	cd api && uv run python ../scripts/gen_api_matrix.py
 
+demo-accounts: ## Таблица демо-учёток в docs/demo-data.md (= GET /auth/demo-accounts)
+	cd api && uv run python ../scripts/gen_demo_accounts.py
+
+bru-export: ## docs/api-collection.json из Bruno-коллекции docs/api-collection
+	python3 scripts/export_bruno.py
+
+state-machine: ## docs/state-machine.md из таблицы переходов FSM
+	cd api && uv run python ../scripts/gen_state_machine.py
+
 er: ## docs/er.md из метаданных SQLAlchemy
 	# app.db.models:Base — тот же Base, но импорт модуля регистрирует все таблицы в metadata
 	cd api && uv run python ../scripts/gen_er.py app.db.models:Base ../docs/er.md
@@ -92,10 +107,19 @@ demo-data: ## Перегенерировать фикстуры ext-sim (рее�
 	python3 scripts/gen_registry_ids.py
 	python3 scripts/gen_statements.py
 
-## --- Ещё не реализовано: цели падают, чтобы не создавать видимость работы ---
+## --- Демо и тестовый контур ---
 
-demo-reset: ## Демо-состояние (#7)
-	@echo "make demo-reset: не реализовано, см. #7" >&2; exit 1
+demo-reset: ## Демо-состояние (#7): POST /_test/reset?mode=demo; в .env TEST_RESET_ENABLED=true и токен
+	@curl -fsS -X POST '$(API_URL)/_test/reset?mode=demo' -H 'X-Test-Reset-Token: $(TEST_RESET_TOKEN)' && echo
+
+clean-reset: ## Чистая БД с базовым seed: POST /_test/reset?mode=clean (для bru run и e2e)
+	@curl -fsS -X POST '$(API_URL)/_test/reset?mode=clean' -H 'X-Test-Reset-Token: $(TEST_RESET_TOKEN)' && echo
+
+bru: ## bru run всей Bruno-коллекции docs/api-collection (сначала reset clean)
+	@API_URL='$(API_URL)' TEST_RESET_TOKEN='$(TEST_RESET_TOKEN)' DATABASE_URL='$(TEST_DATABASE_URL)' \
+		APP_SECRET_KEY='$(APP_SECRET_KEY)' scripts/bru_run.sh
+
+## --- Ещё не реализовано: цели падают, чтобы не создавать видимость работы ---
 
 llm-check: ## Проверка LLM-провайдера (#8)
 	@echo "make llm-check: не реализовано, см. #8" >&2; exit 1

@@ -1,0 +1,25 @@
+meta {
+  name: Карточка менеджера
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/manager/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.proposal.suggested_action: eq MANUAL_REVIEW
+  res.body.scoring.score: eq 70
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

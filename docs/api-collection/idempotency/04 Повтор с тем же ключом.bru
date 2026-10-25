@@ -1,0 +1,36 @@
+meta {
+  name: Повтор с тем же ключом
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/submit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c5Token}}
+}
+
+headers {
+  Idempotency-Key: {{fixedKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "bki_consent_version": "bki-v1"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.revision: eq 3
+  res.body.status: eq UNDER_REVIEW
+}
+
+docs {
+  Сохранённый ответ: второго расчёта нет.
+}

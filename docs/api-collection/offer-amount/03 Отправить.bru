@@ -1,0 +1,39 @@
+meta {
+  name: Отправить
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/submit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c2Token}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "bki_consent_version": "bki-v1"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq UNDER_REVIEW
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

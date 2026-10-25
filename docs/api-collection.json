@@ -1,0 +1,1127 @@
+{
+  "name": "CreditFlow API v1",
+  "run": "make bru (scripts/bru_run.sh): reset clean → токены → bru run --env local",
+  "environments": {
+    "cloud": "vars {\n  baseUrl: https://creditflow.example/api/v1\n}\n\nvars:secret [\n  c1Token,\n  c2Token,\n  c3Token,\n  c4Token,\n  c5Token,\n  c6Token,\n  c7Token,\n  t1Token,\n  managerToken\n]\n",
+    "local": "vars {\n  baseUrl: http://localhost:8080/api/v1\n}\n\nvars:secret [\n  c1Token,\n  c2Token,\n  c3Token,\n  c4Token,\n  c5Token,\n  c6Token,\n  c7Token,\n  t1Token,\n  managerToken\n]\n"
+  },
+  "folders": [
+    {
+      "name": "approve-sign-issue",
+      "seq": 1,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c1Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c1Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": 2000000,\n  \"term_months\": 36,\n  \"product_id\": \"investment\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT",
+            "res.body.monthly_payment_rub": "eq \"78465.71\""
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c1Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq ELIGIBLE_FOR_MANAGER_REVIEW",
+            "res.body.scoring.dscr": "eq \"3.11\"",
+            "res.body.scoring.score": "eq 100"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Одобрить",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"APPROVE\"\n}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq APPROVED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Договор",
+          "seq": 6,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}/contract",
+          "auth": "{{c1Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq DRAFT",
+            "res.body.amount_rub": "eq \"2000000.00\"",
+            "res.body.monthly_payment_rub": "eq \"78465.71\""
+          }
+        },
+        {
+          "name": "Получить код подписания",
+          "seq": 7,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/sign/challenge",
+          "auth": "{{c1Token}}",
+          "body": "{\n  \"revision\": {{revision}}\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.attempts_remaining": "eq 3",
+            "res.body.demo_code": "isString"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);\nbru.setVar(\"challengeId\", res.body.challenge_id);\nbru.setVar(\"code\", res.body.demo_code);",
+          "docs": "Простая электронная подпись: код показывается в UI (демо: вместо SMS)."
+        },
+        {
+          "name": "Неверный код",
+          "seq": 8,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/sign",
+          "auth": "{{c1Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"challenge_id\": \"{{challengeId}}\",\n  \"code\": \"{{wrongCode}}\"\n}",
+          "assert": {
+            "res.status": "eq 422",
+            "res.body.error.code": "eq SIGN_CODE_INVALID",
+            "res.body.error.details.remaining_attempts": "eq 2"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));\nconst c = bru.getVar(\"code\");\nbru.setVar(\"wrongCode\", String((Number(c) + 1) % 1000000).padStart(6, \"0\"));"
+        },
+        {
+          "name": "Подписать",
+          "seq": 9,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/sign",
+          "auth": "{{c1Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"challenge_id\": \"{{challengeId}}\",\n  \"code\": \"{{code}}\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq SIGNED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Через 3–5 с — выдано",
+          "seq": 10,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c1Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq ISSUED"
+          },
+          "script:pre-request": "await bru.sleep(6000);"
+        }
+      ]
+    },
+    {
+      "name": "offer-amount",
+      "seq": 2,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c2Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c2Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": 3000000,\n  \"term_months\": 36,\n  \"product_id\": \"investment\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT",
+            "res.body.monthly_payment_rub": "eq \"117698.56\""
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c2Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq COUNTER_OFFER_CANDIDATE",
+            "res.body.scoring.dscr": "eq \"1.10\"",
+            "res.body.scoring.limit_rub": "eq \"2340000.00\""
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Предпросмотр 2340000 на 36",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/offer-preview",
+          "auth": "{{managerToken}}",
+          "body": "{\n  \"amount_rub\": 2340000,\n  \"term_months\": 36\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.valid": "eq true",
+            "res.body.monthly_payment_rub": "eq \"91804.88\"",
+            "res.body.score": "eq 83"
+          }
+        },
+        {
+          "name": "Встречное предложение по сумме",
+          "seq": 6,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"COUNTER_OFFER\",\n  \"amount_rub\": 2340000,\n  \"client_reason_code\": \"HIGH_DEBT_LOAD\",\n  \"comment\": \"Лимит на 36 мес. — 2 340 000\"\n}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq COUNTER_OFFER"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заявка глазами клиента",
+          "seq": 7,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c2Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq COUNTER_OFFER",
+            "res.body.offer.amount_rub": "eq \"2340000.00\"",
+            "res.body.offer.monthly_payment_rub": "eq \"91804.88\""
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Принять оффер",
+          "seq": 8,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/offer/accept",
+          "auth": "{{c2Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}}\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq APPROVED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Договор",
+          "seq": 9,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}/contract",
+          "auth": "{{c2Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.amount_rub": "eq \"2340000.00\"",
+            "res.body.monthly_payment_rub": "eq \"91804.88\"",
+            "res.body.overpayment_rub": "eq \"964975.43\""
+          }
+        }
+      ]
+    },
+    {
+      "name": "offer-term",
+      "seq": 3,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c2Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c2Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": 3000000,\n  \"term_months\": 36,\n  \"product_id\": \"investment\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c2Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq COUNTER_OFFER_CANDIDATE"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Предпросмотр 3000000 на 53",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/offer-preview",
+          "auth": "{{managerToken}}",
+          "body": "{\n  \"amount_rub\": 3000000,\n  \"term_months\": 53\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.valid": "eq false",
+            "res.body.dscr": "eq \"1.24\"",
+            "res.body.violations": "contains AMOUNT_ABOVE_LIMIT"
+          }
+        },
+        {
+          "name": "Предпросмотр 3000000 на 54",
+          "seq": 6,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/offer-preview",
+          "auth": "{{managerToken}}",
+          "body": "{\n  \"amount_rub\": 3000000,\n  \"term_months\": 54\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.valid": "eq true",
+            "res.body.monthly_payment_rub": "eq \"91356.79\"",
+            "res.body.dscr": "eq \"1.25\""
+          }
+        },
+        {
+          "name": "Предпросмотр 3000000 на 60",
+          "seq": 7,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/offer-preview",
+          "auth": "{{managerToken}}",
+          "body": "{\n  \"amount_rub\": 3000000,\n  \"term_months\": 60\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.valid": "eq true",
+            "res.body.monthly_payment_rub": "eq \"86303.90\"",
+            "res.body.limit_for_term_rub": "eq \"3190000.00\""
+          }
+        },
+        {
+          "name": "Предпросмотр 3300000 на 60",
+          "seq": 8,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/offer-preview",
+          "auth": "{{managerToken}}",
+          "body": "{\n  \"amount_rub\": 3300000,\n  \"term_months\": 60\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.valid": "eq false",
+            "res.body.violations": "contains AMOUNT_ABOVE_LIMIT"
+          }
+        },
+        {
+          "name": "Оффер выше лимита",
+          "seq": 9,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"COUNTER_OFFER\",\n  \"amount_rub\": 3300000,\n  \"term_months\": 60,\n  \"client_reason_code\": \"HIGH_DEBT_LOAD\",\n  \"comment\": \"Проверка лимита\"\n}",
+          "assert": {
+            "res.status": "eq 422",
+            "res.body.error.code": "eq AMOUNT_ABOVE_LIMIT"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));"
+        },
+        {
+          "name": "Встречное предложение по сроку",
+          "seq": 10,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"COUNTER_OFFER\",\n  \"term_months\": 54,\n  \"client_reason_code\": \"HIGH_DEBT_LOAD\",\n  \"comment\": \"Минимальный срок с DSCR ≥ 1.25\"\n}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq COUNTER_OFFER"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заявка глазами клиента",
+          "seq": 11,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c2Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.offer.term_months": "eq 54",
+            "res.body.offer.amount_rub": "eq \"3000000.00\""
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Принять оффер",
+          "seq": 12,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/offer/accept",
+          "auth": "{{c2Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}}\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq APPROVED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Договор",
+          "seq": 13,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}/contract",
+          "auth": "{{c2Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.term_months": "eq 54",
+            "res.body.monthly_payment_rub": "eq \"91356.79\""
+          }
+        }
+      ]
+    },
+    {
+      "name": "offer-decline",
+      "seq": 4,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c1Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c1Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": 2000000,\n  \"term_months\": 36,\n  \"product_id\": \"investment\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c1Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq ELIGIBLE_FOR_MANAGER_REVIEW"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Встречное предложение",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"COUNTER_OFFER\",\n  \"amount_rub\": 1500000,\n  \"client_reason_code\": \"LOW_SCORE\",\n  \"comment\": \"Предлагаем меньшую сумму\"\n}",
+          "assert": {
+            "res.status": "eq 201"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заявка глазами клиента",
+          "seq": 6,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c1Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains DECLINE_OFFER"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отклонить оффер",
+          "seq": 7,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/offer/decline",
+          "auth": "{{c1Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}}\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq DECLINED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));"
+        }
+      ]
+    },
+    {
+      "name": "request-info",
+      "seq": 5,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c3Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c3Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"INVENTORY\",\n  \"requested_amount_rub\": 800000,\n  \"term_months\": 12,\n  \"product_id\": \"working_capital\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c3Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq MANUAL_REVIEW",
+            "res.body.scoring.score": "eq 70"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Дозапрос",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"REQUEST_INFO\",\n  \"question_text\": \"Подтвердите, что просрочки закрыты\"\n}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq NEED_INFO"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заявка глазами клиента",
+          "seq": 6,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c3Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.info_request.question_text": "isString",
+            "res.body.allowed_actions": "contains RESPOND_INFO"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Ответить",
+          "seq": 7,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/info-response",
+          "auth": "{{c3Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"answer_text\": \"Просрочки закрыты, справка банка приложена\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW",
+            "res.body.info_request.answer_text": "isString"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));"
+        }
+      ]
+    },
+    {
+      "name": "stop-factor",
+      "seq": 6,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c6Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c6Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"WORKING_CAPITAL\",\n  \"requested_amount_rub\": 1500000,\n  \"term_months\": 18,\n  \"product_id\": \"working_capital\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c6Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq BLOCKED_BY_RULE",
+            "res.body.proposal.blocking_codes": "contains ACCOUNT_BLOCKED_BY_FNS",
+            "res.body.allowed_actions.length": "eq 1",
+            "res.body.allowed_actions[0]": "eq REJECT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Одобрить при стоп-факторе",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"APPROVE\",\n  \"comment\": \"Попытка\"\n}",
+          "assert": {
+            "res.status": "eq 422",
+            "res.body.error.code": "eq ACTION_NOT_ALLOWED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));"
+        },
+        {
+          "name": "Отказать",
+          "seq": 6,
+          "method": "POST",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}/decisions",
+          "auth": "{{managerToken}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"action\": \"REJECT\",\n  \"client_reason_code\": \"TAX_AUTHORITY_RESTRICTIONS\",\n  \"comment\": \"Блокировки ФНС\"\n}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq REJECTED"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заявка глазами клиента",
+          "seq": 7,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c6Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq REJECTED",
+            "res.body.client_reason_code": "eq TAX_AUTHORITY_RESTRICTIONS"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        }
+      ]
+    },
+    {
+      "name": "not-authorized",
+      "seq": 7,
+      "requests": [
+        {
+          "name": "Без токена",
+          "seq": 1,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications",
+          "assert": {
+            "res.status": "eq 401",
+            "res.body.error.code": "eq UNAUTHORIZED"
+          }
+        },
+        {
+          "name": "Клиент в кабинете менеджера",
+          "seq": 2,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications",
+          "auth": "{{c7Token}}",
+          "assert": {
+            "res.status": "eq 403",
+            "res.body.error.code": "eq FORBIDDEN"
+          }
+        },
+        {
+          "name": "Менеджер в клиентском маршруте",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{managerToken}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 403"
+          }
+        },
+        {
+          "name": "Чужая или несуществующая заявка",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/00000000-0000-4000-8000-000000000000",
+          "auth": "{{c7Token}}",
+          "assert": {
+            "res.status": "eq 404",
+            "res.body.error.code": "eq NOT_FOUND"
+          },
+          "docs": "Проверка полномочий руководителя при привязке (403 APPLICANT_NOT_AUTHORIZED) — #5."
+        }
+      ]
+    },
+    {
+      "name": "ai-interpret",
+      "seq": 8,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c4Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Распознать потребность",
+          "seq": 2,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/interpret",
+          "auth": "{{c4Token}}",
+          "body": "{\n  \"purpose_text\": \"Нужно 500 тысяч на 2 года на оборудование\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "isString"
+          },
+          "docs": "Пока стаб (#8): правила + LLM. Заявку не меняет."
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 3,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c4Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": 500000,\n  \"term_months\": 24,\n  \"product_id\": \"investment\"\n}",
+          "assert": {
+            "res.status": "eq 200"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 4,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c4Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));",
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Карточка менеджера",
+          "seq": 5,
+          "method": "GET",
+          "url": "{{baseUrl}}/manager/applications/{{appId}}",
+          "auth": "{{managerToken}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.proposal.suggested_action": "eq BLOCKED_BY_RULE",
+            "res.body.scoring.calculation_status": "eq SKIPPED",
+            "res.body.ai_report.status": "eq FALLBACK"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        }
+      ]
+    },
+    {
+      "name": "provider-failure",
+      "seq": 9,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{t1Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{t1Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": 1000000,\n  \"term_months\": 36,\n  \"product_id\": \"investment\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{t1Token}}",
+          "headers": {
+            "Idempotency-Key": "{{idemKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 503",
+            "res.body.error.code": "eq PROVIDER_UNAVAILABLE"
+          },
+          "script:pre-request": "bru.setVar(\"idemKey\", \"bru-\" + Date.now() + \"-\" + Math.floor(Math.random() * 1e9));"
+        },
+        {
+          "name": "Заявка глазами клиента",
+          "seq": 4,
+          "method": "GET",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{t1Token}}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.status": "eq DRAFT",
+            "res.body.revision": "eq 2"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        }
+      ]
+    },
+    {
+      "name": "revision-conflict",
+      "seq": 10,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c7Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Изменить срок",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c7Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"term_months\": 24\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.revision": "eq 2"
+          }
+        },
+        {
+          "name": "Изменить по устаревшей revision",
+          "seq": 3,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c7Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"term_months\": 48\n}",
+          "assert": {
+            "res.status": "eq 409",
+            "res.body.error.code": "eq REVISION_CONFLICT",
+            "res.body.error.details.current_revision": "eq 2"
+          }
+        }
+      ]
+    },
+    {
+      "name": "idempotency",
+      "seq": 11,
+      "requests": [
+        {
+          "name": "Создать черновик",
+          "seq": 1,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications",
+          "auth": "{{c5Token}}",
+          "body": "{}",
+          "assert": {
+            "res.status": "eq 201",
+            "res.body.status": "eq DRAFT"
+          },
+          "script:post-response": "bru.setVar(\"appId\", res.body.id);\nbru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Заполнить условия",
+          "seq": 2,
+          "method": "PATCH",
+          "url": "{{baseUrl}}/applications/{{appId}}",
+          "auth": "{{c5Token}}",
+          "body": "{\n  \"revision\": {{revision}},\n  \"purpose_code\": \"SUPPLIERS\",\n  \"requested_amount_rub\": 1000000,\n  \"term_months\": 12,\n  \"product_id\": \"working_capital\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.allowed_actions": "contains SUBMIT"
+          },
+          "script:post-response": "bru.setVar(\"revision\", res.body.revision);"
+        },
+        {
+          "name": "Отправить с ключом",
+          "seq": 3,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c5Token}}",
+          "headers": {
+            "Idempotency-Key": "{{fixedKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.revision": "eq 3"
+          },
+          "script:pre-request": "bru.setVar(\"fixedKey\", \"bru-fixed-\" + Date.now());"
+        },
+        {
+          "name": "Повтор с тем же ключом",
+          "seq": 4,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c5Token}}",
+          "headers": {
+            "Idempotency-Key": "{{fixedKey}}"
+          },
+          "body": "{\n  \"revision\": {{revision}},\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 200",
+            "res.body.revision": "eq 3",
+            "res.body.status": "eq UNDER_REVIEW"
+          },
+          "docs": "Сохранённый ответ: второго расчёта нет."
+        },
+        {
+          "name": "Тот же ключ, другое тело",
+          "seq": 5,
+          "method": "POST",
+          "url": "{{baseUrl}}/applications/{{appId}}/submit",
+          "auth": "{{c5Token}}",
+          "headers": {
+            "Idempotency-Key": "{{fixedKey}}"
+          },
+          "body": "{\n  \"revision\": 99,\n  \"bki_consent_version\": \"bki-v1\"\n}",
+          "assert": {
+            "res.status": "eq 422",
+            "res.body.error.code": "eq IDEMPOTENCY_KEY_REUSED"
+          }
+        }
+      ]
+    }
+  ]
+}

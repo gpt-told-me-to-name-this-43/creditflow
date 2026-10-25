@@ -1,0 +1,22 @@
+meta {
+  name: Договор
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/applications/{{appId}}/contract
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c1Token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq DRAFT
+  res.body.amount_rub: eq "2000000.00"
+  res.body.monthly_payment_rub: eq "78465.71"
+}

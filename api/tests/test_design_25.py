@@ -244,23 +244,12 @@ def test_ai_success_status_examples() -> None:
 @pytest.mark.parametrize(
     ("method", "path", "body", "field"),
     [
-        (
-            "PATCH",
-            "/applications/" + APP_ID,
-            {"revision": 1, "requested_amount_rub": 0},
-            "body.requested_amount_rub",
-        ),
+        # реализованные маршруты (#7) — tests/applications/; здесь оставшийся стаб
         (
             "POST",
-            "/manager/applications/" + APP_ID + "/decisions",
-            {
-                "revision": 1,
-                "action": "COUNTER_OFFER",
-                "amount_rub": 0,
-                "comment": "Оффер",
-                "client_reason_code": "HIGH_DEBT_LOAD",
-            },
-            "body.amount_rub",
+            "/applications/" + APP_ID + "/interpret",
+            {"purpose_text": "x" * 1001},
+            "body.purpose_text",
         ),
     ],
 )

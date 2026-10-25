@@ -83,6 +83,21 @@ ENDPOINTS: list[tuple[str, str, dict[str, Any] | None, dict[str, str]]] = [
     ("GET", "/manager/stats", None, {}),
 ]
 
+# Реализованные маршруты (#7) проверяются интеграционно в tests/applications/ — с настоящим
+# JWT и БД; здесь — только оставшиеся стабы (#5, #8) и регистрация всех путей в OpenAPI.
+STUB_PATHS = {
+    "/auth/login",
+    "/auth/me",
+    "/auth/demo-accounts",
+    "/consents/texts",
+    "/onboarding/company-binding",
+    "/company",
+    f"/applications/{APP_ID}/interpret",
+    f"/manager/applications/{APP_ID}/ai-report",
+    f"/manager/applications/{APP_ID}/ai-feedback",
+}
+STUBS = [e for e in ENDPOINTS if e[1] in STUB_PATHS]
+
 FORBIDDEN_CLIENT_FIELDS = re.compile(
     r"score|dscr|limit|reason_codes|positive_codes|blocking|suggested|rule_trace|ai_|comment|risk"
 )
@@ -106,7 +121,7 @@ def test_all_contract_routes_registered(app: FastAPI) -> None:
     assert expected <= declared, sorted(expected - declared)
 
 
-@pytest.mark.parametrize(("method", "path", "body", "headers"), ENDPOINTS, ids=lambda v: str(v))
+@pytest.mark.parametrize(("method", "path", "body", "headers"), STUBS, ids=lambda v: str(v))
 def test_stub_passes_response_model(
     app: FastAPI, method: str, path: str, body: dict[str, Any] | None, headers: dict[str, str]
 ) -> None:
@@ -117,19 +132,17 @@ def test_stub_passes_response_model(
     assert response.status_code < 300, response.text  # response_model валидирует ответ стаба
 
 
-def test_idempotency_key_is_required(app: FastAPI) -> None:
-    r = TestClient(app, headers=AUTH).post(
-        f"/api/v1/applications/{APP_ID}/submit",
-        json={"revision": 1, "bki_consent_version": "bki-v1"},
-    )
-    assert r.status_code == 422
-    assert r.json()["error"]["code"] == "VALIDATION_ERROR"
+def test_idempotency_key_is_required_in_contract(app: FastAPI) -> None:
+    op = app.openapi()["paths"]["/api/v1/applications/{application_id}/submit"]["post"]
+    header = next(p for p in op["parameters"] if p["name"] == "Idempotency-Key")
+    assert header["in"] == "header" and header["required"] is True
 
 
 def test_errors_use_envelope(app: FastAPI) -> None:
     client = TestClient(app, headers=AUTH)
     assert (
-        client.get("/api/v1/applications/not-a-uuid").json()["error"]["code"] == "VALIDATION_ERROR"
+        client.get("/api/v1/manager/applications/not-a-uuid/ai-report").json()["error"]["code"]
+        == "VALIDATION_ERROR"
     )
     assert client.get("/api/v1/nope").json() == {
         "error": {"code": "NOT_FOUND", "message": "Not Found"}

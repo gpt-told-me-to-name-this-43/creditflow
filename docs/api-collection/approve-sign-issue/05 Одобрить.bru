@@ -1,0 +1,39 @@
+meta {
+  name: Одобрить
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/manager/applications/{{appId}}/decisions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "action": "APPROVE"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.status: eq APPROVED
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

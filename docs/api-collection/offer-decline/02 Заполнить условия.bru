@@ -1,0 +1,34 @@
+meta {
+  name: Заполнить условия
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c1Token}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "purpose_code": "EQUIPMENT",
+    "requested_amount_rub": 2000000,
+    "term_months": 36,
+    "product_id": "investment"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.allowed_actions: contains SUBMIT
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

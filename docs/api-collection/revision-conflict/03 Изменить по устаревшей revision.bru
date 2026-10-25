@@ -1,0 +1,28 @@
+meta {
+  name: Изменить по устаревшей revision
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c7Token}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "term_months": 48
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.error.code: eq REVISION_CONFLICT
+  res.body.error.details.current_revision: eq 2
+}

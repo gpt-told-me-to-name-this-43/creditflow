@@ -530,6 +530,19 @@ stateDiagram-v2
 
 Swagger — `/api/docs` у `api` и `/docs` у `ext-sim`. Экспорт: `docs/openapi.json`, `docs/openapi-ext-sim.json`. Коллекция Bruno: `docs/api-collection/`, экспорт `docs/api-collection.json`.
 
+**Уточнения реализации конвейера (#7).** Контракт не меняют, фиксируют решения, которых не было в тексте выше:
+
+- **FSM.** Таблица переходов — `api/app/applications/fsm.py`, единственная функция смены статуса — `transition()`; `docs/state-machine.md` генерируется из неё (`make state-machine`). Создание черновика — первый переход (`— → DRAFT`), поэтому новый черновик имеет `revision = 1`. `PATCH` увеличивает `revision` без события.
+- **Submit.** Снимки ext-sim, расчёт и рекомендация пишутся в одной транзакции и получают одинаковое `now()`; карточка менеджера находит снимки заявки по этому времени. Выписка запрашивается за 24 месяца до месяца `APP_AS_OF_DATE`: `h` считается от первой операции вообще. Компания, исчезнувшая из реестра к моменту Submit, — тоже `503 PROVIDER_UNAVAILABLE`.
+- **Комментарий менеджера.** Действие совпадает с рекомендацией по таблице `ELIGIBLE → APPROVE`, `COUNTER_OFFER_CANDIDATE → COUNTER_OFFER`, `BLOCKED_BY_RULE → REJECT`, `MANUAL_REVIEW → REQUEST_INFO`; при расхождении без комментария — `422 VALIDATION_ERROR` с полем `body.comment`.
+- **Оффер.** Нарушения `offer-preview` и `decisions` дают одна функция; в `decisions` они превращаются в ошибки по приоритету: `ACTION_NOT_ALLOWED` (стоп-фактор, расчёт `SKIPPED`, лимита нет) → `VALIDATION_ERROR` (срок или сумма вне продукта) → `AMOUNT_ABOVE_LIMIT` → `VALIDATION_ERROR` (`OFFER_NOT_IMPROVED`). Не указанные сумма или срок берутся из запроса. После принятия оффера `monthly_payment_rub` и `overpayment_rub` клиентской заявки считаются по согласованным условиям.
+- **Договор.** Номер `CF-<год APP_AS_OF_DATE>-<6 цифр>` из последовательности `contract_number_seq`. График начинается от `APP_AS_OF_DATE`, счёт зачисления — `account_masked` из снимка выписки. Текст «Средства зачислены на счёт ••••NNNN» выводится из события `SIGNED → ISSUED` и счёта договора, отдельной колонки нет.
+- **Подписание.** `sign/challenge` увеличивает `revision` (её передают в `sign`); код — HMAC от `APP_SECRET_KEY`, в лог не попадает. Неуспешная попытка сохраняет счётчик в отдельной фиксации до ответа об ошибке.
+- **AI-заключение до #8.** Конвейер создаёт `ai_reports (PENDING)` в транзакции Submit, фоновая задача после `COMMIT` сразу закрывает запись шаблоном по кодам (`FALLBACK`, `DISABLED` или `UNAVAILABLE`); LLM подключает #8 в той же точке.
+- **Восстановление.** `recover_stale_ai_reports()` и `recover_pending_disbursements()` выполняются при старте и раз в 15 с одним циклом в `lifespan`; сбой прохода логируется и не роняет `api`.
+- **Демо и reset.** `POST /_test/reset?mode=clean|demo` и `make demo-reset` / `make clean-reset` — `api/app/demo/`; демо-seed идёт через сервисный слой, компании C1–C7 привязываются напрямую в БД до появления привязки (#5). Таблица «логин → что попробовать» — `api/app/demo/accounts.py`, её же отдаёт `GET /auth/demo-accounts`.
+- **До #5** реализованные маршруты проверяют JWT HS256 (`sub`, роль и компания — из БД на каждый запрос); вход — стаб, токен для ручной проверки и Bruno выдаёт `make dev-token`.
+
 ### 3.8. Зафиксированные архитектурные решения
 
 - **Модульный монолит на FastAPI.**

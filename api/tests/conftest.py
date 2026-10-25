@@ -18,6 +18,7 @@ TEST_DATABASE_URL = os.environ.get(
 )
 # Порт 1 никто не слушает: соединение отклоняется сразу.
 DEAD_DATABASE_URL = "postgresql+psycopg://creditflow:x@127.0.0.1:1/creditflow"
+TEST_SECRET_KEY = "test-only-jwt-secret-0123456789abcdef"
 
 
 @pytest.fixture
@@ -27,6 +28,7 @@ def make_settings() -> Callable[..., Settings]:
             "database_url": TEST_DATABASE_URL,
             "ext_sim_base_url": EXT_SIM_URL,
             "app_env": "test",
+            "app_secret_key": TEST_SECRET_KEY,
         }
         values.update(overrides)
         return Settings(**values)

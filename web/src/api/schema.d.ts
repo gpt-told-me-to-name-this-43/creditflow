@@ -16,7 +16,7 @@ export interface paths {
         put?: never;
         /**
          * Create Application
-         * @description 201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. Стаб всегда возвращает 201, состояние не хранит; конкурентная реализация — #7.
+         * @description 201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. Один DRAFT на клиента, в том числе при параллельных запросах.
          */
         post: operations["create_application_api_v1_applications_post"];
         delete?: never;
@@ -422,7 +422,7 @@ export interface paths {
         put?: never;
         /**
          * Offer Preview
-         * @description Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED или невычислимых условиях все метрики null, valid=false и violations непустой. Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий совпадают с COUNTER_OFFER в decisions; реализация — #7. Стаб возвращает пример C2.
+         * @description Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED или невычислимых условиях все метрики null, valid=false и violations непустой. Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий совпадают с COUNTER_OFFER в decisions.
          */
         post: operations["offer_preview_api_v1_manager_applications__application_id__offer_preview_post"];
         delete?: never;
@@ -3802,70 +3802,70 @@ export interface operations {
                      *         "login": "director.techservice@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C1"
+                     *         "scenario": "C1 · ООО «ТехСервис», 0099010012. Прошлая заявка уже выдана. Подать новую: инвестиционный, 2 000 000 ₽ на 36 мес. → в очереди ELIGIBLE_FOR_MANAGER_REVIEW; APPROVE → код → SIGNED → через 3–5 с ISSUED"
                      *       },
                      *       {
                      *         "label": "Кузнецова Анна Михайловна",
                      *         "login": "director.bakery@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C2"
+                     *         "scenario": "C2 · ООО «Пекарня Плюс», 0099020010. Заявок нет: подать инвестиционный, 3 000 000 ₽ на 36 мес. → COUNTER_OFFER_CANDIDATE, лимит 2 340 000; оффер 2 340 000 / 36 → принять → подписать"
                      *       },
                      *       {
                      *         "label": "Соколова Алёна Викторовна",
                      *         "login": "ip.sokolova@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C3"
+                     *         "scenario": "C3 · ИП Соколова А. В., 009903001040. Ответить на вопрос менеджера по открытой заявке → заявка возвращается в UNDER_REVIEW без пересчёта (MANUAL_REVIEW: БКИ SERIOUS)"
                      *       },
                      *       {
                      *         "label": "Новиков Станислав Олегович",
                      *         "login": "director.newstart@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C4"
+                     *         "scenario": "C4 · ООО «Новый Старт», 0099040017. Заявок нет: подать инвестиционный, 500 000 ₽ на 24 мес. → BLOCKED_BY_RULE: ACCOUNT_HISTORY_INSUFFICIENT, менеджеру доступен только REJECT"
                      *       },
                      *       {
                      *         "label": "Векторов Андрей Игоревич",
                      *         "login": "director.vector@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C5"
+                     *         "scenario": "C5 · ООО «Вектор», 0099050015. Открыть отклонённую заявку → REJECTED, причина для клиента COMPANY_STATUS (компания в ликвидации)"
                      *       },
                      *       {
                      *         "label": "Складов Михаил Дмитриевич",
                      *         "login": "director.sklad@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C6"
+                     *         "scenario": "C6 · ООО «Склад-М», 0099060013. Заявка на рассмотрении; менеджер открывает карточку → BLOCKED_BY_RULE: ACCOUNT_BLOCKED_BY_FNS; APPROVE → 422 ACTION_NOT_ALLOWED"
                      *       },
                      *       {
                      *         "label": "Орлов Дмитрий Степанович",
                      *         "login": "ip.orlov@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "C7"
+                     *         "scenario": "C7 · ИП Орлов Д. С., 009907001027. Заявка на рассмотрении; менеджер открывает карточку → MANUAL_REVIEW: DSCR 0.86, лимита нет — встречное предложение недоступно"
                      *       },
                      *       {
                      *         "label": "Бухгалтерова Ольга Ивановна",
                      *         "login": "accountant.bakery@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "CLIENT",
-                     *         "scenario": "Отказ полномочий"
+                     *         "scenario": "Бухгалтер «Пекарни Плюс» (не руководитель). Привязать ИНН 0099020010 → 403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП (привязка — #5)"
                      *       },
                      *       {
                      *         "label": "Анна Менеджерова",
                      *         "login": "manager.anna@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "MANAGER",
-                     *         "scenario": "MANAGER"
+                     *         "scenario": "Кредитный менеджер. Очередь, карточки C6/C7, сводка; после ответа C3 — её карточка → очередь и сводка непустые; решения по C6 — только REJECT"
                      *       },
                      *       {
                      *         "label": "Олег Менеджеров",
                      *         "login": "manager.oleg@creditflow.demo",
                      *         "password": "creditflow-demo",
                      *         "role": "MANAGER",
-                     *         "scenario": "MANAGER"
+                     *         "scenario": "Второй кредитный менеджер. Решение по той же заявке, что и у первого менеджера, во второй вкладке → второй получает 409 REVISION_CONFLICT или INVALID_STATUS_TRANSITION"
                      *       }
                      *     ]
                      */

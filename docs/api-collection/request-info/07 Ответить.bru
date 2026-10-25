@@ -1,0 +1,36 @@
+meta {
+  name: Ответить
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/info-response
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c3Token}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "answer_text": "Просрочки закрыты, справка банка приложена"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq UNDER_REVIEW
+  res.body.info_request.answer_text: isString
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}

@@ -1,0 +1,40 @@
+meta {
+  name: Подписать
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/sign
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c1Token}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "challenge_id": "{{challengeId}}",
+    "code": "{{code}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq SIGNED
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

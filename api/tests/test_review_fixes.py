@@ -37,10 +37,12 @@ def test_stubs_not_mounted_in_production(make_settings: Callable[..., Settings])
 
 
 def test_any_bearer_is_accepted_outside_production(app: FastAPI) -> None:
-    """Фиксирует честное ограничение #6: токен не проверяется (JWT и RBAC — #5)."""
+    """Ограничение оставшихся стабов #6: токен не проверяется. Реализованные маршруты (#7)
+    проверяют JWT — tests/applications/test_auth.py."""
+    path = f"/api/v1/manager/applications/{APP_ID}/ai-report"
     client = TestClient(app, headers={"Authorization": "Bearer not-a-jwt"})
-    assert client.get("/api/v1/manager/stats").status_code == 200
-    assert TestClient(app).get("/api/v1/manager/stats").status_code == 401
+    assert client.get(path).status_code == 200
+    assert TestClient(app).get(path).status_code == 401
 
 
 # --- 3. Примеры OpenAPI не исполняют endpoint --------------------------------------------
@@ -131,50 +133,7 @@ def test_history_check_catches_inconsistency(
         check_history(cases["under_review"], issued)
 
 
-# --- 5. GET /credit-products --------------------------------------------------------------
-
-
-def products(app: FastAPI, **params: object) -> dict[str, dict[str, Any]]:
-    response = TestClient(app, headers=AUTH).get("/api/v1/credit-products", params=params)
-    assert response.status_code == 200
-    return {p["id"]: p for p in response.json()}
-
-
-def test_catalog_has_both_products_without_filters(app: FastAPI) -> None:
-    result = products(app)
-    assert set(result) == {"investment", "working_capital"}
-    for p in result.values():
-        assert p["suitable"] is True and p["unmet_constraints"] == []
-        assert p["monthly_payment_rub"] is None  # без суммы и срока платёж не считается
-
-
-def test_c2_request_matches_only_investment(app: FastAPI) -> None:
-    result = products(app, purpose="EQUIPMENT", amount=3_000_000, term=36)
-    assert result["investment"]["suitable"] is True
-    assert result["investment"]["monthly_payment_rub"] == "117698.56"  # M1
-    assert result["working_capital"]["suitable"] is False
-    assert result["working_capital"]["monthly_payment_rub"] is None
-    assert result["working_capital"]["unmet_constraints"] == [
-        "PURPOSE_NOT_ALLOWED",
-        "TERM_ABOVE_PRODUCT_MAX",
-    ]
-
-
-@pytest.mark.parametrize(
-    ("params", "expected"),
-    [
-        ({"amount": 50_000}, ["AMOUNT_BELOW_PRODUCT_MIN"]),
-        ({"amount": 3_000_001, "term": 2}, ["AMOUNT_ABOVE_PRODUCT_MAX", "TERM_BELOW_PRODUCT_MIN"]),
-    ],
-)
-def test_working_capital_bounds(app: FastAPI, params: dict[str, int], expected: list[str]) -> None:
-    assert products(app, **params)["working_capital"]["unmet_constraints"] == expected
-
-
-def test_openapi_example_matches_c2_query(app: FastAPI) -> None:
-    op = app.openapi()["paths"]["/api/v1/credit-products"]["get"]
-    example = op["responses"]["200"]["content"]["application/json"]["example"]
-    assert example == list(products(app, purpose="EQUIPMENT", amount=3_000_000, term=36).values())
+# --- 5. GET /credit-products — tests/applications/test_catalog.py (реализация #7) ---------
 
 
 # --- 6. Коды ошибок для произвольных HTTP-статусов ---------------------------------------

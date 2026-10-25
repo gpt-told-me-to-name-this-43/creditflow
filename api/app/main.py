@@ -1,5 +1,7 @@
 """Точка входа `api`: FastAPI-приложение CreditFlow (design.md §3.2)."""
 
+import asyncio
+import contextlib
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -8,15 +10,19 @@ from fastapi import FastAPI
 
 from app.api import test_reset
 from app.api.examples import preserve_nullable_examples
-from app.api.stubs import ROUTERS as CONTRACT_ROUTERS
+from app.api.routers import ROUTERS as CONTRACT_ROUTERS
+from app.applications.ai_reports import recover_stale_ai_reports
+from app.contracts.service import DISBURSE_DELAY_SECONDS, recover_pending_disbursements
 from app.core.config import AppEnv, Settings
-from app.core.db import create_engine
+from app.core.db import create_engine, create_sessionmaker
 from app.core.errors import install_error_handlers
 from app.core.health import router as health_router
+from app.core.idempotency import install_idempotency_handlers
 from app.extsim_client import ExtSimClient
 from app.scoring.categorization import load_rules
 
 API_PREFIX = "/api/v1"
+RECOVERY_INTERVAL_SECONDS = 15.0
 logger = logging.getLogger("app.main")
 
 
@@ -27,12 +33,38 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # запуск api, а не первый Submit. Делаем это до открытия пула БД и клиента ext-sim.
     app.state.categorization_rules = load_rules()
     app.state.engine = create_engine(settings.database_url)
+    app.state.sessionmaker = create_sessionmaker(app.state.engine)
+    app.state.disburse_delay = DISBURSE_DELAY_SECONDS
     app.state.ext_sim = ExtSimClient(settings.ext_sim_base_url)
+    # design §3.2: фоновые процессы восстанавливаются при старте и раз в 15 с.
+    # None в app.state.recovery_interval (тесты) отключает цикл.
+    interval: float | None = getattr(app.state, "recovery_interval", RECOVERY_INTERVAL_SECONDS)
+    recovery = asyncio.create_task(_recovery_loop(app, interval)) if interval is not None else None
     try:
         yield
     finally:
+        if recovery is not None:
+            recovery.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await recovery
         await app.state.ext_sim.aclose()
         await app.state.engine.dispose()
+
+
+async def recover_once(app: FastAPI) -> None:
+    """Идемпотентно закрывает зависшие AI-заключения и выдачи. Сбой БД не роняет api."""
+    settings: Settings = app.state.settings
+    try:
+        await recover_stale_ai_reports(app.state.sessionmaker, settings.llm_report_deadline_seconds)
+        await recover_pending_disbursements(app.state.sessionmaker)
+    except Exception:
+        logger.exception("recovery: проход не удался, повтор в следующем цикле")
+
+
+async def _recovery_loop(app: FastAPI, interval: float) -> None:
+    while True:
+        await recover_once(app)
+        await asyncio.sleep(interval)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -72,6 +104,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     install_error_handlers(app)
+    install_idempotency_handlers(app)
     app.include_router(health_router, prefix=API_PREFIX)
     # Стабы контракта v1 (#6); реализации заменяют их по модулям в #5/#7/#8.
     # Стабы контракта #6 не проверяют токен (только наличие Bearer, app/core/security.py)
