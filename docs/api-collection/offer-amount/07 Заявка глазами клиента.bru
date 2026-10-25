@@ -1,0 +1,26 @@
+meta {
+  name: Заявка глазами клиента
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c2Token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq COUNTER_OFFER
+  res.body.offer.amount_rub: eq "2340000.00"
+  res.body.offer.monthly_payment_rub: eq "91804.88"
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

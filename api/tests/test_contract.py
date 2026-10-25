@@ -96,9 +96,14 @@ FORBIDDEN_CLIENT_FIELDS = re.compile(
 )
 
 
-# Auth и онбординг — настоящие (#5), их ветки проверяют test_auth.py и test_onboarding.py.
-REAL = ("/auth/", "/consents/", "/onboarding/", "/company")
-STUB_ENDPOINTS = [e for e in ENDPOINTS if not e[1].startswith(REAL)]
+# Настоящие маршруты проверяют свои тесты: #5 — test_auth.py и test_onboarding.py,
+# #7 — tests/applications/ (живая БД). Здесь — только оставшиеся стабы #8.
+STUB_PATHS = {
+    f"/applications/{APP_ID}/interpret",
+    f"/manager/applications/{APP_ID}/ai-report",
+    f"/manager/applications/{APP_ID}/ai-feedback",
+}
+STUB_ENDPOINTS = [e for e in ENDPOINTS if e[1] in STUB_PATHS]
 
 
 @pytest.fixture
@@ -134,19 +139,17 @@ def test_stub_passes_response_model(
     assert response.status_code < 300, response.text  # response_model валидирует ответ стаба
 
 
-def test_idempotency_key_is_required(app: FastAPI) -> None:
-    r = TestClient(app, headers=AUTH).post(
-        f"/api/v1/applications/{APP_ID}/submit",
-        json={"revision": 1, "bki_consent_version": "bki-v1"},
-    )
-    assert r.status_code == 422
-    assert r.json()["error"]["code"] == "VALIDATION_ERROR"
+def test_idempotency_key_is_required_in_contract(app: FastAPI) -> None:
+    op = app.openapi()["paths"]["/api/v1/applications/{application_id}/submit"]["post"]
+    header = next(p for p in op["parameters"] if p["name"] == "Idempotency-Key")
+    assert header["in"] == "header" and header["required"] is True
 
 
 def test_errors_use_envelope(app: FastAPI) -> None:
-    client = TestClient(app, headers=AUTH)
+    client = TestClient(app, headers=MANAGER_AUTH)
     assert (
-        client.get("/api/v1/applications/not-a-uuid").json()["error"]["code"] == "VALIDATION_ERROR"
+        client.get("/api/v1/manager/applications/not-a-uuid/ai-report").json()["error"]["code"]
+        == "VALIDATION_ERROR"
     )
     assert client.get("/api/v1/nope").json() == {
         "error": {"code": "NOT_FOUND", "message": "Not Found"}

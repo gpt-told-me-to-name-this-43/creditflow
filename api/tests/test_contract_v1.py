@@ -5,7 +5,6 @@ import os
 import subprocess
 import sys
 from collections.abc import Callable
-from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -16,10 +15,10 @@ from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 from pydantic import TypeAdapter, ValidationError
 
-from app.api.stubs import ROUTERS
 from app.core.config import Settings
+from app.main import CONTRACT_ROUTERS as ROUTERS
 from app.main import create_app
-from app.schemas.client import ContractView, InterpretResponse
+from app.schemas.client import InterpretResponse
 from app.schemas.common import ERROR_STATUS, ErrorCode, ErrorEnvelope
 from app.schemas.manager import (
     DecisionRequest,
@@ -28,7 +27,7 @@ from app.schemas.manager import (
     OfferPreviewResponse,
 )
 from tests.conftest import REPO_ROOT, ext_sim_examples
-from tests.test_contract import APP_ID, AUTH, ENDPOINTS, IDEM, MANAGER_AUTH
+from tests.test_contract import APP_ID, ENDPOINTS
 
 PUBLIC = {"/auth/login", "/auth/demo-accounts", "/consents/texts", "/health"}
 CARD_PATH = "/api/v1/manager/applications/{application_id}"
@@ -86,25 +85,7 @@ def test_demo_accounts_disabled_without_flag(make_settings: Callable[..., Settin
     assert client.get("/api/v1/auth/demo-accounts").status_code == 404
 
 
-@pytest.mark.parametrize("enabled", [True, False])
-def test_signing_code_only_in_demo(
-    make_settings: Callable[..., Settings],
-    db_reset: None,
-    running: Callable[[Any], Any],
-    enabled: bool,
-) -> None:
-    app = running(create_app(make_settings(demo_auth_enabled=enabled)))
-    client = TestClient(app, headers=AUTH)
-    before = datetime.now(UTC)
-    response = client.post(f"/api/v1/applications/{APP_ID}/sign/challenge", json={"revision": 3})
-    after = datetime.now(UTC)
-    assert response.status_code == 200
-    value = response.json()
-    assert value.get("demo_code") == ("123456" if enabled else None)
-    assert ("demo_code" in value) == enabled
-    # challenge живёт 5 минут от момента выдачи, а не от фиксированной даты демо-данных
-    expires = datetime.fromisoformat(value["expires_at"])
-    assert before + timedelta(minutes=5) <= expires <= after + timedelta(minutes=5)
+# demo_code только в демо-режиме — tests/applications/test_contracts.py (реализация #7).
 
 
 def test_sign_challenge_openapi_example_is_fixed(app: FastAPI) -> None:
@@ -140,22 +121,14 @@ VALID_DECISIONS = [
 ]
 
 
+# Схема тела решения; исходы на живой БД — tests/applications/test_manager.py.
+DECISION_ADAPTER: TypeAdapter[Any] = TypeAdapter(DecisionRequest)
+
+
 @pytest.mark.parametrize("body", VALID_DECISIONS)
-def test_action_specific_decisions_accepted(app: FastAPI, body: dict[str, Any]) -> None:
-    response = TestClient(app, headers=MANAGER_AUTH).post(
-        DECISIONS, json={"revision": 2, **body}, headers=IDEM
-    )
-    assert response.status_code == 201, response.text
-    assert response.json()["revision"] == 3
-    assert (
-        response.json()["status"]
-        == {
-            "APPROVE": "APPROVED",
-            "REQUEST_INFO": "NEED_INFO",
-            "REJECT": "REJECTED",
-            "COUNTER_OFFER": "COUNTER_OFFER",
-        }[body["action"]]
-    )
+def test_action_specific_decisions_accepted(body: dict[str, Any]) -> None:
+    decision = DECISION_ADAPTER.validate_python({"revision": 2, **body})
+    assert decision.action == body["action"]
 
 
 @pytest.mark.parametrize(
@@ -187,12 +160,9 @@ def test_action_specific_decisions_accepted(app: FastAPI, body: dict[str, Any]) 
         {"action": "UNKNOWN"},
     ],
 )
-def test_invalid_decisions_rejected(app: FastAPI, body: dict[str, Any]) -> None:
-    response = TestClient(app, headers=MANAGER_AUTH).post(
-        DECISIONS, json={"revision": 2, **body}, headers=IDEM
-    )
-    assert response.status_code == 422, response.text
-    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+def test_invalid_decisions_rejected(body: dict[str, Any]) -> None:
+    with pytest.raises(ValidationError):
+        DECISION_ADAPTER.validate_python({"revision": 2, **body})
 
 
 def test_decision_openapi_expresses_conditions(app: FastAPI) -> None:
@@ -388,11 +358,12 @@ def test_all_success_examples_validate_after_openapi_serialization(app: FastAPI)
                     adapter.validate_python(example["value"])
 
 
-def test_financial_examples_balance_and_match_c2(app: FastAPI) -> None:
-    client = TestClient(app, headers=AUTH)
-    contract = ContractView.model_validate(
-        client.get(f"/api/v1/applications/{APP_ID}/contract").json()
-    )
+def test_financial_examples_balance_and_match_c2() -> None:
+    from uuid import UUID
+
+    from app.api.stubs import _build_contract, _build_manager_card
+
+    contract = _build_contract()
     rows = contract.schedule
     assert len(rows) == contract.term_months == 36
     assert rows[0].interest_rub == "46800.00"
@@ -403,9 +374,7 @@ def test_financial_examples_balance_and_match_c2(app: FastAPI) -> None:
         assert balance == Decimal(row.balance_after_rub)
     assert balance == 0
     assert sum(Decimal(r.interest_rub) for r in rows) == Decimal(contract.overpayment_rub)
-    scoring = client.get(f"/api/v1/manager/applications/{APP_ID}", headers=MANAGER_AUTH).json()[
-        "scoring"
-    ]
+    scoring = _build_manager_card(UUID(APP_ID)).model_dump(mode="json")["scoring"]
     assert len(scoring["monthly"]) == 12
     assert sum(scoring["factor_points"].values()) == scoring["score"] == 63
     assert scoring["dscr"] == "1.10"

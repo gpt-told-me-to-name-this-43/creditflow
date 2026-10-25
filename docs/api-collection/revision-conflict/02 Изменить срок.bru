@@ -1,0 +1,27 @@
+meta {
+  name: Изменить срок
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c7Token}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "term_months": 24
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.revision: eq 2
+}

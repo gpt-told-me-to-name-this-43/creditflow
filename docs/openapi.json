@@ -3674,7 +3674,7 @@
     }
   },
   "info": {
-    "description": "Контракт API v1 для клиентского и менеджерского кабинетов (design.md §3.7, #9). Все пути уже включают /api/v1: baseUrl клиента — origin без этого суффикса. Деньги и DSCR в ответах — десятичные строки, входные суммы — целые рубли. Время — UTC, отображение в Europe/Moscow. Ошибки — ErrorEnvelope, кроме health. PATCH и команды состояния передают revision; при 409 REVISION_CONFLICT нужно перечитать заявку, сохранив ввод. Idempotency-Key обязателен только там, где объявлен: новый на действие, тот же при сетевом повторе; ошибки не кешируются. Interpret и preview не сохраняют данные. GET никогда не меняет состояние. Кнопки клиента определяет allowed_actions; polling каждые 5 с, в SIGNED — 2 с, завершается при ISSUED/REJECTED/DECLINED. Вход, роли и онбординг реализованы (#5): JWT HS256 и роль проверяются у каждого защищённого маршрута. Клиентские и менеджерские маршруты пока — фиксированные стабы в local/test: бизнес-операции — #7, AI — #8. В production доступны health, auth и онбординг. Тестовый reset не входит в публикуемый контракт.",
+    "description": "Контракт API v1 для клиентского и менеджерского кабинетов (design.md §3.7, #9). Все пути уже включают /api/v1: baseUrl клиента — origin без этого суффикса. Деньги и DSCR в ответах — десятичные строки, входные суммы — целые рубли. Время — UTC, отображение в Europe/Moscow. Ошибки — ErrorEnvelope, кроме health. PATCH и команды состояния передают revision; при 409 REVISION_CONFLICT нужно перечитать заявку, сохранив ввод. Idempotency-Key обязателен только там, где объявлен: новый на действие, тот же при сетевом повторе; ошибки не кешируются. Interpret и preview не сохраняют данные. GET никогда не меняет состояние. Кнопки клиента определяет allowed_actions; polling каждые 5 с, в SIGNED — 2 с, завершается при ISSUED/REJECTED/DECLINED. Вход, роли и онбординг реализованы (#5): JWT HS256 и роль проверяются у каждого защищённого маршрута. Конвейер заявок реализован (#7). Interpret, ai-report и ai-feedback пока — фиксированные стабы в local/test (#8). Тестовый reset не входит в публикуемый контракт.",
     "summary": "MVP кредитного конвейера с AI-assist",
     "title": "CreditFlow API",
     "version": "1.0.0"
@@ -3857,7 +3857,7 @@
         ]
       },
       "post": {
-        "description": "201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. Стаб всегда возвращает 201, состояние не хранит; конкурентная реализация — #7.",
+        "description": "201: новый DRAFT; 200: существующий, без применения тела. Изменение только PATCH. Один DRAFT на клиента, в том числе при параллельных запросах.",
         "operationId": "create_application_api_v1_applications_post",
         "requestBody": {
           "content": {
@@ -7784,70 +7784,70 @@
                     "login": "director.techservice@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C1"
+                    "scenario": "C1 · ООО «ТехСервис», 0099010012. Прошлая заявка уже выдана. Подать новую: инвестиционный, 2 000 000 ₽ на 36 мес. → в очереди ELIGIBLE_FOR_MANAGER_REVIEW; APPROVE → код → SIGNED → через 3–5 с ISSUED"
                   },
                   {
                     "label": "Кузнецова Анна Михайловна",
                     "login": "director.bakery@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C2"
+                    "scenario": "C2 · ООО «Пекарня Плюс», 0099020010 (не привязана). Привязать ИНН, подать инвестиционный, 3 000 000 ₽ на 36 мес. → COUNTER_OFFER_CANDIDATE, лимит 2 340 000; оффер 2 340 000 / 36 → принять → подписать"
                   },
                   {
                     "label": "Соколова Алёна Викторовна",
                     "login": "ip.sokolova@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C3"
+                    "scenario": "C3 · ИП Соколова А. В., 009903001040. Ответить на вопрос менеджера по открытой заявке → заявка возвращается в UNDER_REVIEW без пересчёта (MANUAL_REVIEW: БКИ SERIOUS)"
                   },
                   {
                     "label": "Новиков Станислав Олегович",
                     "login": "director.newstart@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C4"
+                    "scenario": "C4 · ООО «Новый Старт», 0099040017 (не привязана). Привязать ИНН, подать инвестиционный, 500 000 ₽ на 24 мес. → BLOCKED_BY_RULE: ACCOUNT_HISTORY_INSUFFICIENT, менеджеру доступен только REJECT"
                   },
                   {
                     "label": "Векторов Андрей Игоревич",
                     "login": "director.vector@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C5"
+                    "scenario": "C5 · ООО «Вектор», 0099050015. Открыть отклонённую заявку → REJECTED, причина для клиента COMPANY_STATUS (компания в ликвидации)"
                   },
                   {
                     "label": "Складов Михаил Дмитриевич",
                     "login": "director.sklad@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C6"
+                    "scenario": "C6 · ООО «Склад-М», 0099060013. Заявка на рассмотрении; менеджер открывает карточку → BLOCKED_BY_RULE: ACCOUNT_BLOCKED_BY_FNS; APPROVE → 422 ACTION_NOT_ALLOWED"
                   },
                   {
                     "label": "Орлов Дмитрий Степанович",
                     "login": "ip.orlov@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "C7"
+                    "scenario": "C7 · ИП Орлов Д. С., 009907001027. Заявка на рассмотрении; менеджер открывает карточку → MANUAL_REVIEW: DSCR 0.86, лимита нет — встречное предложение недоступно"
                   },
                   {
                     "label": "Бухгалтерова Ольга Ивановна",
                     "login": "accountant.bakery@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "CLIENT",
-                    "scenario": "Отказ полномочий"
+                    "scenario": "Бухгалтер «Пекарни Плюс» (не руководитель). Привязать ИНН 0099020010 → 403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП"
                   },
                   {
                     "label": "Анна Менеджерова",
                     "login": "manager.anna@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "MANAGER",
-                    "scenario": "MANAGER"
+                    "scenario": "Кредитный менеджер. Очередь, карточки C6/C7, сводка; после ответа C3 — её карточка → очередь и сводка непустые; решения по C6 — только REJECT"
                   },
                   {
                     "label": "Олег Менеджеров",
                     "login": "manager.oleg@creditflow.demo",
                     "password": "creditflow-demo",
                     "role": "MANAGER",
-                    "scenario": "MANAGER"
+                    "scenario": "Второй кредитный менеджер. Решение по той же заявке, что и у первого менеджера, во второй вкладке → второй получает 409 REVISION_CONFLICT или INVALID_STATUS_TRANSITION"
                   }
                 ],
                 "schema": {
@@ -11002,7 +11002,7 @@
     },
     "/api/v1/manager/applications/{application_id}/offer-preview": {
       "post": {
-        "description": "Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED или невычислимых условиях все метрики null, valid=false и violations непустой. Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий совпадают с COUNTER_OFFER в decisions; реализация — #7. Стаб возвращает пример C2.",
+        "description": "Вне UNDER_REVIEW — 409 INVALID_STATUS_TRANSITION. Предпросмотр без записи в БД. 200 valid=false для бизнес-нарушений; вычислимые метрики возвращаются даже для невалидного оффера. При исходном SKIPPED или невычислимых условиях все метрики null, valid=false и violations непустой. Невалидная структура запроса — 422. Проверки продукта, лимита и изменения условий совпадают с COUNTER_OFFER в decisions.",
         "operationId": "offer_preview_api_v1_manager_applications__application_id__offer_preview_post",
         "parameters": [
           {

@@ -1,0 +1,16 @@
+meta {
+  name: Без токена
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/applications
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+  res.body.error.code: eq UNAUTHORIZED
+}

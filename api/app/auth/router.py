@@ -25,6 +25,7 @@ from app.core.logs import get_logger
 from app.core.ratelimit import RateLimits, rate_limits, too_many_attempts
 from app.core.security import client_ip
 from app.db.models import User
+from app.demo.accounts import SCENARIOS
 from app.schemas.auth import DemoAccount, LoginRequest, Me, Role, TokenResponse
 from app.schemas.common import ErrorCode as E
 from app.seed import DEMO_PASSWORD, DEMO_USERS
@@ -122,15 +123,17 @@ async def me(user: CurrentUserDep) -> Me:
 
 
 def _build_demo_accounts() -> list[DemoAccount]:
+    # Текст сценария — тот же, что в docs/demo-data.md, раздел 0 (app/demo/accounts.py, #7).
+    by_login = {s.login: s for s in SCENARIOS}
     return [
         DemoAccount(
             login=user.email,
             password=DEMO_PASSWORD,
             role=Role(user.role),
             label=user.full_name,
-            scenario=(f"C{i + 1}" if i < 7 else "Отказ полномочий" if i == 7 else "MANAGER"),
+            scenario=by_login[user.email].text,
         )
-        for i, user in enumerate(DEMO_USERS)
+        for user in DEMO_USERS
     ]
 
 

@@ -1,0 +1,25 @@
+meta {
+  name: Заявка глазами клиента
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{t1Token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq DRAFT
+  res.body.revision: eq 2
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

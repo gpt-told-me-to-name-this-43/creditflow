@@ -1,0 +1,29 @@
+meta {
+  name: Предпросмотр 3000000 на 60
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/manager/applications/{{appId}}/offer-preview
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+body:json {
+  {
+    "amount_rub": 3000000,
+    "term_months": 60
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.valid: eq true
+  res.body.monthly_payment_rub: eq "86303.90"
+  res.body.limit_for_term_rub: eq "3190000.00"
+}

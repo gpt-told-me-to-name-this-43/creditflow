@@ -1,0 +1,37 @@
+meta {
+  name: Получить код подписания
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/sign/challenge
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c1Token}}
+}
+
+body:json {
+  {
+    "revision": {{revision}}
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.attempts_remaining: eq 3
+  res.body.demo_code: isString
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+  bru.setVar("challengeId", res.body.challenge_id);
+  bru.setVar("code", res.body.demo_code);
+}
+
+docs {
+  Простая электронная подпись: код показывается в UI (демо: вместо SMS).
+}

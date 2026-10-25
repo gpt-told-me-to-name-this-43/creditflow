@@ -16,7 +16,6 @@ from app.main import create_app
 from app.schemas.common import ErrorCode
 from app.schemas.enums import ApplicationStatus
 from tests.conftest import REPO_ROOT
-from tests.test_contract import APP_ID, AUTH
 
 BASE = "/api/v1/applications/{application_id}"
 
@@ -60,38 +59,10 @@ def test_client_scenarios_are_consistent(app: FastAPI) -> None:
     assert Decimal(offer["overpayment_rub"]) > Decimal(extended["overpayment_rub"])
 
 
-def test_new_draft_does_not_save_unconfirmed_suggestions(app: FastAPI) -> None:
-    response = TestClient(app, headers=AUTH).post(
-        "/api/v1/applications", json={"purpose_text": "Нужно 2 млн на 3 года на новую печь"}
-    )
-    assert response.status_code == 201
-    draft = response.json()
-    for field in ("purpose_code", "requested_amount_rub", "term_months", "product_id"):
-        assert draft[field] is None
-    assert draft["terms_field_sources"] == {}
-    assert draft["terms_source"] == "MANUAL"
-    assert "SUBMIT" not in draft["allowed_actions"]
+# Новый черновик без сохранения подсказок — tests/applications/test_drafts.py (реализация #7).
 
 
-def test_sign_uses_revision_returned_by_challenge(app: FastAPI) -> None:
-    client = TestClient(app, headers=AUTH)
-    challenge = client.post(
-        f"/api/v1/applications/{APP_ID}/sign/challenge", json={"revision": 9}
-    ).json()
-    assert challenge["revision"] == 10
-    assert challenge["attempts_remaining"] == 3
-    signed = client.post(
-        f"/api/v1/applications/{APP_ID}/sign",
-        headers={"Idempotency-Key": "client-sign-test"},
-        json={
-            "revision": challenge["revision"],
-            "challenge_id": challenge["challenge_id"],
-            "code": challenge["demo_code"],
-        },
-    )
-    assert signed.status_code == 200
-    assert signed.json()["revision"] == 11
-    assert signed.json()["status"] == "SIGNED"
+# revision из challenge в sign — tests/applications/test_contracts.py (реализация #7).
 
 
 def test_sign_errors_deliver_attempts_and_retry_header() -> None:

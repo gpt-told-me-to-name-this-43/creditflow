@@ -1,0 +1,23 @@
+meta {
+  name: Менеджер в клиентском маршруте
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/applications
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 403
+}

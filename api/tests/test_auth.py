@@ -285,7 +285,8 @@ def test_demo_accounts_from_seed(make_app: Callable[..., FastAPI]) -> None:
     accounts = client.get("/api/v1/auth/demo-accounts").json()
     assert [a["login"] for a in accounts] == [u.email for u in DEMO_USERS]
     by_login = {a["login"]: a for a in accounts}
-    assert by_login["accountant.bakery@creditflow.demo"]["scenario"] == "Отказ полномочий"
+    # scenario — полный текст из app/demo/accounts.py (#7), тот же, что в docs/demo-data.md
+    assert "APPLICANT_NOT_AUTHORIZED" in by_login["accountant.bakery@creditflow.demo"]["scenario"]
     assert by_login[MANAGER_LOGIN]["role"] == "MANAGER"
 
 

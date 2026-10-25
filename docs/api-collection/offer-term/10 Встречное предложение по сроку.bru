@@ -1,0 +1,42 @@
+meta {
+  name: Встречное предложение по сроку
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/manager/applications/{{appId}}/decisions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "action": "COUNTER_OFFER",
+    "term_months": 54,
+    "client_reason_code": "HIGH_DEBT_LOAD",
+    "comment": "Минимальный срок с DSCR ≥ 1.25"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.status: eq COUNTER_OFFER
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

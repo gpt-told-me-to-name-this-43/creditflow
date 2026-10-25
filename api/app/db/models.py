@@ -28,6 +28,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     PrimaryKeyConstraint,
+    Sequence,
     Text,
     UniqueConstraint,
     text,
@@ -189,6 +190,13 @@ class Application(Base):
     __table_args__ = (
         Index("ix_applications_status_submitted", "status", "submitted_at"),  # очередь менеджера
         Index("ix_applications_owner", "owner_user_id"),
+        # один DRAFT на клиента (#7): POST /applications — INSERT … ON CONFLICT DO NOTHING
+        Index(
+            "uq_applications_one_draft",
+            "owner_user_id",
+            unique=True,
+            postgresql_where=text("status = 'DRAFT'"),
+        ),
         _in("status", ApplicationStatus),
         _in("purpose_code", PurposeCode),
         _in("terms_source", TermsSource),
@@ -320,6 +328,10 @@ class InfoRequest(Base):
     answer_text: Mapped[str | None] = mapped_column(Text)
     answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = _created()
+
+
+# Номер договора CF-<год>-<6 цифр> (миграция 0004): параллельные APPROVE не столкнутся.
+CONTRACT_NUMBER_SEQ = Sequence("contract_number_seq", metadata=Base.metadata)
 
 
 class Contract(Base):

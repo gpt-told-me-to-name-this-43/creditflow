@@ -41,6 +41,26 @@
 Реализация стабов в #5/#7/#8 контракт не меняет. Если она требует изменения, оно
 проходит по правилам выше.
 
+## Не выпущено — #7 конвейер заявок (2026-10-25)
+
+Пути, методы, модели, статусы и коды ошибок не менялись. Реализованы вместо стабов:
+`GET /credit-products`, `POST/GET /applications`, `GET/PATCH /applications/{id}`, `submit`,
+`info-response`, `offer/accept`, `offer/decline`, `contract`, `sign/challenge`, `sign`,
+`GET /manager/applications`, карточка, `decisions`, `offer-preview`, `GET /manager/stats`,
+`POST /_test/reset` (не входит в публикуемый контракт). Стабами остаются только маршруты #8
+(`interpret`, `ai-report`, `ai-feedback`). Реализованные маршруты #7, как и #5, смонтированы
+во всех окружениях, включая production.
+
+- Совместимо, описания: из `POST /applications` и `offer-preview` убраны оговорки про стаб.
+- **Заметно фронту:** `DemoAccount.scenario` теперь полный текст «компания. что попробовать →
+  ожидаемый результат» (тот же, что в docs/demo-data.md, раздел 0), а не код `C1`…`C7`.
+  Экрану входа достаточно показывать поле как есть; словарь по кодам больше не совпадёт.
+- Доступ — зависимости #5 (`current_user`, `require_role`); без привязанной компании
+  `/applications*` — `409 COMPANY_NOT_BOUND`. Для Bruno и ручной проверки T1 токен без пароля
+  выдаёт `make dev-token`.
+- Поведение: `sign/challenge` увеличивает `revision` (как и было описано в контракте);
+  договор появляется при переходе в `APPROVED`, до этого `GET /contract` — 404.
+
 ## Не выпущено — вход, роли и онбординг (#5)
 
 - **Изменилось в `docs/openapi.json`:** только `info.description`. Прежний текст говорил,

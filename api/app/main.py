@@ -1,5 +1,7 @@
 """Точка входа `api`: FastAPI-приложение CreditFlow (design.md §3.2)."""
 
+import asyncio
+import contextlib
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -7,8 +9,10 @@ from fastapi import APIRouter, FastAPI
 
 from app.api import test_reset
 from app.api.examples import preserve_nullable_examples
-from app.api.stubs import ROUTERS as STUB_ROUTERS
+from app.api.routers import IMPLEMENTED_ROUTERS, STUB_ROUTERS
+from app.applications.ai_reports import recover_stale_ai_reports
 from app.auth.router import router as auth_router
+from app.contracts.service import DISBURSE_DELAY_SECONDS, recover_pending_disbursements
 from app.core.config import AppEnv, Settings
 from app.core.db import create_engine, create_session_factory
 from app.core.errors import install_error_handlers
@@ -24,10 +28,16 @@ from app.onboarding.router import router as onboarding_router
 from app.scoring.categorization import load_rules
 
 API_PREFIX = "/api/v1"
+RECOVERY_INTERVAL_SECONDS = 15.0
 logger = get_logger("app.main")
 
-# Настоящие роутеры #5 монтируются везде, стабы #7/#8 — только вне production.
-ACCESS_ROUTERS: tuple[APIRouter, ...] = (auth_router, consents_router, onboarding_router)
+# Настоящие роутеры #5 и #7 монтируются везде, стабы #8 — только вне production.
+ACCESS_ROUTERS: tuple[APIRouter, ...] = (
+    auth_router,
+    consents_router,
+    onboarding_router,
+    *IMPLEMENTED_ROUTERS,
+)
 CONTRACT_ROUTERS: tuple[APIRouter, ...] = (*ACCESS_ROUTERS, *STUB_ROUTERS)
 
 
@@ -40,12 +50,39 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     current_consents()  # тексты согласий — тоже при старте
     app.state.engine = create_engine(settings.database_url)
     app.state.session_factory = create_session_factory(app.state.engine)
+    app.state.disburse_delay = DISBURSE_DELAY_SECONDS
     app.state.ext_sim = ExtSimClient(settings.ext_sim_base_url)
+    # design §3.2: фоновые процессы восстанавливаются при старте и раз в 15 с.
+    # None в app.state.recovery_interval (тесты) отключает цикл.
+    interval: float | None = getattr(app.state, "recovery_interval", RECOVERY_INTERVAL_SECONDS)
+    recovery = asyncio.create_task(_recovery_loop(app, interval)) if interval is not None else None
     try:
         yield
     finally:
+        if recovery is not None:
+            recovery.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await recovery
         await app.state.ext_sim.aclose()
         await app.state.engine.dispose()
+
+
+async def recover_once(app: FastAPI) -> None:
+    """Идемпотентно закрывает зависшие AI-заключения и выдачи. Сбой БД не роняет api."""
+    settings: Settings = app.state.settings
+    try:
+        await recover_stale_ai_reports(
+            app.state.session_factory, settings.llm_report_deadline_seconds
+        )
+        await recover_pending_disbursements(app.state.session_factory)
+    except Exception:
+        logger.exception("recovery: проход не удался, повтор в следующем цикле")
+
+
+async def _recovery_loop(app: FastAPI, interval: float) -> None:
+    while True:
+        await recover_once(app)
+        await asyncio.sleep(interval)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -68,9 +105,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "Кнопки клиента определяет allowed_actions; polling каждые 5 с, в SIGNED — 2 с, "
             "завершается при ISSUED/REJECTED/DECLINED. "
             "Вход, роли и онбординг реализованы (#5): JWT HS256 и роль проверяются у каждого "
-            "защищённого маршрута. Клиентские и менеджерские маршруты пока — фиксированные "
-            "стабы в local/test: бизнес-операции — #7, AI — #8. В production доступны health, "
-            "auth и онбординг. "
+            "защищённого маршрута. Конвейер заявок реализован (#7). Interpret, ai-report и "
+            "ai-feedback пока — фиксированные стабы в local/test (#8). "
             "Тестовый reset не входит в публикуемый контракт."
         ),
         servers=[{"url": "/", "description": "Текущий origin: SPA и API за nginx"}],
@@ -93,11 +129,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router, prefix=API_PREFIX)
     for router in ACCESS_ROUTERS:
         app.include_router(router, prefix=API_PREFIX)
-    # Стабы #7/#8 проверяют JWT и роль, но отдают фиксированные данные без владения и
+    # Стабы #8 проверяют JWT и роль, но отдают фиксированные данные без владения и
     # состояния. В production их не монтируем: маршруты отвечают 404.
     mounted = ACCESS_ROUTERS
     if settings.app_env is AppEnv.PRODUCTION:
-        logger.warning("APP_ENV=production: стабы #7/#8 не подключены")
+        logger.warning("APP_ENV=production: стабы #8 не подключены")
         if settings.demo_auth_enabled:
             logger.warning("APP_ENV=production: DEMO_AUTH_ENABLED=true — демо-учётки и demo_code")
     else:

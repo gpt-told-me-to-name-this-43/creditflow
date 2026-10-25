@@ -1,0 +1,25 @@
+meta {
+  name: Заявка глазами клиента
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c6Token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq REJECTED
+  res.body.client_reason_code: eq TAX_AUTHORITY_RESTRICTIONS
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

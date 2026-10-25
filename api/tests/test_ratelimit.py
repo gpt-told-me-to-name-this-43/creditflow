@@ -5,12 +5,13 @@ from collections.abc import Callable
 from typing import Any
 
 import pytest
-from fastapi import FastAPI
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.config import Settings
-from app.core.ratelimit import LoginFailureLock, RateLimits, SlidingWindow
+from app.core.ratelimit import LoginFailureLock, RateLimits, SlidingWindow, limit_challenge_issue
 from app.main import create_app
+from app.schemas.client import RevisionRequest
 from tests.conftest import CLIENT_LOGIN, bearer
 from tests.test_auth import FakeClock
 
@@ -29,12 +30,28 @@ def client(
 ) -> TestClient:
     app: FastAPI = running(create_app(make_settings(demo_auth_enabled=True)))
     app.state.rate_limits = RateLimits(clock=clock)
+    app.include_router(_challenge_router(), prefix="/api/v1")
     return TestClient(app, headers=bearer(CLIENT_LOGIN))
+
+
+def _challenge_router() -> APIRouter:
+    # Тот же лимит, что на настоящем `sign/challenge` (#7), без заявки в APPROVED:
+    # сценарий на живой заявке — tests/applications/test_contracts.py::test_challenge_rate_limit.
+    router = APIRouter()
+
+    @router.post(
+        "/_limit/applications/{application_id}/sign/challenge",
+        dependencies=[Depends(limit_challenge_issue)],
+    )
+    async def issue(application_id: uuid.UUID, body: RevisionRequest) -> dict[str, int]:
+        return {"revision": body.revision + 1}
+
+    return router
 
 
 def challenge(client: TestClient, application_id: uuid.UUID, body: Any = None) -> Any:
     return client.post(
-        f"/api/v1/applications/{application_id}/sign/challenge",
+        f"/api/v1/_limit/applications/{application_id}/sign/challenge",
         json={"revision": 3} if body is None else body,
     )
 

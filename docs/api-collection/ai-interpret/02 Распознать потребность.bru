@@ -1,0 +1,30 @@
+meta {
+  name: Распознать потребность
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/interpret
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c4Token}}
+}
+
+body:json {
+  {
+    "purpose_text": "Нужно 500 тысяч на 2 года на оборудование"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: isString
+}
+
+docs {
+  Пока стаб (#8): правила + LLM. Заявку не меняет.
+}

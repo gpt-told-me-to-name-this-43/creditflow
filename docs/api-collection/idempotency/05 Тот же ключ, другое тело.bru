@@ -1,0 +1,31 @@
+meta {
+  name: Тот же ключ, другое тело
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/submit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c5Token}}
+}
+
+headers {
+  Idempotency-Key: {{fixedKey}}
+}
+
+body:json {
+  {
+    "revision": 99,
+    "bki_consent_version": "bki-v1"
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.body.error.code: eq IDEMPOTENCY_KEY_REUSED
+}

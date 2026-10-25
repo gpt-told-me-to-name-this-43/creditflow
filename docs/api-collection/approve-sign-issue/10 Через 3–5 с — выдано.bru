@@ -1,0 +1,24 @@
+meta {
+  name: Через 3–5 с — выдано
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c1Token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq ISSUED
+}
+
+script:pre-request {
+  await bru.sleep(6000);
+}

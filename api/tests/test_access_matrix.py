@@ -14,12 +14,10 @@ import pytest
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from app.api import stubs
 from app.auth.deps import current_user, require_role
 from app.core.config import Settings
 from app.main import create_app
 from app.schemas.auth import Role
-from app.schemas.manager import ManagerStats
 from contract.matrix import load_matrix
 from tests.conftest import CLIENT_LOGIN, MANAGER_LOGIN, bearer
 from tests.test_http_policy import registered_routes
@@ -97,19 +95,24 @@ def test_every_route_matches_matrix(start: Callable[..., FastAPI], env: str) -> 
     routes = {(m, p) for p, r in registered_routes(app.routes) for m in r.methods or ()}
     expected = set(ACCESS) - CONDITIONAL
     if env == "production":
-        expected = {
-            k
-            for k in expected
-            if not k[1].startswith(
-                ("/api/v1/applications", "/api/v1/manager", "/api/v1/credit-products")
-            )
-        }
+        # в production не смонтированы только стабы #8; #5 и #7 — настоящие маршруты
+        stubs_8 = ("/interpret", "/ai-report", "/ai-feedback")
+        expected = {k for k in expected if not k[1].endswith(stubs_8)}
     assert routes == expected
     assert access_violations(app) == []
 
 
+# Менеджерский маршрут из матрицы, который в production не смонтирован (стаб #8):
+# добавленный тестом маршрут на этом пути — единственный, его не перекрывает настоящий.
+REPORT = "/applications/{application_id}/ai-report"
+REPORT_PATH = f"/api/v1/manager{REPORT}"
+
+
+async def _report(application_id: uuid.UUID) -> dict[str, str]:
+    return {"id": str(application_id)}
+
+
 def _app_with(start: Callable[..., FastAPI], router: APIRouter) -> FastAPI:
-    # production: стабы не смонтированы, поэтому добавленный маршрут — единственный по пути.
     app = start(app_env="production")
     app.include_router(router, prefix="/api/v1")
     return app
@@ -117,7 +120,7 @@ def _app_with(start: Callable[..., FastAPI], router: APIRouter) -> FastAPI:
 
 def test_route_missing_from_matrix_fails(start: Callable[..., FastAPI]) -> None:
     router = APIRouter(prefix="/manager", dependencies=[Depends(require_role(Role.MANAGER))])
-    router.add_api_route("/secret", stubs.stats, methods=["GET"], response_model=ManagerStats)
+    router.add_api_route("/secret", _report, methods=["GET"])
     assert access_violations(_app_with(start, router)) == [
         "GET /api/v1/manager/secret: нет в http_matrix.yaml"
     ]
@@ -126,18 +129,18 @@ def test_route_missing_from_matrix_fails(start: Callable[..., FastAPI]) -> None:
 def test_route_without_require_role_fails(start: Callable[..., FastAPI]) -> None:
     """Негативная проверка: у менеджерского маршрута снят require_role — клиент проходит."""
     router = APIRouter(prefix="/manager", dependencies=[Depends(current_user)])
-    router.add_api_route("/stats", stubs.stats, methods=["GET"], response_model=ManagerStats)
+    router.add_api_route(REPORT, _report, methods=["GET"])
     assert access_violations(_app_with(start, router)) == [
-        "GET /api/v1/manager/stats CLIENT: 200 None, ждали 403"
+        f"GET {REPORT_PATH} CLIENT: 200 None, ждали 403"
     ]
 
 
 def test_route_without_any_auth_fails(start: Callable[..., FastAPI]) -> None:
     router = APIRouter(prefix="/manager")
-    router.add_api_route("/stats", stubs.stats, methods=["GET"], response_model=ManagerStats)
+    router.add_api_route(REPORT, _report, methods=["GET"])
     assert access_violations(_app_with(start, router)) == [
-        "GET /api/v1/manager/stats anonymous: 200 None, ждали 401",
-        "GET /api/v1/manager/stats CLIENT: 200 None, ждали 403",
+        f"GET {REPORT_PATH} anonymous: 200 None, ждали 401",
+        f"GET {REPORT_PATH} CLIENT: 200 None, ждали 403",
     ]
 
 

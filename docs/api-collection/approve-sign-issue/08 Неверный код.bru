@@ -1,0 +1,39 @@
+meta {
+  name: Неверный код
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/applications/{{appId}}/sign
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c1Token}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "challenge_id": "{{challengeId}}",
+    "code": "{{wrongCode}}"
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.body.error.code: eq SIGN_CODE_INVALID
+  res.body.error.details.remaining_attempts: eq 2
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+  const c = bru.getVar("code");
+  bru.setVar("wrongCode", String((Number(c) + 1) % 1000000).padStart(6, "0"));
+}

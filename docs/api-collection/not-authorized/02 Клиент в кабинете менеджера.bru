@@ -1,0 +1,20 @@
+meta {
+  name: Клиент в кабинете менеджера
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/manager/applications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{c7Token}}
+}
+
+assert {
+  res.status: eq 403
+  res.body.error.code: eq FORBIDDEN
+}

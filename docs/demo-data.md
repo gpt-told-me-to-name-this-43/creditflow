@@ -1,5 +1,28 @@
 # Демо-данные: компании C1–C7 и T1
 
+## 0. Демо-учётки: что попробовать
+
+Состояние после `make demo-reset`.
+
+<!-- demo-accounts:start -->
+<!-- Генерируется `make demo-accounts` из api/app/demo/accounts.py. -->
+
+| Логин | Компания | Что попробовать | Ожидаемый результат |
+| --- | --- | --- | --- |
+| `director.techservice@creditflow.demo` | C1 · ООО «ТехСервис», 0099010012 | Прошлая заявка уже выдана. Подать новую: инвестиционный, 2 000 000 ₽ на 36 мес. | в очереди ELIGIBLE_FOR_MANAGER_REVIEW; APPROVE → код → SIGNED → через 3–5 с ISSUED |
+| `director.bakery@creditflow.demo` | C2 · ООО «Пекарня Плюс», 0099020010 (не привязана) | Привязать ИНН, подать инвестиционный, 3 000 000 ₽ на 36 мес. | COUNTER_OFFER_CANDIDATE, лимит 2 340 000; оффер 2 340 000 / 36 → принять → подписать |
+| `ip.sokolova@creditflow.demo` | C3 · ИП Соколова А. В., 009903001040 | Ответить на вопрос менеджера по открытой заявке | заявка возвращается в UNDER_REVIEW без пересчёта (MANUAL_REVIEW: БКИ SERIOUS) |
+| `director.newstart@creditflow.demo` | C4 · ООО «Новый Старт», 0099040017 (не привязана) | Привязать ИНН, подать инвестиционный, 500 000 ₽ на 24 мес. | BLOCKED_BY_RULE: ACCOUNT_HISTORY_INSUFFICIENT, менеджеру доступен только REJECT |
+| `director.vector@creditflow.demo` | C5 · ООО «Вектор», 0099050015 | Открыть отклонённую заявку | REJECTED, причина для клиента COMPANY_STATUS (компания в ликвидации) |
+| `director.sklad@creditflow.demo` | C6 · ООО «Склад-М», 0099060013 | Заявка на рассмотрении; менеджер открывает карточку | BLOCKED_BY_RULE: ACCOUNT_BLOCKED_BY_FNS; APPROVE → 422 ACTION_NOT_ALLOWED |
+| `ip.orlov@creditflow.demo` | C7 · ИП Орлов Д. С., 009907001027 | Заявка на рассмотрении; менеджер открывает карточку | MANUAL_REVIEW: DSCR 0.86, лимита нет — встречное предложение недоступно |
+| `accountant.bakery@creditflow.demo` | Бухгалтер «Пекарни Плюс» (не руководитель) | Привязать ИНН 0099020010 | 403 APPLICANT_NOT_AUTHORIZED — подавать может только руководитель или ИП |
+| `manager.anna@creditflow.demo` | Кредитный менеджер | Очередь, карточки C6/C7, сводка; после ответа C3 — её карточка | очередь и сводка непустые; решения по C6 — только REJECT |
+| `manager.oleg@creditflow.demo` | Второй кредитный менеджер | Решение по той же заявке, что и у первого менеджера, во второй вкладке | второй получает 409 REVISION_CONFLICT или INVALID_STATUS_TRANSITION |
+
+Пароль всех учёток — `creditflow-demo`.
+<!-- demo-accounts:end -->
+
 Источник требований — Issue #6 («Демо-компании и выписки») и `docs/design.md` §3.4.
 Расчётная дата `APP_AS_OF_DATE = 2026-10-21`. Все данные синтетические.
 

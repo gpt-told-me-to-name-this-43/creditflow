@@ -1,0 +1,26 @@
+meta {
+  name: Карточка менеджера
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/manager/applications/{{appId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.proposal.suggested_action: eq COUNTER_OFFER_CANDIDATE
+  res.body.scoring.dscr: eq "1.10"
+  res.body.scoring.limit_rub: eq "2340000.00"
+}
+
+script:post-response {
+  bru.setVar("revision", res.body.revision);
+}

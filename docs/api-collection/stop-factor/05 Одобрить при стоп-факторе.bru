@@ -1,0 +1,36 @@
+meta {
+  name: Одобрить при стоп-факторе
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/manager/applications/{{appId}}/decisions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{managerToken}}
+}
+
+headers {
+  Idempotency-Key: {{idemKey}}
+}
+
+body:json {
+  {
+    "revision": {{revision}},
+    "action": "APPROVE",
+    "comment": "Попытка"
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.body.error.code: eq ACTION_NOT_ALLOWED
+}
+
+script:pre-request {
+  bru.setVar("idemKey", "bru-" + Date.now() + "-" + Math.floor(Math.random() * 1e9));
+}

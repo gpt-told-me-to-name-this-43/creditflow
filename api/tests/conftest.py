@@ -145,6 +145,9 @@ def running() -> Iterator[Callable[[Any], Any]]:
     clients: list[TestClient] = []
 
     def start(app: Any) -> Any:
+        # Цикл восстановления (#7) держал бы соединения пула в цикле событий lifespan,
+        # а запросы TestClient без контекста идут из другого цикла — запрос зависает.
+        app.state.recovery_interval = None
         client = TestClient(app)
         client.__enter__()
         clients.append(client)

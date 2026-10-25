@@ -27,10 +27,7 @@ def test_not_mounted_when_disabled(make_settings: Callable[..., Settings]) -> No
     assert "/api/v1/_test/reset" not in create_app(settings).openapi()["paths"]
 
 
-@pytest.mark.parametrize("mode", ["clean", "demo"])
-def test_valid_token_resets(make_settings: Callable[..., Settings], mode: str) -> None:
-    settings = make_settings(test_reset_enabled=True, test_reset_token=TOKEN)
-    assert post(settings, mode) == (200, {"mode": mode})
+# Сброс с верным токеном на живой БД — tests/applications/test_demo.py (#7).
 
 
 @pytest.mark.parametrize(
