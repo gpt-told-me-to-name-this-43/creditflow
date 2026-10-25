@@ -1,0 +1,108 @@
+name: Supply chain
+
+# #5, design.md §4 «Цепочка поставки»: аудит уязвимостей, секреты в истории, лицензии.
+# Зависимости обновляются вручную (Dependabot не используется), поэтому аудит идёт и по
+# расписанию: новая уязвимость в уже закреплённой версии роняет плановый запуск.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supply-chain-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_PYTHON_DOWNLOADS: never
+  PIP_AUDIT: pip-audit==2.10.1
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
+jobs:
+  audit-python:
+    name: audit (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, ext-sim]
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+      # Только runtime-зависимости из uv.lock, с хешами: аудируется ровно то, что ставит образ.
+      - run: uv export --quiet --frozen --no-dev --no-emit-project --format requirements-txt -o "$RUNNER_TEMP/requirements.txt"
+      # pip-audit завершается с кодом 1 на любой находке; порог high/critical — в следующем
+      # шаге. Если pip-audit не отработал, audit.json нет и следующий шаг падает.
+      - run: >-
+          uvx "$PIP_AUDIT" -r "$RUNNER_TEMP/requirements.txt" --require-hashes --disable-pip
+          --progress-spinner off -f json -o "$RUNNER_TEMP/audit.json" || true
+      - run: python ../scripts/ci/audit_severity.py "$RUNNER_TEMP/audit.json"
+
+  audit-web:
+    name: audit (web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      # Аудит по pnpm-lock.yaml; devDependencies в образ не попадают и не проверяются.
+      - run: pnpm audit --prod --audit-level high
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # вся история всех веток, не только последний коммит
+      - name: Установить gitleaks
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+      - run: >-
+          "$RUNNER_TEMP/gitleaks" git --no-banner --redact --verbose
+          --log-opts="--all" .
+
+  licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: scripts/ci/licenses.sh
+      - name: docs/licenses и THIRD_PARTY_NOTICES.md совпадают с зависимостями
+        run: |
+          git status --porcelain docs/licenses THIRD_PARTY_NOTICES.md
+          git diff --exit-code docs/licenses THIRD_PARTY_NOTICES.md
+          test -z "$(git status --porcelain docs/licenses THIRD_PARTY_NOTICES.md)"
+      - name: GPL и AGPL в runtime-зависимостях запрещены
+        run: python scripts/ci/licenses.py check docs/licenses/*.csv

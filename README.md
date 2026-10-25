@@ -66,6 +66,7 @@ docker compose down
 - [docs/openapi-ext-sim.json](docs/openapi-ext-sim.json) — контракт симулятора внешних систем
 - [docs/er.md](docs/er.md) — ER-диаграмма (генерируется `make er`)
 - [ext-sim/fixtures/README.md](ext-sim/fixtures/README.md) — формат фикстур внешних систем
+- [docs/licenses/](docs/licenses/) и [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) — лицензии runtime-зависимостей (генерируются `make licenses`; `make audit` — аудит уязвимостей)
 - [.env.example](.env.example) — все переменные окружения с комментариями
 - [CONTRIBUTING.md](CONTRIBUTING.md) — разработка, проверки, правила веток и PR
 
