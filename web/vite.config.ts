@@ -45,5 +45,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // e2e/ — Playwright против живого стека (`pnpm e2e`), не vitest.
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 }))

@@ -15,7 +15,8 @@
     "fmt": "eslint --fix . && prettier --write .",
     "test": "vitest run",
     "gen:api": "pnpm generate:api",
-    "generate:api": "openapi-typescript ../docs/openapi.json -o src/api/schema.d.ts"
+    "generate:api": "openapi-typescript ../docs/openapi.json -o src/api/schema.d.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

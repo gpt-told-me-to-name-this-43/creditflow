@@ -198,7 +198,7 @@ function DemoAccountButton({
           {demoScenarioTexts[account.scenario] ?? account.scenario}
         </span>
       </span>
-      {active && <Check aria-hidden className="size-5 shrink-0 text-primary" />}
+      {active && <Check aria-hidden className="size-5 shrink-0 text-primary-text" />}
     </button>
   )
 }

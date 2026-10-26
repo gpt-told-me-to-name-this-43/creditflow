@@ -153,13 +153,14 @@ export function StepReview({ form, application, onEdit }: StepReviewProps) {
             <label htmlFor={consentId} className="grid gap-1 text-sm leading-relaxed">
               <span>{consent?.text}</span>
               <span className="text-muted-foreground">{glossary.bkiConsent.text}</span>
-              <span className="text-muted-foreground">
-                <GlossaryTerm
-                  label={glossary.creditHistory.term}
-                  hint={glossary.creditHistory.text}
-                />
-              </span>
             </label>
+            {/* Подсказка вне label: иначе она попадает в доступное имя чекбокса. */}
+            <span className="shrink-0 text-sm text-muted-foreground">
+              <GlossaryTerm
+                label={glossary.creditHistory.term}
+                hint={glossary.creditHistory.text}
+              />
+            </span>
           </div>
         )}
       </form.Field>

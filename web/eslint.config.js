@@ -28,4 +28,11 @@ export default tseslint.config(
     files: ['src/routes/**/*.tsx', 'src/components/ui/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
+  {
+    // Playwright: фикстуры вызывают `use(...)` — это не React-хук, а `async ({}, use)` —
+    // принятая форма фикстуры без зависимостей. Код выполняется в node.
+    files: ['e2e/**/*.ts', 'playwright.config.ts'],
+    languageOptions: { globals: globals.node },
+    rules: { 'react-hooks/rules-of-hooks': 'off', 'no-empty-pattern': 'off' },
+  },
 )

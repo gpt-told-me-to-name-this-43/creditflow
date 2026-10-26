@@ -26,11 +26,11 @@ function Shell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-col">
         <header className="border-b">
           <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between px-8">
-            {/* Текстовый логотип в бренд-красном: 24 px жирным — контраст крупного текста
+            {/* Текстовый логотип красным (--primary-text): 24 px жирным, контраст проходит
                 проходит. Официальный файл из public/brand/ заменит его, когда появится. */}
             <Link
               to="/"
-              className="rounded-md text-2xl font-extrabold tracking-tight text-primary outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="rounded-md text-2xl font-extrabold tracking-tight text-primary-text outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               CreditFlow
             </Link>
