@@ -333,7 +333,7 @@ export function propose(risk: RiskResult, blocking: Schemas['StopFactor'][]): Sc
   }
 }
 
-/** Сводки внешних источников для карточки менеджера (формат как в стабах #6). */
+/** Сводки внешних источников для карточки менеджера — поля как у снимков ext-sim в API #7. */
 export function externalSources(
   facts: CompanyFacts & {
     legal_form: 'LLC' | 'IE'
@@ -361,13 +361,28 @@ export function externalSources(
       fetched_at: fetchedAt,
       summary: {
         summary_status: data.bki.status,
+        obligations:
+          data.bki.payments > 0
+            ? [
+                {
+                  creditor_name: 'АО «Демо-Банк»',
+                  outstanding_rub: rub(data.bki.payments * 24),
+                  monthly_payment_rub: rub(data.bki.payments),
+                },
+              ]
+            : [],
         monthly_payments_total_rub: rub(data.bki.payments),
       },
     },
     {
       provider: 'BANK',
       fetched_at: fetchedAt,
-      summary: { history_months: data.history, window: '2025-10 … 2026-09' },
+      summary: {
+        account_masked: `40702 •••• ${facts.inn.slice(-4)}`,
+        from: '2025-10-01',
+        to: '2026-09-30',
+        transactions_count: data.history * 21,
+      },
     },
   )
   return sources

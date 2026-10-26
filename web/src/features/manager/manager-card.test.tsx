@@ -45,7 +45,13 @@ describe('кабинет менеджера', () => {
   it('карточка: проверки, выписка, расчёт, правила и AI-заключение', async () => {
     await managerWithQueue()
     await openCard('director.techservice', 'ООО «ТехСервис»')
-    expect(screen.getByRole('region', { name: 'Внешние проверки' })).toHaveTextContent('ЕГРЮЛ')
+    const checks = screen.getByRole('region', { name: 'Внешние проверки' })
+    expect(checks).toHaveTextContent('ЕГРЮЛ')
+    // Поля снимков подписаны по-русски, обязательства БКИ — текстом, без сырых ключей.
+    expect(checks).toHaveTextContent('Счёт40702')
+    expect(checks).toHaveTextContent('АО «Демо-Банк»: остаток')
+    expect(checks).not.toHaveTextContent('account_masked')
+    expect(checks).not.toHaveTextContent('[object Object]')
     expect(screen.getByRole('region', { name: 'Выписка за 12 месяцев' })).toBeInTheDocument()
     const calculation = screen.getByRole('region', { name: 'Расчёт' })
     expect(within(calculation).getByText('Не ниже порога')).toBeInTheDocument()

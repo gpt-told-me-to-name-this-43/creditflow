@@ -257,15 +257,28 @@ export const cardTexts = {
 } as const
 
 /** Подписи полей сводок внешних источников (ExternalSource.summary). */
+/** Поля снимков ext-sim (docs/openapi-ext-sim.json) — подписи для карточки. */
 export const sourceSummaryLabels: Record<string, string> = {
+  name: 'Название',
+  full_name: 'ФИО',
+  inn: 'ИНН',
+  ogrn: 'ОГРН',
+  ogrnip: 'ОГРНИП',
+  okved_main: 'ОКВЭД',
+  registered_at: 'Регистрация',
+  account_masked: 'Счёт',
+  from: 'Выписка с',
+  to: 'Выписка по',
+  transactions_count: 'Операций',
+  report_id: 'Номер отчёта',
+  obligations: 'Обязательства',
+  checked_at: 'Проверено',
   status: 'Статус',
   director: 'Руководитель',
   bankruptcy: 'Банкротство',
   active_account_blocks: 'Блокировки счетов',
   summary_status: 'Кредитная история',
   monthly_payments_total_rub: 'Платежи по кредитам в месяц',
-  history_months: 'История по счёту, мес.',
-  window: 'Период выписки',
 }
 
 export const sourceValueTexts: Record<string, string> = {
@@ -281,6 +294,9 @@ export const sourceValueTexts: Record<string, string> = {
 }
 
 export const checksTexts = {
+  obligation: (creditor: string, outstanding: string, payment: string) =>
+    `${creditor}: остаток ${outstanding}, платёж ${payment} в месяц`,
+  none: 'Нет',
   attention: 'Требует внимания',
   ok: 'Без замечаний',
 } as const

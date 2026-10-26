@@ -8,7 +8,7 @@ import {
   sourceSummaryLabels,
   sourceValueTexts,
 } from '@/content/manager.ts'
-import { formatDateTime } from '@/lib/dates.ts'
+import { formatDate, formatDateTime } from '@/lib/dates.ts'
 import { formatMoney } from '@/lib/money.ts'
 
 type Schemas = components['schemas']
@@ -31,17 +31,40 @@ function attentionProviders(
   return flagged
 }
 
+const DATE_KEYS = new Set(['from', 'to', 'registered_at'])
+const DATE_TIME_KEYS = new Set(['checked_at'])
+
+/** Обязательство из БКИ: кредитор, остаток и платёж. */
+function formatObligation(value: JsonValue): string {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return String(value)
+  const { creditor_name, outstanding_rub, monthly_payment_rub } = value as Record<string, unknown>
+  const money = (rub: unknown) =>
+    typeof rub === 'string' ? formatMoney(rub, { kopecks: false }) : '—'
+  return checksTexts.obligation(
+    typeof creditor_name === 'string' ? creditor_name : '—',
+    money(outstanding_rub),
+    money(monthly_payment_rub),
+  )
+}
+
 function formatValue(key: string, value: JsonValue): string {
   if (value === null) return '—'
   if (typeof value === 'string' && key.endsWith('_rub'))
     return formatMoney(value, { kopecks: false })
-  if (typeof value === 'object' && !Array.isArray(value)) {
+  if (typeof value === 'string' && DATE_KEYS.has(key)) return formatDate(value)
+  if (typeof value === 'string' && DATE_TIME_KEYS.has(key)) return formatDateTime(value)
+  if (Array.isArray(value)) {
+    if (value.length === 0) return checksTexts.none
+    return value
+      .map((item) => (typeof item === 'object' ? formatObligation(item) : String(item)))
+      .join('; ')
+  }
+  if (typeof value === 'object') {
     // Руководитель: «ФИО, ИНН …».
     const { full_name, inn } = value as { full_name?: JsonValue; inn?: JsonValue }
     if (typeof full_name === 'string') return inn ? `${full_name}, ИНН ${String(inn)}` : full_name
     return JSON.stringify(value)
   }
-  if (Array.isArray(value)) return value.map(String).join(', ')
   return sourceValueTexts[String(value)] ?? String(value)
 }
 
