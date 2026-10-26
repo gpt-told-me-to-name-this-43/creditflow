@@ -19,14 +19,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Секрет job-а; для PR из форков секретов нет — тогда токен одноразовый на прогон.
-      TEST_RESET_TOKEN: ${{ secrets.TEST_RESET_TOKEN || format('ci-{0}-{1}', github.run_id, github.run_attempt) }}
       E2E_COMPOSE: docker compose -f ${{ github.workspace }}/docker-compose.yml -f ${{ github.workspace }}/docker-compose.e2e.yml
       CI: "true"
     steps:
       - uses: actions/checkout@v4
       # Синтетический .env из примера: демо-учётки, локальный секрет JWT, без ключей LLM.
       - run: cp .env.example .env
+      # Секрет job-а; без него (PR из форка) — одноразовый случайный. api требует ≥ 32 байт.
+      - name: Токен reset
+        env:
+          SECRET_TOKEN: ${{ secrets.TEST_RESET_TOKEN }}
+        run: |
+          token="${SECRET_TOKEN:-$(openssl rand -hex 32)}"
+          echo "::add-mask::$token"
+          echo "TEST_RESET_TOKEN=$token" >> "$GITHUB_ENV"
       - name: Стек (replay, APP_ENV=test, reset по токену)
         run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build -d --wait
       - uses: pnpm/action-setup@v4

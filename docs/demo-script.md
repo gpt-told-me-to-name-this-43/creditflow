@@ -5,7 +5,7 @@
 
 ## Подготовка (до показа)
 
-1. `make up`, в `.env`: `TEST_RESET_ENABLED=true`, `TEST_RESET_TOKEN=<свой>`, `DEMO_AUTH_ENABLED=true`.
+1. `make up`, в `.env`: `TEST_RESET_ENABLED=true`, `TEST_RESET_TOKEN=<openssl rand -hex 32>`, `DEMO_AUTH_ENABLED=true`.
 2. `make demo-reset` — очередь C3, C6, C7, история решений в сводке, у C1 выданный кредит.
 3. Два окна браузера рядом (у каждой вкладки своя сессия): слева клиент
    `director.bakery@creditflow.demo`, справа менеджер `manager.anna@creditflow.demo`.

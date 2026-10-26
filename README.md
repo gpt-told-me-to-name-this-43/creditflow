@@ -84,8 +84,8 @@ docker compose down
 с `LLM_MODE=replay` и `APP_ENV=test`. Все спеки делят одну БД: один worker, без ретраев.
 
 ```bash
-make e2e-up TEST_RESET_TOKEN=<любой секрет>   # стек + docker-compose.e2e.yml
-make e2e TEST_RESET_TOKEN=<тот же секрет>
+make e2e-up TEST_RESET_TOKEN=$(openssl rand -hex 32)   # ≥ 32 байт; стек + docker-compose.e2e.yml
+make e2e TEST_RESET_TOKEN=<тот же токен>
 ```
 
 Без токена прогон падает в `globalSetup` с объяснением. Отчёт — `web/playwright-report/`,

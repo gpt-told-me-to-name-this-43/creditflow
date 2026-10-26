@@ -2,6 +2,7 @@ import { request } from '@playwright/test'
 import { API, baseURL, RESET_HEADER } from './support/env.ts'
 
 const HEALTH_TIMEOUT_MS = 120_000
+const MIN_TOKEN_BYTES = 32
 
 /**
  * Перед прогоном: токен reset задан, стек отвечает, reset принимает токен.
@@ -13,6 +14,14 @@ export default async function globalSetup() {
     throw new Error(
       'TEST_RESET_TOKEN не задан. E2E сбрасывают БД через POST /_test/reset — ' +
         'запустите стек `make e2e-up` и передайте тот же токен: `make e2e TEST_RESET_TOKEN=…` (или в .env).',
+    )
+  }
+
+  // Короче — api отвечает на reset 404, как на несуществующий маршрут (app/api/test_reset.py).
+  if (new TextEncoder().encode(token).length < MIN_TOKEN_BYTES) {
+    throw new Error(
+      `TEST_RESET_TOKEN короче ${MIN_TOKEN_BYTES} байт — api его не примет. ` +
+        'Сгенерируйте, например: openssl rand -hex 32',
     )
   }
 

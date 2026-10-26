@@ -143,7 +143,7 @@ eval-injection: ## Injection в replay/disabled/openai; явно задайте 
 	@cd api && uv run python -m app.llm.cli eval-injection
 
 e2e-up: ## Стек для E2E: replay, APP_ENV=test, reset по токену (TEST_RESET_TOKEN в .env или make … TEST_RESET_TOKEN=…)
-	@test -n '$(TEST_RESET_TOKEN)' || { echo 'Задайте TEST_RESET_TOKEN: в .env или make e2e-up TEST_RESET_TOKEN=…' >&2; exit 1; }
+	@test $$(printf '%s' '$(TEST_RESET_TOKEN)' | wc -c) -ge 32 || { echo 'TEST_RESET_TOKEN ≥ 32 байт (openssl rand -hex 32): в .env или make e2e-up TEST_RESET_TOKEN=…' >&2; exit 1; }
 	TEST_RESET_TOKEN='$(TEST_RESET_TOKEN)' $(COMPOSE_E2E) up --build -d --wait
 
 # E2E_COMPOSE: s9 останавливает ext-sim; спеки запускаются из web/, поэтому пути абсолютные.
