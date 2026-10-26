@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { formatCountdown, formatDate, formatDateTime, secondsUntil } from './dates.ts'
+import {
+  formatCountdown,
+  formatDate,
+  formatDateTime,
+  formatDuration,
+  formatMonth,
+  secondsUntil,
+} from './dates.ts'
 
 describe('formatDate', () => {
   it('показывает дату по Москве', () => {
@@ -35,5 +42,22 @@ describe('таймер кода', () => {
     expect(formatCountdown(60)).toBe('1:00')
     expect(formatCountdown(5)).toBe('0:05')
     expect(formatCountdown(-3)).toBe('0:00')
+  })
+})
+
+describe('formatDuration', () => {
+  it('минуты, часы и дни', () => {
+    expect(formatDuration(10)).toBe('1 мин')
+    expect(formatDuration(45 * 60)).toBe('45 мин')
+    expect(formatDuration(90 * 60)).toBe('1 ч 30 мин')
+    expect(formatDuration(3 * 3600)).toBe('3 ч')
+    expect(formatDuration(50 * 3600)).toBe('2 дн')
+  })
+})
+
+describe('formatMonth', () => {
+  it('месяц выписки без сдвига по поясу', () => {
+    expect(formatMonth('2025-10-01')).toBe('окт. 2025')
+    expect(formatMonth('2026-01-01')).toBe('янв. 2026')
   })
 })

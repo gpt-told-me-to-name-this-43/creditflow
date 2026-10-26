@@ -33,6 +33,11 @@
   --input: #d5d7da;
   --ring: #ef3124;
   --radius: 0.75rem;
+  /* Серии графиков (выписка в карточке менеджера): палитра проверена на CVD и контраст
+     с поверхностью карточки; третья серия ниже 3:1 — рядом всегда легенда и таблица. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
 }
 
 .dark {
@@ -57,6 +62,9 @@
   --border: #3a3a40;
   --input: #4a4a50;
   --ring: #ef3124;
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
 }
 
 @theme inline {
@@ -82,6 +90,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

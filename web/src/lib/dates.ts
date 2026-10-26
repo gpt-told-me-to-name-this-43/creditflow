@@ -48,3 +48,23 @@ export function formatCountdown(seconds: number): string {
   const safe = Math.max(0, Math.floor(seconds))
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, '0')}`
 }
+
+/** Длительность словами для очереди и сводки: 45 → «1 мин», 5400 → «1 ч 30 мин», 2 дня → «2 дн». */
+export function formatDuration(seconds: number): string {
+  const minutes = Math.max(1, Math.round(seconds / 60))
+  if (minutes < 60) return `${minutes} мин`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) {
+    const rest = minutes % 60
+    return rest ? `${hours} ч ${rest} мин` : `${hours} ч`
+  }
+  return `${Math.floor(hours / 24)} дн`
+}
+
+const monthFormat = new Intl.DateTimeFormat('ru-RU', { month: 'short', timeZone: 'UTC' })
+
+/** Месяц выписки: "2025-10-01" → «окт. 2025» (календарная дата, без сдвига по поясу). */
+export function formatMonth(value: string): string {
+  const date = new Date(`${value.slice(0, 10)}T00:00:00Z`)
+  return `${monthFormat.format(date)} ${date.getUTCFullYear()}`
+}

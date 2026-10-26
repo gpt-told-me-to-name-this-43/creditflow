@@ -33,15 +33,22 @@ import {
   toDemoAccount,
   toMe,
   toProduct,
-  toQueueItem,
   unmetConstraints,
 } from './views.ts'
+import {
+  aiReportFor,
+  offerPreview,
+  riskFor,
+  toManagerView,
+  toQueueItem,
+  toStats,
+} from './manager-views.ts'
 
 /*
  * Обработчики повторяют docs/openapi.json (контракт #6), тела — только типы schema.d.ts.
  * Проверки и коды ошибок — как описаны в docs/api.md: роль, привязка компании, владелец,
- * статус, revision, Idempotency-Key. Менеджерские эндпоинты — минимум для #10:
- * очередь и решения; карточка, AI-отчёт, предпросмотр оффера и статистика — в #10.
+ * статус, revision, Idempotency-Key. Менеджер: очередь, карточка, сводка, решения,
+ * предпросмотр оффера, AI-заключение и оценки к нему (#10).
  */
 
 type Schemas = components['schemas']
@@ -537,6 +544,41 @@ const applicationHandlers = [
   ),
 ]
 
+const MAX_QUESTION = 1000
+const MAX_COMMENT = 1000
+
+const filled = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0
+
+/**
+ * Обязательные поля решения (design.md §3.5): у отказа и оффера — причина для клиента
+ * и комментарий; у одобрения вопреки рекомендации — комментарий-обоснование.
+ */
+function decisionFieldError(body: Record<string, unknown>, application: ApplicationRow) {
+  if (typeof body.comment === 'string' && body.comment.length > MAX_COMMENT) {
+    return validationError('body.comment', 'Comment is too long', 'TOO_LONG')
+  }
+  switch (body.action) {
+    case 'APPROVE': {
+      const suggestion = riskFor(application)?.proposal.suggested_action
+      return suggestion !== 'ELIGIBLE_FOR_MANAGER_REVIEW' && !filled(body.comment)
+        ? validationError('body.comment', 'Comment is required', 'REQUIRED')
+        : null
+    }
+    case 'REJECT':
+    case 'COUNTER_OFFER':
+      return filled(body.comment)
+        ? null
+        : validationError('body.comment', 'Comment is required', 'REQUIRED')
+    case 'REQUEST_INFO':
+      return typeof body.question_text === 'string' && body.question_text.length > MAX_QUESTION
+        ? validationError('body.question_text', 'Question is too long', 'TOO_LONG')
+        : null
+    default:
+      return null
+  }
+}
+
 function toDecision(body: Record<string, unknown>, application: ApplicationRow): Decision | null {
   switch (body.action) {
     case 'APPROVE':
@@ -551,11 +593,17 @@ function toDecision(body: Record<string, unknown>, application: ApplicationRow):
         : null
     case 'COUNTER_OFFER': {
       const terms = requestedTerms(application)
+      const reason = CLIENT_REASON_CODES.find((code) => code === body.client_reason_code)
       const amount =
         typeof body.amount_rub === 'number' ? `${body.amount_rub}.00` : terms?.amount_rub
       const term = typeof body.term_months === 'number' ? body.term_months : terms?.term_months
-      return amount && term
-        ? { action: 'COUNTER_OFFER', amount_rub: amount, term_months: term }
+      return amount && term && reason
+        ? {
+            action: 'COUNTER_OFFER',
+            amount_rub: amount,
+            term_months: term,
+            client_reason_code: reason,
+          }
         : null
     }
     default:
@@ -575,6 +623,20 @@ const managerHandlers = [
     return HttpResponse.json(queue.map(toQueueItem))
   }),
 
+  http.get<Params>(`${API}/manager/applications/:application_id`, ({ request, params }) => {
+    const checked = authorize(request, 'MANAGER')
+    if (!checked.ok) return checked.response
+    const application = db.findApplication(params.application_id)
+    if (!application || application.status === 'DRAFT') return apiError(404, 'NOT_FOUND')
+    return HttpResponse.json(toManagerView(application))
+  }),
+
+  http.get(`${API}/manager/stats`, ({ request }) => {
+    const checked = authorize(request, 'MANAGER')
+    if (!checked.ok) return checked.response
+    return HttpResponse.json(toStats())
+  }),
+
   http.post<Params, Record<string, unknown>>(
     `${API}/manager/applications/:application_id/decisions`,
     async ({ request, params }) => {
@@ -589,7 +651,29 @@ const managerHandlers = [
         if (rejected) return rejected
         const decision = toDecision(body, application)
         if (!decision) return validationError('body.action', 'Unknown decision', 'INVALID')
-        applyDecision(application, decision)
+        // Набор действий задаёт бэк: при стоп-факторе — только отказ (design.md §3.5).
+        if (!toManagerView(application).allowed_actions.includes(decision.action)) {
+          return apiError(422, 'ACTION_NOT_ALLOWED')
+        }
+        const fieldError = decisionFieldError(body, application)
+        if (fieldError) return fieldError
+        if (decision.action === 'COUNTER_OFFER') {
+          // Та же проверка, что у предпросмотра: решение не расходится с расчётом.
+          const preview = offerPreview(
+            application,
+            parseInt(decision.amount_rub, 10),
+            decision.term_months,
+          )
+          if (preview.violations.includes('AMOUNT_ABOVE_LIMIT')) {
+            return apiError(422, 'AMOUNT_ABOVE_LIMIT', 'Amount is above limit for term')
+          }
+          if (!preview.valid) {
+            return validationError('body.amount_rub', preview.violations.join(','), 'INVALID')
+          }
+        }
+        const comment =
+          typeof body.comment === 'string' && body.comment.trim() ? body.comment : null
+        applyDecision(application, decision, { managerId: checked.value.id, comment })
         return HttpResponse.json(
           {
             decision_id: crypto.randomUUID(),
@@ -599,6 +683,83 @@ const managerHandlers = [
           { status: 201 },
         )
       })
+    },
+  ),
+
+  http.post<Params, Schemas['OfferPreviewRequest']>(
+    `${API}/manager/applications/:application_id/offer-preview`,
+    async ({ request, params }) => {
+      const checked = authorize(request, 'MANAGER')
+      if (!checked.ok) return checked.response
+      const application = db.findApplication(params.application_id)
+      if (!application || application.status === 'DRAFT') return apiError(404, 'NOT_FOUND')
+      const rejected = wrongStatus(application, 'UNDER_REVIEW')
+      if (rejected) return rejected
+      const { amount_rub, term_months } = await readJson(request)
+      if (typeof amount_rub !== 'number' || !Number.isInteger(amount_rub) || amount_rub <= 0) {
+        return validationError('body.amount_rub', 'Positive integer expected', 'INVALID')
+      }
+      if (typeof term_months !== 'number' || !Number.isInteger(term_months) || term_months <= 0) {
+        return validationError('body.term_months', 'Positive integer expected', 'INVALID')
+      }
+      return HttpResponse.json(offerPreview(application, amount_rub, term_months))
+    },
+  ),
+
+  http.get<Params>(
+    `${API}/manager/applications/:application_id/ai-report`,
+    ({ request, params }) => {
+      const checked = authorize(request, 'MANAGER')
+      if (!checked.ok) return checked.response
+      const application = db.findApplication(params.application_id)
+      const report = application && aiReportFor(application)
+      return report ? HttpResponse.json(report) : apiError(404, 'NOT_FOUND')
+    },
+  ),
+
+  // Новое заключение: свежий PENDING не перезапускается, готовое — только с regenerate=true.
+  http.post<Params>(
+    `${API}/manager/applications/:application_id/ai-report`,
+    ({ request, params }) => {
+      const checked = authorize(request, 'MANAGER')
+      if (!checked.ok) return checked.response
+      const application = db.findApplication(params.application_id)
+      const current = application && aiReportFor(application)
+      if (!application || !current) return apiError(404, 'NOT_FOUND')
+      const regenerate = new URL(request.url).searchParams.get('regenerate') === 'true'
+      if (current.status === 'PENDING' || !regenerate) return HttpResponse.json(current)
+      db.regenerateAiReport(application.id)
+      return HttpResponse.json(aiReportFor(application), { status: 202 })
+    },
+  ),
+
+  http.post<Params, Schemas['AiFeedbackRequest']>(
+    `${API}/manager/applications/:application_id/ai-feedback`,
+    async ({ request, params }) => {
+      const checked = authorize(request, 'MANAGER')
+      if (!checked.ok) return checked.response
+      const application = db.findApplication(params.application_id)
+      const report = application && aiReportFor(application)
+      if (!application || !report) return apiError(404, 'NOT_FOUND')
+      const { ai_report_id, verdict, comment } = await readJson(request)
+      if (ai_report_id !== report.id) return apiError(404, 'NOT_FOUND')
+      if (verdict !== 'UP' && verdict !== 'DOWN') {
+        return validationError('body.verdict', 'UP or DOWN expected', 'ENUM')
+      }
+      if (typeof comment === 'string' && comment.length > MAX_COMMENT) {
+        return validationError('body.comment', 'Comment is too long', 'TOO_LONG')
+      }
+      db.saveFeedback({
+        ai_report_id: report.id,
+        application_id: application.id,
+        manager_user_id: checked.value.id,
+        verdict,
+        comment: filled(comment) ? comment : null,
+        prompt_version: report.prompt_version,
+        model_id: report.model_id,
+        source: report.llm_mode,
+      })
+      return new HttpResponse(null, { status: 204 })
     },
   ),
 ]

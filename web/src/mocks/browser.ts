@@ -1,7 +1,7 @@
 import { setupWorker } from 'msw/browser'
-import { resetDb, restoreDb, snapshotDb } from './db.ts'
+import { resetDb, restoreDb, seedManagerQueue, snapshotDb } from './db.ts'
 import { handlers } from './handlers.ts'
-import { initScenario } from './scenarios.ts'
+import { initScenario, type Scenario } from './scenarios.ts'
 
 const DB_STORAGE_KEY = 'creditflow.mock-db'
 
@@ -9,9 +9,14 @@ const DB_STORAGE_KEY = 'creditflow.mock-db'
  * База моков живёт в sessionStorage вкладки: перезагрузка на любом шаге не теряет заявку.
  * `?mock=…` в адресе начинает демо с чистой базы.
  */
-function loadDb(location: Pick<Location, 'search'>) {
+function loadDb(location: Pick<Location, 'search'>, scenario: Scenario) {
   const saved = sessionStorage.getItem(DB_STORAGE_KEY)
-  if (new URLSearchParams(location.search).has('mock') || !saved) return resetDb()
+  if (new URLSearchParams(location.search).has('mock') || !saved) {
+    resetDb()
+    // Демо кабинета менеджера начинается с очереди заявок C1–C7.
+    if (scenario === 'manager') seedManagerQueue()
+    return
+  }
   try {
     restoreDb(saved)
   } catch {
@@ -22,7 +27,7 @@ function loadDb(location: Pick<Location, 'search'>) {
 /** Запускает моки в браузере. Импортируется только динамически под VITE_API_MOCKS=1. */
 export async function startMocks() {
   const scenario = initScenario(window.location)
-  loadDb(window.location)
+  loadDb(window.location, scenario)
   const worker = setupWorker(...handlers)
   // Сохраняем после каждого ответа моков и перед уходом со страницы (отложенные переходы).
   const save = () => sessionStorage.setItem(DB_STORAGE_KEY, snapshotDb())
