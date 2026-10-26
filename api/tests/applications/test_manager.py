@@ -60,7 +60,8 @@ async def test_c2_card(pipeline: Pipeline, manager: Manager) -> None:
         "min_term_months": 12,
         "max_term_months": 60,
     }
-    assert card["ai_report"]["status"] == "FALLBACK"
+    # replay (#8): записанное заключение C2 готово к открытию карточки
+    assert card["ai_report"]["status"] == "READY"
     assert card["timeline"][-1]["actor_full_name"] == "Кузнецова Анна Михайловна"
 
 

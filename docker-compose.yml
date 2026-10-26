@@ -37,7 +37,9 @@ services:
       start_period: 10s
 
   api:
-    build: ./api
+    build:
+      context: .
+      dockerfile: api/Dockerfile
     restart: unless-stopped
     env_file: .env
     extra_hosts:

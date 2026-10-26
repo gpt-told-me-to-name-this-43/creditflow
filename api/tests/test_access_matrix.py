@@ -93,17 +93,14 @@ def start(
 def test_every_route_matches_matrix(start: Callable[..., FastAPI], env: str) -> None:
     app = start(app_env=env)
     routes = {(m, p) for p, r in registered_routes(app.routes) for m in r.methods or ()}
+    # с #8 стабов нет: production монтирует все маршруты матрицы, кроме тестового reset
     expected = set(ACCESS) - CONDITIONAL
-    if env == "production":
-        # в production не смонтированы только стабы #8; #5 и #7 — настоящие маршруты
-        stubs_8 = ("/interpret", "/ai-report", "/ai-feedback")
-        expected = {k for k in expected if not k[1].endswith(stubs_8)}
     assert routes == expected
     assert access_violations(app) == []
 
 
-# Менеджерский маршрут из матрицы, который в production не смонтирован (стаб #8):
-# добавленный тестом маршрут на этом пути — единственный, его не перекрывает настоящий.
+# Менеджерский маршрут из матрицы. Тестовый маршрут на этом пути ставится первым и
+# перекрывает настоящий (#8): запросы проверки доступа приходят в него.
 REPORT = "/applications/{application_id}/ai-report"
 REPORT_PATH = f"/api/v1/manager{REPORT}"
 
@@ -115,6 +112,7 @@ async def _report(application_id: uuid.UUID) -> dict[str, str]:
 def _app_with(start: Callable[..., FastAPI], router: APIRouter) -> FastAPI:
     app = start(app_env="production")
     app.include_router(router, prefix="/api/v1")
+    app.router.routes.insert(0, app.router.routes.pop())  # раньше настоящих маршрутов
     return app
 
 
@@ -130,7 +128,8 @@ def test_route_without_require_role_fails(start: Callable[..., FastAPI]) -> None
     """Негативная проверка: у менеджерского маршрута снят require_role — клиент проходит."""
     router = APIRouter(prefix="/manager", dependencies=[Depends(current_user)])
     router.add_api_route(REPORT, _report, methods=["GET"])
-    assert access_violations(_app_with(start, router)) == [
+    # путь проверяется дважды (тестовый и настоящий маршрут), оба запроса — в тестовый
+    assert list(dict.fromkeys(access_violations(_app_with(start, router)))) == [
         f"GET {REPORT_PATH} CLIENT: 200 None, ждали 403"
     ]
 
@@ -138,7 +137,7 @@ def test_route_without_require_role_fails(start: Callable[..., FastAPI]) -> None
 def test_route_without_any_auth_fails(start: Callable[..., FastAPI]) -> None:
     router = APIRouter(prefix="/manager")
     router.add_api_route(REPORT, _report, methods=["GET"])
-    assert access_violations(_app_with(start, router)) == [
+    assert list(dict.fromkeys(access_violations(_app_with(start, router)))) == [
         f"GET {REPORT_PATH} anonymous: 200 None, ждали 401",
         f"GET {REPORT_PATH} CLIENT: 200 None, ждали 403",
     ]

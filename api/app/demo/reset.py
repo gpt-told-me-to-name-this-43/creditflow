@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from app.core.config import Settings
 from app.demo.seed_demo import run_demo_seed
 from app.extsim_client import ExtSimClient
+from app.llm.base import LLMClient
 from app.scoring.categorization import RuleSet
 from app.seed import run_base_seed
 
@@ -31,6 +32,7 @@ async def reset_database(
     settings: Settings,
     *,
     demo: bool,
+    llm: LLMClient | None = None,
 ) -> None:
     async with engine.begin() as conn:
         # TRUNCATE не вызывает insert-only триггеры (они на UPDATE/DELETE)
@@ -38,4 +40,4 @@ async def reset_database(
         await conn.execute(text("ALTER SEQUENCE contract_number_seq RESTART WITH 1"))
         await run_base_seed(conn)
     if demo:
-        await run_demo_seed(sessions, ext_sim, rules, settings)
+        await run_demo_seed(sessions, ext_sim, rules, settings, llm)

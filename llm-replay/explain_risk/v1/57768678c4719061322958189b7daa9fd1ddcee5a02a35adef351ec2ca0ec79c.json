@@ -1,0 +1,14 @@
+{
+  "task": "explain_risk",
+  "prompt_version": "v1",
+  "context_hash": "57768678c4719061322958189b7daa9fd1ddcee5a02a35adef351ec2ca0ec79c",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:51:41+00:00",
+  "usage": {
+    "prompt_tokens": 649,
+    "completion_tokens": 95,
+    "total_tokens": 744
+  },
+  "response": "{\n  \"summary\": \"Заявка на кредит для покупки оборудования. Кредит запрашивается на срок {term} в размере {amount}.\",\n  \"risk_factors\": [],\n  \"positive_factors\": [],\n  \"manager_questions\": [\n    \"Как клиент планирует использовать кредит на покупку оборудования?\",\n    \"Какова текущая финансовая ситуация клиента и его способность погасить кредит?\"\n  ]\n}"
+}

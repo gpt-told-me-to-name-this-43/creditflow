@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "12ce764e4f8f6daaae97d03ba169b8759d81567c773238c055fc4e4293348bb7",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:50:58+00:00",
+  "usage": {
+    "prompt_tokens": 833,
+    "completion_tokens": 50,
+    "total_tokens": 883
+  },
+  "response": "{\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": null,\n  \"term_months\": null,\n  \"clarification_question\": \"Сколько рублей вам нужно на оборудование для пекарни?\"\n}"
+}

@@ -1,13 +1,16 @@
 """Конфигурация из переменных окружения (design.md §3.2, таблица «Конфигурация»)."""
 
+import json
 from datetime import date
 from enum import StrEnum
 from functools import lru_cache
 from ipaddress import IPv4Network, IPv6Network
-from typing import Self
+from pathlib import Path
+from typing import Annotated, Any, Self
+from urllib.parse import urlsplit
 
 from pydantic import Field, field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class AppEnv(StrEnum):
@@ -27,6 +30,11 @@ class StructuredOutput(StrEnum):
     JSON_OBJECT = "json_object"
     PROMPT = "prompt"
 
+
+# Репозиторий: llm-replay/ в корне; в образе api — /app/llm-replay (Dockerfile).
+DEFAULT_REPLAY_DIR = Path(__file__).resolve().parents[2] / "llm-replay"
+if not DEFAULT_REPLAY_DIR.is_dir():
+    DEFAULT_REPLAY_DIR = Path(__file__).resolve().parents[3] / "llm-replay"
 
 # Демо-значение APP_SECRET_KEY из .env.example: допустимо только с DEMO_AUTH_ENABLED=true
 # и никогда — в production (#5).
@@ -72,6 +80,14 @@ class Settings(BaseSettings):
     llm_max_concurrency: int = Field(default=4, ge=1)
     llm_temperature: float = Field(default=0, ge=0)
     llm_seed: int | None = 42
+    # Верхняя граница ответа; у reasoning-моделей сюда входят и токены рассуждений.
+    llm_max_tokens: int = Field(default=1500, ge=64)
+    # Параметры провайдера в теле запроса (JSON), например отключение рассуждений:
+    # OpenRouter {"reasoning": {"enabled": false}}, vLLM/Qwen3
+    # {"chat_template_kwargs": {"enable_thinking": false}} (README «Подключить свою модель»).
+    llm_extra_body: Annotated[dict[str, Any], NoDecode] = Field(default_factory=dict)
+    # Записанные ответы для LLM_MODE=replay: {task}/{prompt_version}/{context_hash}.json.
+    llm_replay_dir: Path = DEFAULT_REPLAY_DIR
 
     # Тестовый контур
     test_reset_enabled: bool = False
@@ -97,6 +113,34 @@ class Settings(BaseSettings):
     @classmethod
     def _empty_as_none(cls, value: object) -> object:
         return None if value == "" else value
+
+    @field_validator("llm_extra_body", mode="before")
+    @classmethod
+    def _parse_extra_body(cls, value: object) -> object:
+        if value in ("", None):
+            return {}
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except ValueError:
+                raise ValueError("LLM_EXTRA_BODY: нужен JSON-объект") from None
+        return value
+
+    @field_validator("llm_replay_dir", mode="before")
+    @classmethod
+    def _empty_replay_dir(cls, value: object) -> object:
+        return DEFAULT_REPLAY_DIR if value in ("", None) else value
+
+    @field_validator("llm_base_url")
+    @classmethod
+    def _check_llm_url(cls, value: str | None) -> str | None:
+        # issue #8: при старте проверяется только корректность URL; сам URL в сообщение
+        # не попадает — в нём могут быть учётные данные.
+        if value is not None:
+            parts = urlsplit(value)
+            if parts.scheme not in {"http", "https"} or not parts.hostname:
+                raise ValueError("LLM_BASE_URL: нужен абсолютный http(s)-адрес, старт запрещён")
+        return value
 
     @model_validator(mode="after")
     def _check_secret_key(self) -> Self:

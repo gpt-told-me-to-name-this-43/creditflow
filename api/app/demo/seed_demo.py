@@ -33,6 +33,8 @@ from app.core.config import Settings
 from app.core.idempotency import Idempotency
 from app.db.models import Application, User
 from app.extsim_client import ExtSimClient
+from app.llm.base import LLMClient
+from app.llm.client import build_llm_client
 from app.manager import service as manager_service
 from app.onboarding.consents import current_version
 from app.onboarding.service import bind_company
@@ -132,8 +134,11 @@ class DemoSeeder:
         ext_sim: ExtSimClient,
         rules: RuleSet,
         settings: Settings,
+        llm: LLMClient | None = None,
     ) -> None:
         self.sessions, self.ext_sim, self.rules, self.settings = sessions, ext_sim, rules, settings
+        # тот же клиент, что у api: в replay демо-карточки получают записанные заключения
+        self.llm = llm or build_llm_client(settings)
         self.users: dict[str, CurrentUser] = {}
         self.history: list[tuple[uuid.UUID, int]] = []  # (заявка, часов до решения)
 
@@ -186,7 +191,13 @@ class DemoSeeder:
     async def finish_ai(self, report_id: uuid.UUID, generation_id: uuid.UUID) -> None:
         from app.applications.ai_reports import generate
 
-        await generate(self.sessions, report_id, generation_id)
+        await generate(
+            self.sessions,
+            self.llm,
+            self.settings.llm_report_deadline_seconds,
+            report_id,
+            generation_id,
+        )
 
     async def decide(self, app_id: uuid.UUID, revision: int, body: dict[str, Any]) -> int:
         from pydantic import TypeAdapter
@@ -349,5 +360,6 @@ async def run_demo_seed(
     ext_sim: ExtSimClient,
     rules: RuleSet,
     settings: Settings,
+    llm: LLMClient | None = None,
 ) -> None:
-    await DemoSeeder(sessions, ext_sim, rules, settings).run()
+    await DemoSeeder(sessions, ext_sim, rules, settings, llm).run()

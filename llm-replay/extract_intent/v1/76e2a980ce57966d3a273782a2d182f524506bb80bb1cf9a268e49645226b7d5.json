@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "76e2a980ce57966d3a273782a2d182f524506bb80bb1cf9a268e49645226b7d5",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:20+00:00",
+  "usage": {
+    "prompt_tokens": 611,
+    "completion_tokens": 48,
+    "total_tokens": 659
+  },
+  "response": "{\n  \"purpose_code\": \"EQUIPMENT\",\n  \"requested_amount_rub\": null,\n  \"term_months\": null,\n  \"clarification_question\": \"Сколько рублей вам нужно на покупку печи?\"\n}"
+}

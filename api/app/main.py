@@ -9,7 +9,7 @@ from fastapi import APIRouter, FastAPI
 
 from app.api import test_reset
 from app.api.examples import preserve_nullable_examples
-from app.api.routers import IMPLEMENTED_ROUTERS, STUB_ROUTERS
+from app.api.routers import IMPLEMENTED_ROUTERS
 from app.applications.ai_reports import recover_stale_ai_reports
 from app.auth.router import router as auth_router
 from app.contracts.service import DISBURSE_DELAY_SECONDS, recover_pending_disbursements
@@ -22,6 +22,7 @@ from app.core.logs import configure_logging, get_logger
 from app.core.middleware import RequestContextMiddleware
 from app.core.ratelimit import RateLimits
 from app.extsim_client import ExtSimClient
+from app.llm.client import build_llm_client, insecure_url_warning
 from app.onboarding.consents import current_consents
 from app.onboarding.router import public_router as consents_router
 from app.onboarding.router import router as onboarding_router
@@ -31,14 +32,14 @@ API_PREFIX = "/api/v1"
 RECOVERY_INTERVAL_SECONDS = 15.0
 logger = get_logger("app.main")
 
-# Настоящие роутеры #5 и #7 монтируются везде, стабы #8 — только вне production.
+# Настоящие роутеры #5, #7 и #8 монтируются в любом окружении.
 ACCESS_ROUTERS: tuple[APIRouter, ...] = (
     auth_router,
     consents_router,
     onboarding_router,
     *IMPLEMENTED_ROUTERS,
 )
-CONTRACT_ROUTERS: tuple[APIRouter, ...] = (*ACCESS_ROUTERS, *STUB_ROUTERS)
+CONTRACT_ROUTERS = ACCESS_ROUTERS  # весь контракт v1 реализован: стабов не осталось
 
 
 @asynccontextmanager
@@ -52,6 +53,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.session_factory = create_session_factory(app.state.engine)
     app.state.disburse_delay = DISBURSE_DELAY_SECONDS
     app.state.ext_sim = ExtSimClient(settings.ext_sim_base_url)
+    # LLM не обязательна: клиент создаётся без обращения к провайдеру (#8)
+    app.state.llm = build_llm_client(settings)
+    if warning := insecure_url_warning(settings):
+        logger.warning(warning)
     # design §3.2: фоновые процессы восстанавливаются при старте и раз в 15 с.
     # None в app.state.recovery_interval (тесты) отключает цикл.
     interval: float | None = getattr(app.state, "recovery_interval", RECOVERY_INTERVAL_SECONDS)
@@ -64,6 +69,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             with contextlib.suppress(asyncio.CancelledError):
                 await recovery
         await app.state.ext_sim.aclose()
+        aclose = getattr(app.state.llm, "aclose", None)
+        if aclose is not None:
+            await aclose()
         await app.state.engine.dispose()
 
 
@@ -105,8 +113,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "Кнопки клиента определяет allowed_actions; polling каждые 5 с, в SIGNED — 2 с, "
             "завершается при ISSUED/REJECTED/DECLINED. "
             "Вход, роли и онбординг реализованы (#5): JWT HS256 и роль проверяются у каждого "
-            "защищённого маршрута. Конвейер заявок реализован (#7). Interpret, ai-report и "
-            "ai-feedback пока — фиксированные стабы в local/test (#8). "
+            "защищённого маршрута. Конвейер заявок реализован (#7), AI-assist — #8: "
+            "interpret (правила + LLM, заявку не меняет), ai-report "
+            "(PENDING → READY/FALLBACK) и ai-feedback. "
             "Тестовый reset не входит в публикуемый контракт."
         ),
         servers=[{"url": "/", "description": "Текущий origin: SPA и API за nginx"}],
@@ -129,21 +138,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router, prefix=API_PREFIX)
     for router in ACCESS_ROUTERS:
         app.include_router(router, prefix=API_PREFIX)
-    # Стабы #8 проверяют JWT и роль, но отдают фиксированные данные без владения и
-    # состояния. В production их не монтируем: маршруты отвечают 404.
-    mounted = ACCESS_ROUTERS
-    if settings.app_env is AppEnv.PRODUCTION:
-        logger.warning("APP_ENV=production: стабы #8 не подключены")
-        if settings.demo_auth_enabled:
-            logger.warning("APP_ENV=production: DEMO_AUTH_ENABLED=true — демо-учётки и demo_code")
-    else:
-        for router in STUB_ROUTERS:
-            app.include_router(router, prefix=API_PREFIX)
-        mounted = CONTRACT_ROUTERS
+    if settings.app_env is AppEnv.PRODUCTION and settings.demo_auth_enabled:
+        logger.warning("APP_ENV=production: DEMO_AUTH_ENABLED=true — демо-учётки и demo_code")
     # design §4: при TEST_RESET_ENABLED=false роутер не монтируется вовсе → 404
     if settings.app_env in {AppEnv.LOCAL, AppEnv.TEST} and settings.test_reset_enabled:
         app.include_router(test_reset.router, prefix=API_PREFIX)
-    preserve_nullable_examples(app, mounted, API_PREFIX)
+    preserve_nullable_examples(app, ACCESS_ROUTERS, API_PREFIX)
     return app
 
 

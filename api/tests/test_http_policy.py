@@ -16,8 +16,6 @@ from app.schemas.common import ERROR_STATUS, ErrorCode, ErrorEnvelope
 from contract.matrix import Operation, load_matrix, wire_schema
 
 OPERATIONS = load_matrix().operations
-# В production не монтируются только стабы #8; #5 и #7 — настоящие маршруты.
-STUB_8_SUFFIXES = ("/interpret", "/ai-report", "/ai-feedback")
 
 
 @pytest.fixture
@@ -146,11 +144,5 @@ def test_environment_route_boundary(make_settings: Callable[..., Settings], env:
     app = create_app(make_settings(app_env=env))
     paths = app.openapi()["paths"]
     assert "/api/v1/_test/reset" not in paths
-    assert len(paths) == (22 if env == "production" else 25)
-    if env == "production":
-        client = TestClient(app, headers={"Authorization": "Bearer anything"})
-        for op in OPERATIONS:
-            if op.path.endswith(STUB_8_SUFFIXES):
-                response = client.request(op.method, op.path)
-                assert response.status_code == 404
-                assert response.json()["error"]["code"] == "NOT_FOUND"
+    # с #8 стабов нет: в production и вне его — один и тот же набор маршрутов
+    assert len(paths) == 25

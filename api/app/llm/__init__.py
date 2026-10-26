@@ -1,1 +1,10 @@
-"""LLMClient: OpenAI-совместимый API, replay, disabled (#8). mypy --strict."""
+"""AI-assist (#8, design.md §3.6): необязательный слой поверх детерминированного ядра.
+
+- `client` — `LLMClient`: OpenAI-совместимый Chat Completions, `replay`, `disabled`;
+  таймауты, один повтор, семафор, circuit breaker; логи без промптов, ответов и ключа.
+- `intent_rules` и `intent` — распознавание потребности: правила, затем LLM, слияние.
+- `explain` — заключение для менеджера: плейсхолдеры, валидаторы, шаблонный fallback.
+
+LLM ничего не решает и не считает: числа, статусы, коды и действия — только из БД и ядра.
+mypy --strict (pyproject.toml).
+"""

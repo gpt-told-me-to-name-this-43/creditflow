@@ -1,5 +1,5 @@
-"""Контракт API v1 (issue #6): полнота маршрутов, стабы проходят response_model,
-в клиентских схемах нет внутренних полей, деньги — строки, ошибки — ErrorEnvelope."""
+"""Контракт API v1 (issue #6): полнота маршрутов, в клиентских схемах нет внутренних
+полей, деньги — строки, ошибки — ErrorEnvelope."""
 
 import inspect
 import re
@@ -21,7 +21,7 @@ from tests.conftest import CLIENT_LOGIN, MANAGER_LOGIN, bearer
 
 APP_ID = "7f3e2a10-0000-4000-8000-000000000001"
 IDEM = {"Idempotency-Key": "test-key-0001"}
-# Настоящие JWT демо-учёток (#5): стабы проверяют подпись и роль.
+# Настоящие JWT демо-учёток (#5): маршруты проверяют подпись и роль.
 AUTH = bearer(CLIENT_LOGIN)
 MANAGER_AUTH = bearer(MANAGER_LOGIN)
 
@@ -96,14 +96,8 @@ FORBIDDEN_CLIENT_FIELDS = re.compile(
 )
 
 
-# Настоящие маршруты проверяют свои тесты: #5 — test_auth.py и test_onboarding.py,
-# #7 — tests/applications/ (живая БД). Здесь — только оставшиеся стабы #8.
-STUB_PATHS = {
-    f"/applications/{APP_ID}/interpret",
-    f"/manager/applications/{APP_ID}/ai-report",
-    f"/manager/applications/{APP_ID}/ai-feedback",
-}
-STUB_ENDPOINTS = [e for e in ENDPOINTS if e[1] in STUB_PATHS]
+# Все маршруты таблицы #6 реализованы, их ответы проверяют свои тесты: #5 — test_auth.py и
+# test_onboarding.py, #7 — tests/applications/, #8 — tests/llm/ (живая БД и mocked LLM).
 
 
 @pytest.fixture
@@ -125,18 +119,6 @@ def test_all_contract_routes_registered(app: FastAPI) -> None:
     declared = {(m.upper(), path) for path, ops in paths.items() for m in ops}
     expected = {(m, "/api/v1" + _template(p)) for m, p, _, _ in ENDPOINTS}
     assert expected <= declared, sorted(expected - declared)
-
-
-@pytest.mark.parametrize(
-    ("method", "path", "body", "headers"), STUB_ENDPOINTS, ids=lambda v: str(v)
-)
-def test_stub_passes_response_model(
-    app: FastAPI, method: str, path: str, body: dict[str, Any] | None, headers: dict[str, str]
-) -> None:
-    response = TestClient(app).request(
-        method, "/api/v1" + path, json=body, headers={**auth_for(path), **headers}
-    )
-    assert response.status_code < 300, response.text  # response_model валидирует ответ стаба
 
 
 def test_idempotency_key_is_required_in_contract(app: FastAPI) -> None:

@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "e1cdd1fae64bdfea9c7ce132cc0f6a44e795545a60acc75e3fdaf295b58dab75",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:50:51+00:00",
+  "usage": {
+    "prompt_tokens": 614,
+    "completion_tokens": 60,
+    "total_tokens": 674
+  },
+  "response": "{\n  \"purpose_code\": null,\n  \"requested_amount_rub\": null,\n  \"term_months\": null,\n  \"clarification_question\": \"Could you please provide more information about the purpose of the loan, the amount you are requesting, and the term you are looking for?\"\n}"
+}

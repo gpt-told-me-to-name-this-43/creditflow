@@ -1,0 +1,14 @@
+{
+  "task": "explain_risk",
+  "prompt_version": "v1",
+  "context_hash": "1dcb9f7fddd09a16b7be70d2fc8a70c3f20243b16473cc8be5f21ec89a8e46f7",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:52:43+00:00",
+  "usage": {
+    "prompt_tokens": 929,
+    "completion_tokens": 236,
+    "total_tokens": 1165
+  },
+  "response": "{\n  \"summary\": \"Заявка малого бизнеса на кредит для покупки оборудования имеет низкий уровень риска. DSCR находится на целевом уровне банка. Выручка стабильна или растёт. Бизнес работает более двух лет.\",\n  \"risk_factors\": [],\n  \"positive_factors\": [\n    {\"code\": \"DSCR_MEETS_TARGET\", \"text\": \"DSCR не ниже целевого уровня банка\"},\n    {\"code\": \"CLEAN_CREDIT_HISTORY\", \"text\": \"Кредитная история без нарушений\"},\n    {\"code\": \"REVENUE_STABLE_OR_GROWING\", \"text\": \"Выручка стабильна или растёт\"},\n    {\"code\": \"ESTABLISHED_BUSINESS\", \"text\": \"Бизнес работает два года и больше\"}\n  ],\n  \"manager_questions\": [\n    \"Какова текущая финансовая ситуация бизнеса?\",\n    \"Как планируется использовать кредит на покупку оборудования?\",\n    \"Есть ли какие-либо потенциальные риски или проблемы, которые могут повлиять на бизнес в будущем?\"\n  ]\n}"
+}

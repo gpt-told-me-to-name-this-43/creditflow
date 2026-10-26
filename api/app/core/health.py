@@ -1,8 +1,9 @@
 """`GET /api/v1/health` (design.md §3.7).
 
-`db` и `ext_sim` проверяются реальным запросом; `llm` пока выводится из
-конфигурации без обращения к провайдеру. Состояние circuit breaker
-(`degraded`) добавит #8.
+`db` и `ext_sim` проверяются реальным запросом; `llm` — из конфигурации и состояния
+circuit breaker, без обращения к провайдеру (платных вызовов health не делает, #8):
+`replay`, `disabled`, `not_configured` (нет LLM_BASE_URL или LLM_MODEL), `degraded`
+(breaker открыт) или `ok`. Ключ и URL провайдера в ответ не попадают.
 
 `status`: `ok`; `degraded` — недоступен только ext-sim (200, остальной API работает);
 `unavailable` — недоступна БД (503). От `llm` не зависит.
@@ -52,12 +53,15 @@ async def check_ext_sim(client: ExtSimClient) -> ComponentStatus:
     return "ok" if await client.health() else "unavailable"
 
 
-def llm_status(settings: Settings) -> LLMStatus:
+def llm_status(settings: Settings, client: object = None) -> LLMStatus:
     if settings.llm_mode is LLMMode.REPLAY:
         return "replay"
     if settings.llm_mode is LLMMode.DISABLED:
         return "disabled"
-    return "ok" if settings.llm_base_url else "not_configured"
+    if not settings.llm_base_url or not settings.llm_model:
+        return "not_configured"
+    breaker = getattr(client, "breaker", None)
+    return "degraded" if breaker is not None and breaker.degraded else "ok"
 
 
 @router.get(
@@ -98,5 +102,8 @@ async def health(request: Request, response: Response) -> HealthResponse:
     else:
         status = "ok" if ext_sim == "ok" else "degraded"
     return HealthResponse(
-        status=status, db=db, ext_sim=ext_sim, llm=llm_status(request.app.state.settings)
+        status=status,
+        db=db,
+        ext_sim=ext_sim,
+        llm=llm_status(request.app.state.settings, getattr(request.app.state, "llm", None)),
     )

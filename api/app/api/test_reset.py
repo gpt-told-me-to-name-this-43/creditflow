@@ -77,6 +77,7 @@ async def reset(
         state.categorization_rules,
         state.settings,
         demo=mode == "demo",
+        llm=state.llm,
     )
     logger.info("test reset: mode=%s", mode)
     return TestResetResult(mode=mode)

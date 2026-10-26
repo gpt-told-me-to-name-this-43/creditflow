@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "093eb15dae37723213df6f1a964a4e33ee0363b67cef0b8cc29d7c2498804709",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:43+00:00",
+  "usage": {
+    "prompt_tokens": 621,
+    "completion_tokens": 57,
+    "total_tokens": 678
+  },
+  "response": "{\n  \"purpose_code\": null,\n  \"requested_amount_rub\": 1000000,\n  \"term_months\": null,\n  \"clarification_question\": \"Какие цели вы преследуете, инвестируя в криптовалюту?\"\n}"
+}

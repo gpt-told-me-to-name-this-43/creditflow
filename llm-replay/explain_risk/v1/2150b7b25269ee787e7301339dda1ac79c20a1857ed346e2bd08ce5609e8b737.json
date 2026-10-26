@@ -1,0 +1,14 @@
+{
+  "task": "explain_risk",
+  "prompt_version": "v1",
+  "context_hash": "2150b7b25269ee787e7301339dda1ac79c20a1857ed346e2bd08ce5609e8b737",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:48:43+00:00",
+  "usage": {
+    "prompt_tokens": 954,
+    "completion_tokens": 264,
+    "total_tokens": 1218
+  },
+  "response": "{\n  \"summary\": \"Уровень риска заявки на кредит для малого бизнеса умеренный. DSCR {dscr} ниже целевого уровня банка, что указывает на небольшой запас по платежу. Выручка снизилась {revenue_change}.\",\n  \"risk_factors\": [\n    {\"code\": \"DSCR_BELOW_TARGET\", \"text\": \"DSCR ниже целевого уровня банка: запас по платежу невелик\"},\n    {\"code\": \"REVENUE_DECLINE\", \"text\": \"Выручка снизилась\"}\n  ],\n  \"positive_factors\": [\n    {\"code\": \"CLEAN_CREDIT_HISTORY\", \"text\": \"Кредитная история без нарушений\"},\n    {\"code\": \"ESTABLISHED_BUSINESS\", \"text\": \"Бизнес работает два года и больше\"}\n  ],\n  \"manager_questions\": [\n    \"Как клиент планирует использовать кредит на покупку оборудования для улучшения финансового состояния бизнеса?\",\n    \"Какова стратегия клиента по увеличению выручки и улучшению показателя DSCR?\",\n    \"Есть ли у клиента план по управлению долгом и снижению текущих платежей по другим кредитам?\"\n  ]\n}"
+}

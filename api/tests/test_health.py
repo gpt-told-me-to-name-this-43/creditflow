@@ -77,7 +77,16 @@ def test_health_unavailable_without_db_and_ext_sim(
         ({"llm_mode": "replay"}, "replay"),
         ({"llm_mode": "disabled"}, "disabled"),
         ({"llm_mode": "openai", "llm_base_url": None}, "not_configured"),
-        ({"llm_mode": "openai", "llm_base_url": "https://openrouter.ai/api/v1"}, "ok"),
+        # без модели вызывать нечего (#8): not_configured, а не ok
+        ({"llm_mode": "openai", "llm_base_url": "https://openrouter.ai/api/v1"}, "not_configured"),
+        (
+            {
+                "llm_mode": "openai",
+                "llm_base_url": "https://openrouter.ai/api/v1",
+                "llm_model": "qwen/qwen3-32b",
+            },
+            "ok",
+        ),
     ],
 )
 def test_health_llm_from_config_does_not_affect_status(

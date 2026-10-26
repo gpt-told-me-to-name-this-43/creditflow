@@ -246,12 +246,13 @@ def test_ai_success_status_examples() -> None:
 @pytest.mark.parametrize(
     ("method", "path", "body", "field"),
     [
-        # реализованные маршруты (#7) — tests/applications/; здесь оставшийся стаб
+        # маршрут #8 без привязки компании; interpret (CLIENT с компанией) —
+        # tests/llm/test_interpret_api.py::test_interpret_text_limit
         (
             "POST",
-            "/applications/" + APP_ID + "/interpret",
-            {"purpose_text": "x" * 1001},
-            "body.purpose_text",
+            "/manager/applications/" + APP_ID + "/ai-feedback",
+            {"ai_report_id": APP_ID, "verdict": "MAYBE"},
+            "body.verdict",
         ),
     ],
 )
