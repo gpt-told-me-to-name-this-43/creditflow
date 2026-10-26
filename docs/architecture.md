@@ -99,4 +99,4 @@ sequenceDiagram
 
 Если процесс упадёт между `COMMIT` и запуском фоновой задачи, запись `PENDING` подхватит восстановление при старте и в периодическом цикле (design.md §3.6).
 
-В коде сейчас есть шаг 3 со стороны транспорта: `ExtSimClient.fetch_all_for_submit(inn, consent_id, period)` опрашивает источники через `asyncio.gather` и при любом сбое бросает исключение без частичных данных. Остальные шаги — #5–#8.
+Конвейер #5–#8 реализован. `ExtSimClient.fetch_all_for_submit(inn, consent_id, period)` опрашивает источники через `asyncio.gather` без частичного сохранения. AI PENDING создаётся в транзакции Submit; HTTP к модели выполняется после COMMIT. Recovery общий с выдачей #7; итог сохраняется условным UPDATE по generation_id. Подробности — [ADR AI-assist](adr/0001-openai-compatible-ai-assist.md).
