@@ -1,11 +1,11 @@
 import { useForm, useStore } from '@tanstack/react-form'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { CheckIcon, OctagonAlertIcon } from 'lucide-react'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CheckIcon, OctagonAlertIcon, SearchIcon } from 'lucide-react'
 import { type ReactNode, useId, useState } from 'react'
 import { toast } from 'sonner'
 import { api, unwrap } from '@/api/client.ts'
 import { CLIENT_REASON_CODES, type ClientReasonCode, type ManagerAction } from '@/api/enums.ts'
-import { errorMessage } from '@/api/errors.ts'
+import { errorMessage, isApiError } from '@/api/errors.ts'
 import { offerPreviewQuery } from '@/api/queries/manager.ts'
 import { queryKeys } from '@/api/queries/keys.ts'
 import type { components } from '@/api/schema.d.ts'
@@ -58,9 +58,24 @@ const PREVIEW_DEBOUNCE_MS = 400
 const textareaClass =
   'w-full rounded-md border border-input bg-background px-3 py-2 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive'
 
+/** Открытая форма решения; вопрос — когда дозапрос начат из AI-заключения. */
+export interface DecisionRequest {
+  action: ManagerAction
+  question?: string
+}
+
 /** Кнопки решений из `allowed_actions` и диалог с формой выбранного решения. */
-export function DecisionPanel({ application }: { application: Application }) {
-  const [action, setAction] = useState<ManagerAction | null>(null)
+export function DecisionPanel({
+  application,
+  request,
+  onRequest,
+}: {
+  application: Application
+  request: DecisionRequest | null
+  onRequest: (request: DecisionRequest | null) => void
+}) {
+  const action = request?.action ?? null
+  const setAction = (next: ManagerAction | null) => onRequest(next && { action: next })
   const allowed = ORDER.filter((item) => application.allowed_actions.includes(item))
   const recommended = application.proposal && RECOMMENDED[application.proposal.suggested_action]
 
@@ -83,6 +98,11 @@ export function DecisionPanel({ application }: { application: Application }) {
           ))}
         </div>
       )}
+      {allowed.length === 1 &&
+        allowed[0] === 'REJECT' &&
+        (application.proposal?.blocking_codes.length ?? 0) > 0 && (
+          <p className="text-sm">{cardTexts.onlyReject}</p>
+        )}
       <p className="text-xs text-muted-foreground">{cardTexts.decisionOwner}</p>
 
       <Dialog open={action !== null} onOpenChange={(open) => !open && setAction(null)}>
@@ -97,6 +117,7 @@ export function DecisionPanel({ application }: { application: Application }) {
                 key={action}
                 action={action}
                 application={application}
+                question={request?.question}
                 onDone={() => setAction(null)}
               />
             </>
@@ -133,14 +154,18 @@ interface FormProps {
   onDone: () => void
 }
 
-function DecisionForm({ action, ...props }: FormProps & { action: ManagerAction }) {
+function DecisionForm({
+  action,
+  question,
+  ...props
+}: FormProps & { action: ManagerAction; question?: string }) {
   switch (action) {
     case 'APPROVE':
       return <ApproveForm {...props} />
     case 'COUNTER_OFFER':
       return <CounterOfferForm {...props} />
     case 'REQUEST_INFO':
-      return <RequestInfoForm {...props} />
+      return <RequestInfoForm {...props} question={question} />
     case 'REJECT':
       return <RejectForm {...props} />
   }
@@ -176,6 +201,7 @@ function ApproveForm({ application, onDone }: FormProps) {
         <span className="text-muted-foreground">{decisionTexts.requested}: </span>
         <span className="font-semibold tabular-nums">{requestedSummary(application)}</span>
       </p>
+      <ClientSees>{decisionTexts.clientSeesApprove(requestedSummary(application))}</ClientSees>
       {needsComment && (
         <p className="flex gap-2 text-sm font-medium">
           <OctagonAlertIcon aria-hidden className="size-4 shrink-0 translate-y-0.5" />
@@ -241,6 +267,7 @@ function CounterOfferForm({ application, onDone }: FormProps) {
   // Отправить можно только то, что backend только что проверил на этих же условиях.
   const settled = terms.amount === amount && terms.term === term && !preview.isPlaceholderData
   const valid = settled && preview.data?.valid === true && !preview.isFetching
+  const findTerm = useFindTerm(application)
 
   return (
     <FormShell form={form} decide={decide} action="COUNTER_OFFER" canSubmit={valid}>
@@ -317,12 +344,51 @@ function CounterOfferForm({ application, onDone }: FormProps) {
         </form.Field>
       </div>
 
+      {requested && constraints && (
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={findTerm.searching}
+            onClick={() =>
+              void findTerm.run().then((found) => {
+                if (found === null) return
+                form.setFieldValue('amount', wholeRubles(requested))
+                form.setFieldValue('term', String(found))
+              })
+            }
+          >
+            <SearchIcon aria-hidden className="size-4" />
+            {findTerm.searching ? decisionTexts.findingTerm : decisionTexts.findTerm}
+          </Button>
+          <span aria-live="polite" className="text-muted-foreground">
+            {findTerm.result === 'none'
+              ? decisionTexts.termNotFound(formatMoney(requested, { kopecks: false }))
+              : typeof findTerm.result === 'number'
+                ? decisionTexts.termFound(
+                    formatMoney(requested, { kopecks: false }),
+                    findTerm.result,
+                  )
+                : null}
+          </span>
+        </div>
+      )}
+
       <OfferPreview
         preview={preview.data}
         loading={!settled || preview.isFetching}
         failed={preview.isError}
         onUseLimit={(value) => form.setFieldValue('amount', wholeRubles(value))}
       />
+
+      {/^\d{1,12}$/.test(amount) && /^\d{1,3}$/.test(term) && (
+        <ClientSees>
+          {decisionTexts.clientSeesOffer(
+            `${formatMoney(String(rublesToNumber(amount)), { kopecks: false })} · ${cardTexts.months(parseInt(term, 10))}`,
+          )}
+        </ClientSees>
+      )}
 
       <form.Field name="reason">
         {(field) => (
@@ -340,6 +406,55 @@ function CounterOfferForm({ application, onDone }: FormProps) {
       </form.Field>
     </FormShell>
   )
+}
+
+/** Сроки проверяются пачками, чтобы не ждать до 60 последовательных запросов. */
+const FIND_TERM_BATCH = 6
+
+/**
+ * «Та же сумма, найти срок»: минимальный срок в границах продукта, на котором запрошенная сумма
+ * проходит проверку offer-preview. Правила проверяет только backend — здесь лишь перебор.
+ */
+function useFindTerm(application: Application) {
+  const queryClient = useQueryClient()
+  const [searching, setSearching] = useState(false)
+  const [result, setResult] = useState<number | 'none' | null>(null)
+  const constraints = application.offer_constraints
+  const requested = application.requested_amount_rub
+
+  const run = async (): Promise<number | null> => {
+    if (!constraints || !requested) return null
+    const amount = rublesToNumber(wholeRubles(requested))
+    const terms: number[] = []
+    for (let t = constraints.min_term_months; t <= constraints.max_term_months; t += 1) {
+      if (t !== application.term_months) terms.push(t)
+    }
+    setSearching(true)
+    setResult(null)
+    try {
+      for (let i = 0; i < terms.length; i += FIND_TERM_BATCH) {
+        const batch = terms.slice(i, i + FIND_TERM_BATCH)
+        const previews = await Promise.all(
+          batch.map((t) => queryClient.fetchQuery(offerPreviewQuery(application.id, amount, t))),
+        )
+        const found = batch.find((_, index) => previews[index]?.valid)
+        if (found !== undefined) {
+          setResult(found)
+          return found
+        }
+      }
+      setResult('none')
+      return null
+    } catch {
+      setResult(null)
+      toast.error(decisionTexts.previewError)
+      return null
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  return { run, searching, result }
 }
 
 /** Прошлый расчёт остаётся на экране, пока считается новый: блок не прыгает при вводе. */
@@ -447,12 +562,12 @@ function PreviewFigure({ label, value }: { label: string; value: string }) {
   )
 }
 
-function RequestInfoForm({ application, onDone }: FormProps) {
+function RequestInfoForm({ application, onDone, question }: FormProps & { question?: string }) {
   const decide = useDecision(application, 'REQUEST_INFO', onDone)
   const questionId = useId()
   const suggestions = application.ai_report?.report?.manager_questions ?? []
   const form = useForm({
-    defaultValues: { question: '', comment: '' },
+    defaultValues: { question: question ?? '', comment: '' },
     onSubmit: ({ value }) =>
       decide
         .mutateAsync({
@@ -522,6 +637,7 @@ function RequestInfoForm({ application, onDone }: FormProps) {
           )
         }}
       </form.Field>
+      <ClientSees>{decisionTexts.clientSeesQuestion}</ClientSees>
       <form.Field
         name="comment"
         validators={{
@@ -618,10 +734,9 @@ function ReasonPicker({
         ))}
       </div>
       {value && (
-        <p className="rounded-lg bg-muted p-3 text-sm">
-          <span className="font-medium">{decisionTexts.clientSees}: </span>
+        <ClientSees>
           {reasonTexts[value].reason}. {reasonTexts[value].whatToDo}
-        </p>
+        </ClientSees>
       )}
       {error && (
         <p id={`${name}-error`} className="text-sm font-medium text-destructive">
@@ -629,6 +744,16 @@ function ReasonPicker({
         </p>
       )}
     </fieldset>
+  )
+}
+
+/** Что попадёт клиенту: менеджер подтверждает решение, видя его глазами клиента. */
+function ClientSees({ children }: { children: ReactNode }) {
+  return (
+    <p className="rounded-lg bg-muted p-3 text-sm">
+      <span className="font-medium">{decisionTexts.clientSees}: </span>
+      {children}
+    </p>
   )
 }
 
@@ -681,6 +806,11 @@ function FormShell({
   canSubmit?: boolean
   children: ReactNode
 }) {
+  const queryClient = useQueryClient()
+  // Конфликт ревизии или статуса: данные уже перезапрошены (query-client), ввод формы остаётся.
+  const conflict =
+    isApiError(decide.error, 'REVISION_CONFLICT') ||
+    isApiError(decide.error, 'INVALID_STATUS_TRANSITION')
   return (
     <form
       noValidate
@@ -691,10 +821,27 @@ function FormShell({
       }}
     >
       {children}
-      {decide.isError && (
-        <p role="alert" className="font-medium text-destructive">
-          {errorMessage(decide.error)}
-        </p>
+      {conflict ? (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3">
+          <p className="font-medium text-destructive">{decisionTexts.conflict}</p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              decide.reset()
+              void queryClient.invalidateQueries({ queryKey: queryKeys.manager.all })
+            }}
+          >
+            {decisionTexts.refresh}
+          </Button>
+        </div>
+      ) : (
+        decide.isError && (
+          <p role="alert" className="font-medium text-destructive">
+            {errorMessage(decide.error)}
+          </p>
+        )
       )}
       <DialogFooter>
         <DialogClose asChild>

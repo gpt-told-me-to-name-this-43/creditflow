@@ -3,7 +3,7 @@ import type { components } from '@/api/schema.d.ts'
 import { cardTexts, ruleTexts, stopFactorTexts, suggestedActionTexts } from '@/content/manager.ts'
 import { cn } from '@/lib/utils.ts'
 import { SuggestionBadge } from '../suggestion-badge.tsx'
-import { DecisionPanel } from './decision.tsx'
+import { DecisionPanel, type DecisionRequest } from './decision.tsx'
 
 type Schemas = components['schemas']
 type Application = Schemas['ManagerApplicationView']
@@ -64,7 +64,15 @@ export function ProposalBlock({ proposal }: { proposal: Schemas['Proposal'] }) {
 }
 
 /** Закреплённая справа сводка: рекомендация, стоп-факторы и доступные решения. */
-export function ProposalSummary({ application }: { application: Application }) {
+export function ProposalSummary({
+  application,
+  request,
+  onRequest,
+}: {
+  application: Application
+  request: DecisionRequest | null
+  onRequest: (request: DecisionRequest | null) => void
+}) {
   const { proposal } = application
   return (
     <section aria-labelledby="summary-title" className="grid gap-5 rounded-xl border bg-card p-6">
@@ -96,7 +104,7 @@ export function ProposalSummary({ application }: { application: Application }) {
         </div>
       )}
 
-      <DecisionPanel application={application} />
+      <DecisionPanel application={application} request={request} onRequest={onRequest} />
     </section>
   )
 }

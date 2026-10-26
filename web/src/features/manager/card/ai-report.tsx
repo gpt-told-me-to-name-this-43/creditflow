@@ -29,7 +29,16 @@ type Verdict = Schemas['AiFeedbackRequest']['verdict']
  * AI-заключение (#8): пересказ расчёта и вопросы клиенту. Не влияет на статус и действия —
  * поэтому стоит отдельным блоком, а решение остаётся в панели справа.
  */
-export function AiReport({ applicationId, initial }: { applicationId: string; initial: Report }) {
+export function AiReport({
+  applicationId,
+  initial,
+  onUseQuestion,
+}: {
+  applicationId: string
+  initial: Report
+  /** Есть, только когда `REQUEST_INFO` в `allowed_actions`: вопрос уходит в форму дозапроса. */
+  onUseQuestion?: (question: string) => void
+}) {
   const queryClient = useQueryClient()
   const query = managerAiReportQuery(applicationId)
   const { data: report = initial } = useQuery({ ...query, initialData: initial })
@@ -60,13 +69,15 @@ export function AiReport({ applicationId, initial }: { applicationId: string; in
             <SparklesIcon aria-hidden className="size-5" />
             {aiTexts.title}
           </h2>
+          <p className="text-sm text-muted-foreground">{aiTexts.caption}</p>
+          {/* Метка видна без наведения: что перед менеджером — ответ модели или шаблон. */}
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">{aiTexts.opinion}</Badge>
-            {report.status === 'FALLBACK' && (
+            {report.status === 'FALLBACK' ? (
               <Badge variant="secondary">{aiTexts.templateBadge}</Badge>
+            ) : (
+              report.model_id && <Badge variant="outline">{aiTexts.model(report.model_id)}</Badge>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">{aiTexts.hint}</p>
         </div>
         <Button
           variant="outline"
@@ -124,9 +135,16 @@ export function AiReport({ applicationId, initial }: { applicationId: string; in
           {report.report.manager_questions.length > 0 && (
             <div className="grid gap-2">
               <h3 className="text-sm font-medium text-muted-foreground">{aiTexts.questions}</h3>
-              <ul className="grid list-disc gap-1 pl-5 text-sm">
+              <ul className="grid gap-2 text-sm">
                 {report.report.manager_questions.map((question) => (
-                  <li key={question}>{question}</li>
+                  <li key={question} className="flex flex-wrap items-start justify-between gap-2">
+                    <span className="min-w-0 flex-1">{question}</span>
+                    {onUseQuestion && (
+                      <Button size="sm" variant="outline" onClick={() => onUseQuestion(question)}>
+                        {aiTexts.useInRequest}
+                      </Button>
+                    )}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -136,11 +154,7 @@ export function AiReport({ applicationId, initial }: { applicationId: string; in
       )}
 
       <p className="text-xs text-muted-foreground">
-        {aiTexts.meta(
-          report.model_id ?? aiTexts.template,
-          report.prompt_version,
-          formatDateTime(report.updated_at),
-        )}
+        {aiTexts.meta(report.prompt_version, formatDateTime(report.updated_at))}
       </p>
     </section>
   )
@@ -155,7 +169,10 @@ function Factors({ title, factors }: { title: string; factors: Schemas['AiFactor
       ) : (
         <ul className="grid gap-1 text-sm">
           {factors.map((factor) => (
-            <li key={factor.code}>{factor.text}</li>
+            <li key={factor.code} className="grid gap-0.5">
+              <code className="text-xs text-muted-foreground">{factor.code}</code>
+              {factor.text}
+            </li>
           ))}
         </ul>
       )}

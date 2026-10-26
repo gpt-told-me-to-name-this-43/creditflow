@@ -1,11 +1,13 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeftIcon } from 'lucide-react'
+import { useState } from 'react'
 import { managerApplicationQuery } from '@/api/queries/manager.ts'
 import { cardTexts } from '@/content/manager.ts'
 import { AiReport } from './ai-report.tsx'
 import { Calculation } from './calculation.tsx'
 import { ExternalChecks } from './checks.tsx'
+import type { DecisionRequest } from './decision.tsx'
 import { CardHeaderBlock } from './header.tsx'
 import { History } from './history.tsx'
 import { ProposalBlock, ProposalSummary } from './proposal.tsx'
@@ -18,6 +20,9 @@ import { Statement } from './statement.tsx'
 export function ManagerCard({ applicationId }: { applicationId: string }) {
   const { data: application } = useSuspenseQuery(managerApplicationQuery(applicationId))
   const { scoring } = application
+  // Форма решения открывается и из панели справа, и из AI-заключения («Использовать в дозапросе»).
+  const [request, setRequest] = useState<DecisionRequest | null>(null)
+  const canAsk = application.allowed_actions.includes('REQUEST_INFO')
 
   return (
     <section className="grid gap-6">
@@ -35,7 +40,13 @@ export function ManagerCard({ applicationId }: { applicationId: string }) {
       <div className="grid grid-cols-[minmax(0,1fr)_22rem] items-start gap-6">
         <div className="grid gap-6">
           {application.ai_report && (
-            <AiReport applicationId={application.id} initial={application.ai_report} />
+            <AiReport
+              applicationId={application.id}
+              initial={application.ai_report}
+              onUseQuestion={
+                canAsk ? (question) => setRequest({ action: 'REQUEST_INFO', question }) : undefined
+              }
+            />
           )}
           <ExternalChecks
             sources={application.sources}
@@ -48,7 +59,7 @@ export function ManagerCard({ applicationId }: { applicationId: string }) {
           <History application={application} />
         </div>
         <aside className="sticky top-6">
-          <ProposalSummary application={application} />
+          <ProposalSummary application={application} request={request} onRequest={setRequest} />
         </aside>
       </div>
     </section>

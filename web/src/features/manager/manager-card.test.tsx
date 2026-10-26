@@ -54,7 +54,8 @@ describe('кабинет менеджера', () => {
     ).toHaveTextContent('первое сработавшее')
     const ai = screen.getByRole('region', { name: 'AI-заключение' })
     expect(ai).toHaveTextContent('ООО «ТехСервис» просит 2 000 000 ₽ на 36 мес.')
-    expect(ai).toHaveTextContent('Мнение помощника, не решение')
+    expect(ai).toHaveTextContent('Заключение ИИ-помощника. Не является решением')
+    expect(ai).toHaveTextContent('Модель:')
     expect(ai).not.toHaveTextContent('Шаблон')
   })
 
@@ -138,6 +139,38 @@ describe('кабинет менеджера', () => {
     expect(application.offer).toMatchObject({ amount_rub: '2340000.00', term_months: 36 })
   })
 
+  it('встречное предложение: «та же сумма, найти срок» для Пекарни — 54 мес.', async () => {
+    await managerWithQueue()
+    const { user } = await openCard('director.bakery', 'ООО «Пекарня Плюс»')
+    await user.click(screen.getByRole('button', { name: 'Предложить другие условия' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Встречное предложение' })
+    await user.click(within(dialog).getByRole('button', { name: 'Та же сумма, найти срок' }))
+    expect(await within(dialog).findByText('3 000 000 ₽ проходит на 54 мес.')).toBeInTheDocument()
+    expect(within(dialog).getByLabelText('Срок, мес.')).toHaveValue('54')
+    expect(within(dialog).getByLabelText('Сумма')).toHaveValue('3\u00A0000\u00A0000')
+    expect(await within(dialog).findByText('Условия проходят проверку')).toBeInTheDocument()
+  })
+
+  it('решение: 409 — сообщение о другом менеджере, комментарий остаётся', async () => {
+    await managerWithQueue()
+    const { user } = await openCard('director.techservice', 'ООО «ТехСервис»')
+    server.use(
+      http.post('*/api/v1/manager/applications/:id/decisions', () =>
+        apiError(409, 'REVISION_CONFLICT', 'conflict', { details: { current_revision: 99 } }),
+      ),
+    )
+    await user.click(screen.getByRole('button', { name: 'Одобрить' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Одобрить заявку' })
+    expect(dialog).toHaveTextContent('Клиент увидит: Заявка одобрена')
+    await user.type(within(dialog).getByLabelText('Комментарий'), 'Всё сходится')
+    await user.click(within(dialog).getByRole('button', { name: 'Одобрить' }))
+    expect(
+      await within(dialog).findByText(/Заявку уже обработал другой менеджер/),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByLabelText('Комментарий')).toHaveValue('Всё сходится')
+    expect(within(dialog).getByRole('button', { name: 'Обновить' })).toBeInTheDocument()
+  })
+
   it('стоп-фактор: только отказ, причина подсказана, без комментария не уходит', async () => {
     await managerWithQueue()
     const { user, application } = await openCard('director.vector', 'ООО «Вектор»')
@@ -180,6 +213,19 @@ describe('кабинет менеджера', () => {
     expect(await screen.findByText('Вопрос отправлен клиенту')).toBeInTheDocument()
     expect(application.status).toBe('NEED_INFO')
     expect(application.info_request?.question_text).toMatch(/просрочки/)
+  })
+
+  it('AI-заключение: «Использовать в дозапросе» открывает вопрос с текстом', async () => {
+    await managerWithQueue()
+    const { user } = await openCard('director.techservice', 'ООО «ТехСервис»')
+    const ai = screen.getByRole('region', { name: 'AI-заключение' })
+    const [use] = within(ai).getAllByRole('button', { name: 'Использовать в дозапросе' })
+    if (!use) throw new Error('Нет вопросов в заключении')
+    const question = use.closest('li')?.querySelector('span')?.textContent ?? ''
+    expect(question).not.toBe('')
+    await user.click(use)
+    const dialog = await screen.findByRole('dialog', { name: 'Вопрос клиенту' })
+    expect(within(dialog).getByLabelText('Вопрос')).toHaveValue(question)
   })
 
   it('оценка AI-заключения сохраняется и попадает в сводку', async () => {
