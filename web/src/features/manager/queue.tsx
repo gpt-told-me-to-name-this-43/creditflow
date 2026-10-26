@@ -145,7 +145,8 @@ export function Queue({ status }: { status: QueueStatus }) {
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    aria-label={`${queueTexts.stopFactors}: ${text}`}
+                    // Видимое число входит в имя (WCAG 2.5.3 «label in name»).
+                    aria-label={`${queueTexts.stopFactors} ${codes.length}: ${text}`}
                     onClick={(event) => event.stopPropagation()}
                     className="flex items-center gap-1 rounded-md font-semibold text-destructive outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
                   >

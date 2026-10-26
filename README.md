@@ -69,6 +69,7 @@ docker compose down
 - [ext-sim/fixtures/README.md](ext-sim/fixtures/README.md) — формат фикстур внешних систем
 - [.env.example](.env.example) — все переменные окружения с комментариями
 - [CONTRIBUTING.md](CONTRIBUTING.md) — разработка, проверки, правила веток и PR
+- [docs/demo-script.md](docs/demo-script.md) — сценарий показа на 5–7 минут и запасные ответы
 
 ### API Contract v1 / frontend
 
@@ -76,6 +77,19 @@ docker compose down
 Маршруты #5/#7/#8 работают с БД во всех окружениях, JWT, роли и ownership проверяются.
 `make openapi api-matrix` обновляет артефакты; `cd web && pnpm generate:api && pnpm typecheck && pnpm test`
 проверяет типы и frontend. AI не меняет решение, расчёт или доступные действия.
+
+### E2E
+
+Сквозной путь в браузере — Playwright в `web/e2e/` (спеки s1–s12 и a11y на axe), против стека
+с `LLM_MODE=replay` и `APP_ENV=test`. Все спеки делят одну БД: один worker, без ретраев.
+
+```bash
+make e2e-up TEST_RESET_TOKEN=<любой секрет>   # стек + docker-compose.e2e.yml
+make e2e TEST_RESET_TOKEN=<тот же секрет>
+```
+
+Без токена прогон падает в `globalSetup` с объяснением. Отчёт — `web/playwright-report/`,
+трейсы и видео упавших спек — `web/test-results/`. В CI — workflow `e2e.yml`.
 
 ## Подключить свою модель
 
