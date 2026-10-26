@@ -189,7 +189,7 @@ POST ai-report: существующий READY/FALLBACK без regenerate — 20
 READY/FALLBACK останавливают polling AI. PENDING создаётся в транзакции Submit;
 генерация после COMMIT, условный UPDATE по generation_id. Recovery на старте и раз в 15 с
 закрывает зависший отчёт шаблоном TIMEOUT; поздние ответы отбрасываются.
-Feedback — UPSERT по (ai_report_id, manager_user_id); comment ≤500; PENDING → 422,
+Feedback — UPSERT по (ai_report_id, manager_user_id); comment ≤1000; PENDING → 422,
 отсутствующий/чужой отчёт → 404. Регенерация удаляет оценки заменённого текста, чтобы
 не приписывать их новой модели. Feedback не влияет на решение и revision.
 
