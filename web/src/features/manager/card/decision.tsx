@@ -385,7 +385,7 @@ function CounterOfferForm({ application, onDone }: FormProps) {
       {/^\d{1,12}$/.test(amount) && /^\d{1,3}$/.test(term) && (
         <ClientSees>
           {decisionTexts.clientSeesOffer(
-            `${formatMoney(String(rublesToNumber(amount)), { kopecks: false })} · ${cardTexts.months(parseInt(term, 10))}`,
+            `${formatMoney(amount, { kopecks: false })} · ${cardTexts.months(parseInt(term, 10))}`,
           )}
         </ClientSees>
       )}

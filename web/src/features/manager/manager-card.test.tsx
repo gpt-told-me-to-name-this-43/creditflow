@@ -126,6 +126,9 @@ describe('кабинет менеджера', () => {
     const amount = within(dialog).getByLabelText('Сумма')
     expect(amount).toHaveValue('2\u00A0340\u00A0000')
     expect(await within(dialog).findByText('Условия проходят проверку')).toBeInTheDocument()
+    expect(dialog).toHaveTextContent(
+      'Клиент увидит: Банк предлагает другие условия: 2 340 000 ₽ · 36 мес.',
+    )
 
     // Больше лимита — бэк не пропустит, кнопка неактивна.
     await user.clear(amount)
