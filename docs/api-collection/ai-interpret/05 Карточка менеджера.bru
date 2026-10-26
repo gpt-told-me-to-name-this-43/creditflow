@@ -18,7 +18,8 @@ assert {
   res.status: eq 200
   res.body.proposal.suggested_action: eq BLOCKED_BY_RULE
   res.body.scoring.calculation_status: eq SKIPPED
-  res.body.ai_report.status: eq FALLBACK
+  res.body.ai_report.id: isString
+  res.body.ai_report.status: isString
 }
 
 script:post-response {

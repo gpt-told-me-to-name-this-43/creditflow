@@ -25,10 +25,10 @@ def app(
     return app
 
 
-# --- 1. Стабы #8 не доступны в production; #5 и #7 — настоящие маршруты, доступны ------
+# --- 1. С #8 стабов нет: AI-маршруты — настоящие и доступны в production ---------------
 
 
-def test_stubs_not_mounted_in_production(make_settings: Callable[..., Settings]) -> None:
+def test_ai_routes_mounted_in_production(make_settings: Callable[..., Settings]) -> None:
     app = create_app(make_settings(app_env="production"))
     paths = set(app.openapi()["paths"])
     assert {
@@ -37,14 +37,15 @@ def test_stubs_not_mounted_in_production(make_settings: Callable[..., Settings])
         "/api/v1/onboarding/company-binding",
         "/api/v1/applications",
         "/api/v1/manager/stats",
+        "/api/v1/applications/{application_id}/interpret",
+        "/api/v1/manager/applications/{application_id}/ai-report",
+        "/api/v1/manager/applications/{application_id}/ai-feedback",
     } <= paths
-    assert not {p for p in paths if p.endswith(("/interpret", "/ai-report", "/ai-feedback"))}
-    client = TestClient(app, headers=MANAGER_AUTH)
-    assert client.get(f"/api/v1/manager/applications/{APP_ID}/ai-report").status_code == 404
 
 
-def test_stub_routes_verify_jwt_and_role(app: FastAPI) -> None:
-    """С #5 стабы (#8) проверяют подпись токена и роль, а не только наличие Bearer."""
+def test_ai_routes_verify_jwt_and_role(app: FastAPI) -> None:
+    """AI-маршруты (#8) проверяют подпись токена и роль, а не только наличие Bearer;
+    несуществующая заявка менеджеру — 404 (данных больше нет фиксированных)."""
     client = TestClient(app, headers={"Authorization": "Bearer not-a-jwt"})
     assert client.get(f"/api/v1/manager/applications/{APP_ID}/ai-report").status_code == 401
     assert (
@@ -56,12 +57,11 @@ def test_stub_routes_verify_jwt_and_role(app: FastAPI) -> None:
         .status_code
         == 403
     )
-    assert (
-        TestClient(app, headers=MANAGER_AUTH)
-        .get(f"/api/v1/manager/applications/{APP_ID}/ai-report")
-        .status_code
-        == 200
+    response = TestClient(app, headers=MANAGER_AUTH).get(
+        f"/api/v1/manager/applications/{APP_ID}/ai-report"
     )
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
 
 
 # --- 3. Примеры OpenAPI не исполняют endpoint --------------------------------------------

@@ -32,6 +32,9 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       APP_ENV: test
+      LLM_MODE: replay
+      LLM_RECORD: "0"
+      LLM_LIVE: "0"
       TEST_DATABASE_URL: postgresql+psycopg://creditflow:creditflow@localhost:5432/creditflow
     defaults:
       run:
@@ -50,6 +53,8 @@ jobs:
       - run: uv run ruff check . ../scripts
       - run: uv run ruff format --check . ../scripts
       - run: uv run mypy app tests alembic contract ../scripts
+      - name: Rules-only eval (без внешнего провайдера, порог сумма/срок ≥ 85%)
+        run: uv run python -m app.llm.cli eval-intent --rules-only
       # issue #6: покрытие app/scoring — строки ≥ 95% и ветки ≥ 90%, каждое отдельно.
       # --cov-fail-under при --cov-branch проверяет только общий процент, поэтому пороги
       # сверяет scripts/check_coverage.py по JSON-отчёту.

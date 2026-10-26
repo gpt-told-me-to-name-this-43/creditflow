@@ -105,8 +105,8 @@ async def test_ai_report_is_finalized_after_commit(pipeline: Pipeline, db: Async
                 )
             )
         ).one()
-    # LLM — #8; до неё фоновая генерация пишет шаблон по кодам
-    assert (row.status, row.fallback_reason, row.generation_id) == ("FALLBACK", "UNAVAILABLE", None)
+    # replay (#8): записанный ответ C2 → READY; статусы и сценарий от отчёта не зависят
+    assert (row.status, row.fallback_reason, row.generation_id) == ("READY", None, None)
     assert {f["code"] for f in row.report_json["risk_factors"]} == {
         "DSCR_BELOW_TARGET",
         "REVENUE_DECLINE",

@@ -1,12 +1,11 @@
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Link, Outlet, useRouter } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button.tsx'
-import { EmptyState } from '@/components/ui/empty-state.tsx'
+import { PageNotFound } from '@/components/route-states.tsx'
 import { ErrorState } from '@/components/ui/error-state.tsx'
 import { Toaster } from '@/components/ui/sonner.tsx'
 import { ThemeToggle } from '@/components/ui/theme-toggle.tsx'
 import { TooltipProvider } from '@/components/ui/tooltip.tsx'
-import { pageErrors } from '@/content/errors.ts'
 import { type Auth, signOut, useSignedIn } from '@/lib/auth.ts'
 import type { ReactNode } from 'react'
 
@@ -27,11 +26,11 @@ function Shell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-col">
         <header className="border-b">
           <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between px-8">
-            {/* Текстовый логотип в бренд-красном: 24 px жирным — контраст крупного текста
+            {/* Текстовый логотип красным (--primary-text): 24 px жирным, контраст проходит
                 проходит. Официальный файл из public/brand/ заменит его, когда появится. */}
             <Link
               to="/"
-              className="rounded-md text-2xl font-extrabold tracking-tight text-primary outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="rounded-md text-2xl font-extrabold tracking-tight text-primary-text outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               CreditFlow
             </Link>
@@ -83,15 +82,5 @@ function RootError({ reset }: { reset: () => void }) {
 }
 
 function NotFound() {
-  return (
-    <EmptyState
-      title={pageErrors.notFound.title}
-      description={pageErrors.notFound.description}
-      action={
-        <Button asChild variant="outline">
-          <Link to="/">{pageErrors.notFound.action}</Link>
-        </Button>
-      }
-    />
-  )
+  return <PageNotFound />
 }

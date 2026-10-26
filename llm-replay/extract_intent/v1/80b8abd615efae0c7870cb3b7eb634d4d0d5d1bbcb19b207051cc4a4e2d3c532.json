@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "80b8abd615efae0c7870cb3b7eb634d4d0d5d1bbcb19b207051cc4a4e2d3c532",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:38+00:00",
+  "usage": {
+    "prompt_tokens": 617,
+    "completion_tokens": 45,
+    "total_tokens": 662
+  },
+  "response": "{\n  \"purpose_code\": null,\n  \"requested_amount_rub\": 300000,\n  \"term_months\": null,\n  \"clarification_question\": \"Какой срок кредита вам нужен?\"\n}"
+}

@@ -2,7 +2,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { contractQuery } from '@/api/queries/applications.ts'
 import { Badge } from '@/components/ui/badge.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.tsx'
+import { GlossaryTerm } from '@/components/ui/glossary-term.tsx'
 import { PlainMarkdown } from '@/components/ui/plain-markdown.tsx'
+import { glossary } from '@/content/glossary.ts'
 import { contractTexts, scheduleTexts } from '@/content/contract.ts'
 import { formatDate } from '@/lib/dates.ts'
 import { formatMoney, formatRate } from '@/lib/money.ts'
@@ -31,10 +33,15 @@ export function ContractSection({ applicationId }: { applicationId: string }) {
           <Term label={contractTexts.rate} value={formatRate(contract.annual_rate_pct)} />
           <Term
             label={contractTexts.payment}
+            hint={glossary.monthlyPayment.text}
             value={formatMoney(contract.monthly_payment_rub)}
             strong
           />
-          <Term label={contractTexts.overpayment} value={formatMoney(contract.overpayment_rub)} />
+          <Term
+            label={contractTexts.overpayment}
+            hint={glossary.overpayment.text}
+            value={formatMoney(contract.overpayment_rub)}
+          />
           <Term label={contractTexts.account} value={contract.account_masked} />
         </dl>
 
@@ -56,10 +63,22 @@ export function ContractSection({ applicationId }: { applicationId: string }) {
   )
 }
 
-function Term({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Term({
+  label,
+  hint,
+  value,
+  strong,
+}: {
+  label: string
+  hint?: string
+  value: string
+  strong?: boolean
+}) {
   return (
     <div className="grid gap-1">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dt className="text-sm text-muted-foreground">
+        {hint ? <GlossaryTerm label={label} hint={hint} /> : label}
+      </dt>
       <dd className={strong ? 'text-xl font-bold' : 'text-lg'}>{value}</dd>
     </div>
   )

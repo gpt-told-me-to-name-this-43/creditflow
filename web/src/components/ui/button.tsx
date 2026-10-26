@@ -3,7 +3,7 @@ import { Slot } from 'radix-ui'
 import type * as React from 'react'
 import { cn } from '@/lib/utils.ts'
 
-// Белый текст на бренд-красном — только жирный (контраст ≈ 4.1:1), поэтому font-bold у default.
+// Белый текст на --primary ≈ 5.0:1 (index.css); ссылка — --primary-text, читаемый в обеих темах.
 const buttonVariants = cva(
   "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -13,7 +13,7 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         outline: 'border border-input bg-background hover:bg-accent',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'font-bold text-primary underline-offset-4 hover:underline',
+        link: 'font-bold text-primary-text underline-offset-4 hover:underline',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
       },
       size: {

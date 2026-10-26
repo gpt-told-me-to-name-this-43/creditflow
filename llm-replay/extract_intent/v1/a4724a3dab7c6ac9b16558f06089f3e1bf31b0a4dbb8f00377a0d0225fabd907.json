@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "a4724a3dab7c6ac9b16558f06089f3e1bf31b0a4dbb8f00377a0d0225fabd907",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:50:39+00:00",
+  "usage": {
+    "prompt_tokens": 604,
+    "completion_tokens": 28,
+    "total_tokens": 632
+  },
+  "response": "{\"purpose_code\": null, \"requested_amount_rub\": null, \"term_months\": null, \"clarification_question\": null}"
+}

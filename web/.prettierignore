@@ -4,3 +4,5 @@ pnpm-lock.yaml
 src/routeTree.gen.ts
 src/api/schema.d.ts
 msw/mockServiceWorker.js
+playwright-report
+test-results

@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "8849dd139e3329227b2fdbbcaf952088e0a8f1dd11ae970ad9c7a67fe39dd097",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:46:57+00:00",
+  "usage": {
+    "prompt_tokens": 624,
+    "completion_tokens": 42,
+    "total_tokens": 666
+  },
+  "response": "{\n  \"purpose_code\": \"RENOVATION\",\n  \"requested_amount_rub\": 1000000,\n  \"term_months\": 18,\n  \"clarification_question\": null\n}"
+}

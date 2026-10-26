@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "b69b7e8a7652f391fb4477f5cae68b25969eed3f0c6ed7181cbcd975708629cc",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:30+00:00",
+  "usage": {
+    "prompt_tokens": 594,
+    "completion_tokens": 46,
+    "total_tokens": 640
+  },
+  "response": "{\n  \"purpose_code\": \"INVENTORY\",\n  \"requested_amount_rub\": null,\n  \"term_months\": null,\n  \"clarification_question\": \"Какая сумма кредита вам нужна?\"\n}"
+}

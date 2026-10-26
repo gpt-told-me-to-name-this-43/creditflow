@@ -10,7 +10,7 @@ import { creditProductsQuery } from '@/api/queries/products.ts'
 import type { components } from '@/api/schema.d.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx'
+import { GlossaryTerm } from '@/components/ui/glossary-term.tsx'
 import { glossary } from '@/content/glossary.ts'
 import { purposeTexts } from '@/content/purposes.ts'
 import { fieldTexts, reviewTexts } from '@/content/wizard.ts'
@@ -154,6 +154,13 @@ export function StepReview({ form, application, onEdit }: StepReviewProps) {
               <span>{consent?.text}</span>
               <span className="text-muted-foreground">{glossary.bkiConsent.text}</span>
             </label>
+            {/* Подсказка вне label: иначе она попадает в доступное имя чекбокса. */}
+            <span className="shrink-0 text-sm text-muted-foreground">
+              <GlossaryTerm
+                label={glossary.creditHistory.term}
+                hint={glossary.creditHistory.text}
+              />
+            </span>
           </div>
         )}
       </form.Field>
@@ -241,16 +248,7 @@ function Row({
   return (
     <>
       <dt className="text-muted-foreground">
-        {hint ? (
-          <Tooltip>
-            <TooltipTrigger className="cursor-help underline decoration-dotted underline-offset-4">
-              {label}
-            </TooltipTrigger>
-            <TooltipContent>{hint}</TooltipContent>
-          </Tooltip>
-        ) : (
-          label
-        )}
+        {hint ? <GlossaryTerm label={label} hint={hint} /> : label}
       </dt>
       <dd className="font-semibold">{children}</dd>
       <dd>

@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog.tsx'
 import { firstError } from '@/components/ui/form-field.tsx'
+import { GlossaryTerm } from '@/components/ui/glossary-term.tsx'
 import {
   applicationTexts,
   approvedTexts,
@@ -29,6 +30,7 @@ import {
   rejectedTexts,
   reviewBlockTexts,
 } from '@/content/application.ts'
+import { glossary } from '@/content/glossary.ts'
 import { reasonTexts } from '@/content/reasons.ts'
 import { formatDate } from '@/lib/dates.ts'
 import { useIdempotentMutation } from '@/lib/idempotency.ts'
@@ -408,7 +410,12 @@ export function IssuedBlock({ contract }: { contract: Schemas['ContractView'] })
             </div>
           )}
           <div className="grid gap-1">
-            <dt className="text-sm text-muted-foreground">{disbursementTexts.monthlyPayment}</dt>
+            <dt className="text-sm text-muted-foreground">
+              <GlossaryTerm
+                label={disbursementTexts.monthlyPayment}
+                hint={glossary.monthlyPayment.text}
+              />
+            </dt>
             <dd className="text-lg font-semibold">{formatMoney(contract.monthly_payment_rub)}</dd>
           </div>
         </dl>

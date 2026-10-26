@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "6818f6838d22814af765f52e4d9f222abf47a2622680e415a7bdbf4aab44e07c",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:31+00:00",
+  "usage": {
+    "prompt_tokens": 606,
+    "completion_tokens": 41,
+    "total_tokens": 647
+  },
+  "response": "{\n  \"purpose_code\": null,\n  \"requested_amount_rub\": null,\n  \"term_months\": 18,\n  \"clarification_question\": \"Какова цель кредита?\"\n}"
+}

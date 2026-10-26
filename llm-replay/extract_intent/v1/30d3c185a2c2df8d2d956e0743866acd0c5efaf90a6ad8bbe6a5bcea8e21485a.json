@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "30d3c185a2c2df8d2d956e0743866acd0c5efaf90a6ad8bbe6a5bcea8e21485a",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:06+00:00",
+  "usage": {
+    "prompt_tokens": 614,
+    "completion_tokens": 41,
+    "total_tokens": 655
+  },
+  "response": "{\n  \"purpose_code\": \"SUPPLIERS\",\n  \"requested_amount_rub\": 700000,\n  \"term_months\": 9,\n  \"clarification_question\": null\n}"
+}

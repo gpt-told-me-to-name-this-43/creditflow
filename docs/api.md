@@ -86,10 +86,9 @@ health; защищённые из них всё равно требуют Bearer
 
 С #5 каждый защищённый маршрут проверяет JWT HS256 (подпись, алгоритм, `exp`, `iat`, `sub`)
 и читает пользователя из БД: удалённая учётка или роль, не совпадающая с БД, — 401.
-Роль объявлена на уровне роутера; не та роль — 403 FORBIDDEN. Клиентские и менеджерские
-маршруты пока стабы: не проверяют ownership и не сохраняют состояние, поэтому в production
-не монтируются. В production доступны health, auth и онбординг; тестовые флаги блокируют
-запуск production. FSM/БД — #7; AI — #8.
+Роль объявлена на уровне роутера; не та роль — 403 FORBIDDEN. Все маршруты #5/#7/#8
+работают с БД во всех окружениях; чужие клиентские заявки дают 404. Тестовые флаги
+блокируют запуск production. AI не влияет на FSM, расчёт, решение и allowed_actions.
 
 Вход: неверный логин и неверный пароль дают одинаковый 401 INVALID_CREDENTIALS.
 Лимиты: 10 запросов login в минуту с IP; 5 неудачных попыток подряд на логин закрывают вход
@@ -181,19 +180,30 @@ Challenge: TTL 5 минут, новый отменяет предыдущий, �
 Первые две неверные попытки — 422 SIGN_CODE_INVALID; третья — 429 SIGN_ATTEMPTS без Retry-After.
 Просроченный/заменённый/использованный/неизвестный/чужой challenge — SIGN_CHALLENGE_EXPIRED.
 Успех — SIGNED, затем ISSUED через 3–5 секунд и восстановление зависших операций (#7).
-Стабы не хранят OTP, не ограничивают частоту и не защищают от перебора.
+OTP, ограничения частоты и защита от перебора реализованы в #7.
 
 POST ai-report: существующий READY/FALLBACK без regenerate — 200; свежий PENDING — 200
 даже с regenerate=true; зависший PENDING — 202; остальные regenerate — 202.
 Новая генерация возвращает типизированный PENDING. Порог зависания — deadline+15 секунд;
 202 запускает polling GET (3 секунды). Свежий PENDING из 200 тоже нужно опрашивать.
-READY/FALLBACK останавливают polling AI. Фоновая реализация и generation_id — #8.
-Feedback — UPSERT; comment ≤1000; не влияет на решение и revision.
+READY/FALLBACK останавливают polling AI. PENDING создаётся в транзакции Submit;
+генерация после COMMIT, условный UPDATE по generation_id. Recovery на старте и раз в 15 с
+закрывает зависший отчёт шаблоном TIMEOUT; поздние ответы отбрасываются.
+Feedback — UPSERT по (ai_report_id, manager_user_id); comment ≤1000; PENDING → 422,
+отсутствующий/чужой отчёт → 404. Регенерация удаляет оценки заменённого текста, чтобы
+не приписывать их новой модели. Feedback не влияет на решение и revision.
 
-PROVIDER_UNAVAILABLE только у company-binding/Submit. Реальные вызовы ext-sim в #6 есть в health
-и отдельно проверенном адаптере; вызовы бизнес-операций появятся в #5/#7.
+PROVIDER_UNAVAILABLE только у company-binding/Submit; ext-sim используется реальными
+операциями привязки и Submit.
 Interpret при отказе LLM — 200 RULES/UNAVAILABLE; AI — FALLBACK, не HTTP 503.
 Общие 400/405/500 и 503 SERVICE_UNAVAILABLE — отдельная инфраструктурная политика.
 
-GET /api/v1/health использует HealthResponse: БД недоступна → 503; только ext-sim/LLM
-недоступны → 200 degraded. ErrorEnvelope не подменяет health 503.
+GET /api/v1/health использует HealthResponse: БД недоступна → 503 unavailable;
+ext-sim недоступен при исправной БД → 200 degraded. LLM не влияет на общий status.
+Поле llm: replay/disabled/not_configured/degraded/ok, по настройкам и breaker без
+платного вызова. Ответ не содержит URL или ключа. ErrorEnvelope не подменяет health 503.
+
+POST /applications/{id}/interpret доступен CLIENT только для своего DRAFT с компанией,
+purpose_text ≤1000. Заявка, revision и события не меняются. Правила имеют приоритет;
+сбой LLM → 200 с предложениями RULES или UNAVAILABLE. Подтверждение и сохранение — PATCH.
+AI-отчёт и feedback доступны только MANAGER. Схемы ответов v1 сохранены.

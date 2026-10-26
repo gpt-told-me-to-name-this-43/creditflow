@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "587a68a5f1be05360dde8ccc48239a3e8974424ac27c0a74f4aec83162aa9687",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:51:04+00:00",
+  "usage": {
+    "prompt_tokens": 620,
+    "completion_tokens": 54,
+    "total_tokens": 674
+  },
+  "response": "{\n  \"purpose_code\": null,\n  \"requested_amount_rub\": null,\n  \"term_months\": null,\n  \"clarification_question\": \"Какова цель кредита и какие параметры вы хотите указать в заявке?\"\n}"
+}

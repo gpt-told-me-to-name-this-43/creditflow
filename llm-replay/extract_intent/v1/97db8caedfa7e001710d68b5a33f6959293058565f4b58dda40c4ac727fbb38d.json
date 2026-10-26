@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "97db8caedfa7e001710d68b5a33f6959293058565f4b58dda40c4ac727fbb38d",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:27+00:00",
+  "usage": {
+    "prompt_tokens": 899,
+    "completion_tokens": 53,
+    "total_tokens": 952
+  },
+  "response": "{\n  \"purpose_code\": \"RENOVATION\",\n  \"requested_amount_rub\": null,\n  \"term_months\": 24,\n  \"clarification_question\": \"Какая сумма кредита необходима для ремонта?\"\n}"
+}

@@ -1,0 +1,13 @@
+.git/
+.env
+.env.*
+**/.venv/
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/tests/
+web/dist/
+*.log
+dsh-tui-export-*.md

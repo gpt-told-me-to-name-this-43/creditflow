@@ -102,8 +102,10 @@ export interface ApplicationRow {
     question_text: string
     answer_text: string | null
     answered_at: string | null
+    created_at: string
+    decision_id: string
   } | null
-  offer: TermsRow | null
+  offer: (TermsRow & { created_at: string; decision_id: string }) | null
   /** Договор появляется при переходе в APPROVED (design.md §3.7). */
   contract: (TermsRow & { number: string; approved_at: string }) | null
   signed_at: string | null
@@ -118,6 +120,32 @@ export interface ApplicationEventRow {
   application_id: string
   from_status: ApplicationStatus | null
   to_status: ApplicationStatus
+  created_at: string
+  /** Кто сменил статус; null — система (выдача). */
+  actor_user_id: string | null
+}
+
+/** Решение менеджера (design.md §3.7, `decisions`). */
+export interface DecisionRow {
+  id: string
+  application_id: string
+  action: Decision['action']
+  manager_user_id: string
+  comment: string | null
+  client_reason_code: ClientReasonCode | null
+  created_at: string
+}
+
+/** Оценка AI-заключения менеджером: одна на пару «менеджер — заключение» (UPSERT). */
+export interface AiFeedbackRow {
+  ai_report_id: string
+  application_id: string
+  manager_user_id: string
+  verdict: 'UP' | 'DOWN'
+  comment: string | null
+  prompt_version: string
+  model_id: string | null
+  source: 'openai' | 'replay' | 'disabled'
   created_at: string
 }
 
@@ -299,6 +327,10 @@ interface State {
   companies: CompanyRow[]
   applications: ApplicationRow[]
   events: ApplicationEventRow[]
+  decisions: DecisionRow[]
+  ai_feedback: AiFeedbackRow[]
+  /** Когда менеджер последний раз запросил новое AI-заключение по заявке. */
+  ai_regenerated_at: Record<string, string>
   idempotency: Record<string, IdempotencyRow | undefined>
   jobs: Job[]
 }
@@ -310,6 +342,9 @@ function createState(): State {
     companies: [],
     applications: [],
     events: [],
+    decisions: [],
+    ai_feedback: [],
+    ai_regenerated_at: {},
     idempotency: {},
     jobs: [],
   }
@@ -341,7 +376,15 @@ export function snapshotDb(): string {
 /** Восстановить снимок; переходы, срок которых прошёл, пока страница перезагружалась, выполнятся сразу. */
 export function restoreDb(snapshot: string) {
   disarm()
-  state = JSON.parse(snapshot) as State
+  // Снимок прошлой версии моков без новых таблиц — восстанавливаем их пустыми.
+  const saved = JSON.parse(snapshot) as Partial<State> &
+    Omit<State, 'decisions' | 'ai_feedback' | 'ai_regenerated_at'>
+  state = {
+    ...saved,
+    decisions: saved.decisions ?? [],
+    ai_feedback: saved.ai_feedback ?? [],
+    ai_regenerated_at: saved.ai_regenerated_at ?? {},
+  }
   for (const job of state.jobs) arm(job)
 }
 
@@ -383,6 +426,42 @@ export const db = {
     return state.applications
       .filter((application) => companyId === undefined || application.company_id === companyId)
       .reverse()
+  },
+
+  listDecisions(applicationId: string) {
+    return state.decisions.filter((decision) => decision.application_id === applicationId)
+  },
+
+  findRegistry(inn: string) {
+    return REGISTRY.find((row) => row.inn === inn)
+  },
+
+  /** Менеджер «по умолчанию»: от его имени решают сценарии моков. */
+  get defaultManager() {
+    const manager = state.users.find((user) => user.role === 'MANAGER')
+    if (!manager) throw new Error('Нет менеджера в демо-данных')
+    return manager
+  },
+
+  listFeedback() {
+    return state.ai_feedback
+  },
+
+  /** Повторная оценка того же менеджера заменяет предыдущую. */
+  saveFeedback(row: Omit<AiFeedbackRow, 'created_at'>) {
+    state.ai_feedback = state.ai_feedback.filter(
+      (item) =>
+        item.ai_report_id !== row.ai_report_id || item.manager_user_id !== row.manager_user_id,
+    )
+    state.ai_feedback.push({ ...row, created_at: now() })
+  },
+
+  aiRegeneratedAt(applicationId: string): string | undefined {
+    return state.ai_regenerated_at[applicationId]
+  },
+
+  regenerateAiReport(applicationId: string) {
+    state.ai_regenerated_at[applicationId] = now()
   },
 
   listEvents(applicationId: string) {
@@ -433,7 +512,7 @@ export const db = {
       challenge_issued_at: [],
     }
     state.applications.push(application)
-    addEvent(application, null)
+    addEvent(application, null, user.id)
     return application
   },
 
@@ -504,13 +583,18 @@ export function bindCompany(userId: string, inn: string): BindingResult {
   return { ok: true, company }
 }
 
-function addEvent(application: ApplicationRow, from: ApplicationStatus | null) {
+function addEvent(
+  application: ApplicationRow,
+  from: ApplicationStatus | null,
+  actorUserId: string | null,
+) {
   state.events.push({
     id: nextId(),
     application_id: application.id,
     from_status: from,
     to_status: application.status,
     created_at: now(),
+    actor_user_id: actorUserId,
   })
 }
 
@@ -519,12 +603,19 @@ export function touch(application: ApplicationRow) {
   application.revision += 1
 }
 
-/** Смена статуса с ревизией и событием таймлайна — как одна транзакция на бэке. */
-export function setStatus(application: ApplicationRow, status: ApplicationStatus) {
+/**
+ * Смена статуса с ревизией и событием таймлайна — как одна транзакция на бэке.
+ * По умолчанию статус меняет владелец заявки; решение — менеджер, выдачу — система (null).
+ */
+export function setStatus(
+  application: ApplicationRow,
+  status: ApplicationStatus,
+  actorUserId: string | null = application.owner_user_id,
+) {
   const from = application.status
   application.status = status
   touch(application)
-  addEvent(application, from)
+  addEvent(application, from, actorUserId)
 }
 
 /** Запрошенные клиентом условия по ставке выбранного продукта. */
@@ -540,41 +631,77 @@ export function requestedTerms(application: ApplicationRow): TermsRow | null {
 
 export type Decision =
   | { action: 'APPROVE' }
-  | { action: 'COUNTER_OFFER'; amount_rub: string; term_months: number }
+  | {
+      action: 'COUNTER_OFFER'
+      amount_rub: string
+      term_months: number
+      client_reason_code?: ClientReasonCode
+    }
   | { action: 'REQUEST_INFO'; question_text: string }
   | { action: 'REJECT'; client_reason_code: ClientReasonCode }
 
-function approve(application: ApplicationRow, terms: TermsRow) {
+function approve(application: ApplicationRow, terms: TermsRow, actorUserId: string) {
   const number = `КФ-${application.id.slice(-6)}`
   application.contract = { ...terms, number, approved_at: now() }
-  setStatus(application, 'APPROVED')
+  setStatus(application, 'APPROVED', actorUserId)
 }
 
-/** Решение менеджера по заявке UNDER_REVIEW. */
-export function applyDecision(application: ApplicationRow, decision: Decision) {
+/**
+ * Решение менеджера по заявке UNDER_REVIEW — с записью в историю решений.
+ * Без `managerId` решает менеджер по умолчанию (сценарии моков и тесты).
+ */
+export function applyDecision(
+  application: ApplicationRow,
+  decision: Decision,
+  {
+    managerId = db.defaultManager.id,
+    comment = null,
+  }: { managerId?: string; comment?: string | null } = {},
+) {
+  const row: DecisionRow = {
+    id: nextId(),
+    application_id: application.id,
+    action: decision.action,
+    manager_user_id: managerId,
+    comment,
+    client_reason_code:
+      decision.action === 'REJECT' || decision.action === 'COUNTER_OFFER'
+        ? (decision.client_reason_code ?? null)
+        : null,
+    created_at: now(),
+  }
+  state.decisions.push(row)
   switch (decision.action) {
     case 'APPROVE': {
       const terms = requestedTerms(application)
       if (!terms) throw new Error('Одобрение заявки без условий')
-      return approve(application, terms)
+      return approve(application, terms, managerId)
     }
     case 'COUNTER_OFFER': {
       const rate = requestedTerms(application)?.annual_rate_pct ?? '24.00'
       const { amount_rub, term_months } = decision
-      application.offer = { amount_rub, term_months, annual_rate_pct: rate }
-      application.client_reason_code = 'HIGH_DEBT_LOAD'
-      return setStatus(application, 'COUNTER_OFFER')
+      application.offer = {
+        amount_rub,
+        term_months,
+        annual_rate_pct: rate,
+        created_at: row.created_at,
+        decision_id: row.id,
+      }
+      application.client_reason_code = decision.client_reason_code ?? 'HIGH_DEBT_LOAD'
+      return setStatus(application, 'COUNTER_OFFER', managerId)
     }
     case 'REQUEST_INFO':
       application.info_request = {
         question_text: decision.question_text,
         answer_text: null,
         answered_at: null,
+        created_at: row.created_at,
+        decision_id: row.id,
       }
-      return setStatus(application, 'NEED_INFO')
+      return setStatus(application, 'NEED_INFO', managerId)
     case 'REJECT':
       application.client_reason_code = decision.client_reason_code
-      return setStatus(application, 'REJECTED')
+      return setStatus(application, 'REJECTED', managerId)
   }
 }
 
@@ -675,7 +802,7 @@ function run(job: Job) {
   }
   if (job.kind === 'issue' && application.status === 'SIGNED') {
     application.issued_at = now()
-    setStatus(application, 'ISSUED')
+    setStatus(application, 'ISSUED', null)
   }
 }
 
@@ -724,7 +851,8 @@ export function answerInfoRequest(application: ApplicationRow, answerText: strin
 /** Принятие оффера: договор на условиях оффера, исходный запрос не меняется. */
 export function acceptOffer(application: ApplicationRow) {
   if (!application.offer) throw new Error('Принятие без оффера')
-  approve(application, application.offer)
+  const { amount_rub, term_months, annual_rate_pct } = application.offer
+  approve(application, { amount_rub, term_months, annual_rate_pct }, application.owner_user_id)
 }
 
 /** После подписи: SIGNED сразу, «Средства зачислены» через ISSUE_DELAY_MS (design.md §3.3). */
@@ -738,4 +866,122 @@ export function signApplication(application: ApplicationRow) {
 /** `?mock=error503`: реестр и БКИ не отвечают — 503 на привязке и отправке. */
 export function providerDown() {
   return getScenario() === 'error503'
+}
+
+/**
+ * Очередь для демо кабинета менеджера (`?mock=manager`): каждая демо-учётка C1–C7
+ * уже привязала компанию и отправила заявку, все заявки ждут решения менеджера.
+ * Запросы — как в docs/demo-data.md; отправлены в разное время, старые сверху очереди.
+ */
+const MANAGER_QUEUE: {
+  login: string
+  inn: string
+  purpose_text: string
+  purpose_code: PurposeCode
+  amount: string
+  term: number
+  product_id: string
+  sources: Partial<Record<TermsField, FieldSource>>
+  minutesAgo: number
+}[] = [
+  {
+    login: 'director.techservice',
+    inn: '0099010012',
+    purpose_text: 'Нужно 2 млн на 3 года на новое серверное оборудование',
+    purpose_code: 'EQUIPMENT',
+    amount: '2000000.00',
+    term: 36,
+    product_id: 'investment',
+    sources: { purpose_code: 'RULES', requested_amount_rub: 'RULES', term_months: 'RULES' },
+    minutesAgo: 95,
+  },
+  {
+    login: 'director.bakery',
+    inn: '0099020010',
+    purpose_text: 'Нужно 3 млн на 3 года на новую печь',
+    purpose_code: 'EQUIPMENT',
+    amount: '3000000.00',
+    term: 36,
+    product_id: 'investment',
+    sources: { purpose_code: 'LLM', requested_amount_rub: 'RULES', term_months: 'RULES' },
+    minutesAgo: 70,
+  },
+  {
+    login: 'ip.sokolova',
+    inn: '009903001040',
+    purpose_text: 'Пополнить оборотные средства на год',
+    purpose_code: 'WORKING_CAPITAL',
+    amount: '1000000.00',
+    term: 12,
+    product_id: 'working_capital',
+    sources: { purpose_code: 'LLM' },
+    minutesAgo: 48,
+  },
+  {
+    login: 'director.newstart',
+    inn: '0099040017',
+    purpose_text: 'Закупка товара на склад',
+    purpose_code: 'INVENTORY',
+    amount: '500000.00',
+    term: 12,
+    product_id: 'working_capital',
+    sources: { purpose_code: 'RULES' },
+    minutesAgo: 35,
+  },
+  {
+    login: 'director.vector',
+    inn: '0099050015',
+    purpose_text: 'Оплатить поставщикам за партию товара',
+    purpose_code: 'SUPPLIERS',
+    amount: '1500000.00',
+    term: 12,
+    product_id: 'working_capital',
+    sources: { purpose_code: 'RULES' },
+    minutesAgo: 22,
+  },
+  {
+    login: 'director.sklad',
+    inn: '0099060013',
+    purpose_text: 'Расплатиться с поставщиками',
+    purpose_code: 'SUPPLIERS',
+    amount: '800000.00',
+    term: 6,
+    product_id: 'working_capital',
+    sources: {},
+    minutesAgo: 12,
+  },
+  {
+    login: 'ip.orlov',
+    inn: '009907001027',
+    purpose_text: 'Деньги на оборот на полтора года',
+    purpose_code: 'WORKING_CAPITAL',
+    amount: '1000000.00',
+    term: 18,
+    product_id: 'working_capital',
+    sources: { purpose_code: 'LLM', term_months: 'LLM' },
+    minutesAgo: 4,
+  },
+]
+
+export function seedManagerQueue(at: number = Date.now()) {
+  for (const item of MANAGER_QUEUE) {
+    const user = db.findUserByEmail(`${item.login}@creditflow.demo`)
+    if (!user) throw new Error(`Нет демо-учётки ${item.login}`)
+    const bound = bindCompany(user.id, item.inn)
+    if (!bound.ok) throw new Error(`Не привязалась компания ${item.inn}: ${bound.code}`)
+    const application = db.createApplication(user, item.purpose_text)
+    Object.assign(application, {
+      purpose_code: item.purpose_code,
+      requested_amount_rub: item.amount,
+      term_months: item.term,
+      product_id: item.product_id,
+      terms_field_sources: { ...item.sources },
+    })
+    touch(application)
+    const submittedAt = new Date(at - item.minutesAgo * 60_000).toISOString()
+    application.created_at = submittedAt
+    application.submitted_at = submittedAt
+    setStatus(application, 'UNDER_REVIEW')
+    for (const event of db.listEvents(application.id)) event.created_at = submittedAt
+  }
 }

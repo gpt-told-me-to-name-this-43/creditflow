@@ -17,6 +17,7 @@ from app.api.stubs import (
     _build_credit_products,
     _build_get_application,
     _build_info_response,
+    _build_interpret,
     _build_list_applications,
     _build_offer_accept,
     _build_offer_decline,
@@ -33,6 +34,7 @@ from app.applications.deps import (
     require_client,
     session_factory,
 )
+from app.applications.interpret import interpret_application
 from app.applications.submit import submit as run_submit
 from app.applications.views import client_view
 from app.contracts import service as contracts
@@ -45,6 +47,8 @@ from app.schemas.client import (
     ContractView,
     CreditProduct,
     InfoResponseRequest,
+    InterpretRequest,
+    InterpretResponse,
     RevisionRequest,
     SignChallenge,
     SignRequest,
@@ -200,8 +204,39 @@ async def submit(
         idem,
     )
     # шаг 7: после COMMIT; падение процесса здесь закрывает recover_stale_ai_reports()
-    background.add_task(ai_reports.generate, sessions, result.report_id, result.generation_id)
+    background.add_task(
+        ai_reports.generate,
+        sessions,
+        request.app.state.llm,
+        settings.llm_report_deadline_seconds,
+        result.report_id,
+        result.generation_id,
+    )
     return result.view
+
+
+@router.post(
+    "/applications/{application_id}/interpret",
+    response_model=InterpretResponse,
+    responses=errors(E.COMPANY_NOT_BOUND, E.INVALID_STATUS_TRANSITION),
+    description="Распознаёт потребность без записи в заявку и без revision. "
+    "RULES/LLM — источник каждого предложения. NEEDS_CLARIFICATION содержит вопрос; "
+    "UNAVAILABLE оставляет доступным ручной ввод. Сбой LLM — 200 с правилами либо UNAVAILABLE. "
+    "Сохранение — отдельный PATCH после явного подтверждения. UI #9 ограничивает ввод "
+    "1000 символами; API использует тот же предел.",
+)
+@example_from(_build_interpret)
+async def interpret(
+    application_id: UUID,
+    body: InterpretRequest,
+    user: BoundClient,
+    session: DbSession,
+    settings: AppSettings,
+    request: Request,
+) -> InterpretResponse:
+    return await interpret_application(
+        session, request.app.state.llm, settings, user, application_id, body.purpose_text
+    )
 
 
 _IDEMPOTENT_409_422 = (

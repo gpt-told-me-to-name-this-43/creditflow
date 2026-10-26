@@ -1,0 +1,14 @@
+{
+  "task": "extract_intent",
+  "prompt_version": "v1",
+  "context_hash": "51ac6b04e8ea6c5a1ae9984a5408af73abe7436aae3dc5e0a7e63750e30e6078",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:47:37+00:00",
+  "usage": {
+    "prompt_tokens": 601,
+    "completion_tokens": 43,
+    "total_tokens": 644
+  },
+  "response": "{\n  \"purpose_code\": null,\n  \"requested_amount_rub\": 5000000,\n  \"term_months\": null,\n  \"clarification_question\": \"Как планируете использовать кредит?\"\n}"
+}

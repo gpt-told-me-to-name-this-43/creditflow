@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InfoIcon } from 'lucide-react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { api, unwrap } from '@/api/client.ts'
 import { errorMessage, isApiError, isStaleSession } from '@/api/errors.ts'
 import { markSession, storeApplication } from '@/api/queries/applications.ts'
@@ -13,20 +13,10 @@ import { CodeInput } from '@/components/ui/code-input.tsx'
 import { signTexts } from '@/content/contract.ts'
 import { formatCountdown, secondsUntil } from '@/lib/dates.ts'
 import { useIdempotentMutation } from '@/lib/idempotency.ts'
+import { useNow } from '@/lib/use-now.ts'
 
 type Schemas = components['schemas']
 type Application = Schemas['ClientApplicationView']
-
-/** Текущее время, обновляется раз в секунду, пока `active` — для таймера кода. */
-function useNow(active: boolean) {
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    if (!active) return
-    const timer = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(timer)
-  }, [active])
-  return now
-}
 
 function challengeError(error: unknown): string {
   if (isApiError(error, 'TOO_MANY_ATTEMPTS')) {
@@ -55,7 +45,7 @@ export function SignPanel({ application }: { application: Application }) {
   // Код погашен: попытки кончились или бэк сказал, что он истёк.
   const [burned, setBurned] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const now = useNow(challenge !== null && !burned)
+  const now = useNow(1000, challenge !== null && !burned)
   // Действующий challenge: ответ sign для заменённого кода не должен менять текущий.
   const currentChallenge = useRef<string | null>(null)
 

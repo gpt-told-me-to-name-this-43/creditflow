@@ -39,6 +39,8 @@ class FakeExtSim:
     async def handler(self, request: httpx.Request) -> httpx.Response:
         parts = request.url.path.strip("/").split("/")
         source = parts[0]
+        if source == "health":  # /health api проверяет ext-sim (design §3.7)
+            return httpx.Response(200, json={"status": "ok"})
         if source in {"egrul", "egrip", "fns"}:
             inn = parts[-1]
             self.calls.append((source, inn))

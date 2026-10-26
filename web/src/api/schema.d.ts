@@ -364,7 +364,7 @@ export interface paths {
         put?: never;
         /**
          * Ai Feedback
-         * @description Не требует и не меняет revision заявки. UPSERT по (ai_report_id, manager_user_id): повтор заменяет оценку. Не меняет статус, расчёт и allowed_actions. Реализация — #8.
+         * @description Не требует и не меняет revision заявки. UPSERT по (ai_report_id, manager_user_id): повтор заменяет оценку. Не меняет статус, расчёт и allowed_actions. Оценить можно заключение этой заявки в READY или FALLBACK; PENDING — 422.
          */
         post: operations["ai_feedback_api_v1_manager_applications__application_id__ai_feedback_post"];
         delete?: never;
@@ -380,12 +380,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Ai Report */
+        /**
+         * Get Ai Report
+         * @description Ровно то состояние, что сохранено в БД: GET ничего не вычисляет и не запускает.
+         */
         get: operations["get_ai_report_api_v1_manager_applications__application_id__ai_report_get"];
         put?: never;
         /**
          * Regenerate Ai Report
-         * @description Не меняет revision заявки. Сериализация по записи ai_reports; свежий PENDING возвращается без повторного запуска (200), в том числе при regenerate. READY/FALLBACK без regenerate — 200; иначе, включая зависший PENDING, — 202. При 202 опрашивать GET каждые 3 секунды. Новая генерация использует generation_id и updated_at (design §3.6). Реализация — #8.
+         * @description Не меняет revision заявки. Сериализация по записи ai_reports; свежий PENDING возвращается без повторного запуска (200), в том числе при regenerate. READY/FALLBACK без regenerate — 200; иначе, включая зависший PENDING, — 202. При 202 опрашивать GET каждые 3 секунды. Новая генерация использует generation_id и updated_at (design §3.6).
          */
         post: operations["regenerate_ai_report_api_v1_manager_applications__application_id__ai_report_post"];
         delete?: never;
@@ -4722,7 +4725,7 @@ export interface operations {
                      *       "id": "7f3e2a10-0000-4000-8000-000000000001",
                      *       "llm_mode": "replay",
                      *       "model_id": null,
-                     *       "prompt_version": "explain-v1",
+                     *       "prompt_version": "explain_risk/v1",
                      *       "report": null,
                      *       "scoring_result_id": "7f3e2a10-0000-4000-8000-000000000001",
                      *       "status": "PENDING",

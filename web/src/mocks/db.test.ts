@@ -163,7 +163,7 @@ describe('смена статусов по таймеру', () => {
 
     vi.advanceTimersByTime(REVIEW_DELAY_MS)
     expect(application).toMatchObject({ status: 'COUNTER_OFFER', revision: 3 })
-    expect(application.offer).toEqual({
+    expect(application.offer).toMatchObject({
       amount_rub: '2340000.00',
       term_months: 36,
       annual_rate_pct: '24.00',

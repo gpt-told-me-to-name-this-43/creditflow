@@ -1,0 +1,14 @@
+{
+  "task": "explain_risk",
+  "prompt_version": "v1",
+  "context_hash": "31632c98576afc8142dfdcd77eba431cfb83e225ea7055e37cae7d4dae74fbe5",
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter.ai",
+  "recorded_at": "2026-10-25T21:48:21+00:00",
+  "usage": {
+    "prompt_tokens": 957,
+    "completion_tokens": 270,
+    "total_tokens": 1227
+  },
+  "response": "{\n  \"summary\": \"Заявка на кредит для малого бизнеса имеет умеренный уровень риска. DSCR {dscr} ниже целевого уровня банка, что указывает на небольшой запас по платежу. Выручка снизилась {revenue_change}.\",\n  \"risk_factors\": [\n    {\"code\": \"DSCR_BELOW_TARGET\", \"text\": \"DSCR ниже целевого уровня банка: запас по платежу невелик\"},\n    {\"code\": \"REVENUE_DECLINE\", \"text\": \"Выручка снизилась\"}\n  ],\n  \"positive_factors\": [\n    {\"code\": \"CLEAN_CREDIT_HISTORY\", \"text\": \"Кредитная история без нарушений\"},\n    {\"code\": \"ESTABLISHED_BUSINESS\", \"text\": \"Бизнес работает два года и больше\"}\n  ],\n  \"manager_questions\": [\n    \"Как клиент планирует использовать кредит на покупку оборудования для улучшения финансового состояния?\",\n    \"Какова текущая структура долга клиента и как он планирует управлять ею?\",\n    \"Как клиент собирается компенсировать снижение выручки и обеспечить стабильный денежный поток для обслуживания кредита?\"\n  ]\n}"
+}

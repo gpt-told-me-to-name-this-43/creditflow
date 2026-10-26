@@ -1,18 +1,11 @@
-"""Стабы контракта API v1 (issue #6, тег `contract-v1`).
+"""Примеры контракта API v1 (issue #6, тег `contract-v1`).
 
-Каждый эндпоинт из таблицы #6 объявлен с настоящими request/response-моделями
-и описанием ошибок, а отвечает фиксированным примером, который проходит его
-`response_model`. Фронт генерирует клиент из `docs/openapi.json` и работает на моках,
-не дожидаясь бэка. Реализации заменяют стабы по модулям: auth/onboarding — #5,
-заявки и решения — #7, AI — #8. Сигнатуры при этом не меняются (иначе — label
-`contract-change` и запись в docs/api-changelog.md).
-
-Auth и онбординг реализованы (#5: app/auth, app/onboarding), конвейер заявок — #7
-(app/applications, app/manager): здесь их builder-функции примеров OpenAPI и оставшиеся
-стабы #8 (interpret, ai-report, ai-feedback). Доступ к ним проверяется по-настоящему: JWT
-и роль на уровне роутера (`require_role`, #5), поэтому матрица «роль × эндпоинт» проверяет и стабы.
-Данные стабов фиксированные, без владения и состояния, поэтому при APP_ENV=production
-стабы не монтируются.
+С #6 каждый эндпоинт был стабом с настоящими request/response-моделями, отвечавшим
+фиксированным примером. Реализации заменили стабы по модулям: auth/onboarding — #5,
+заявки и решения — #7, AI — #8; сигнатуры при этом не менялись (иначе — label
+`contract-change` и запись в docs/api-changelog.md). Здесь остались builder-функции
+примеров OpenAPI: реализации привязывают их через `example_from`, а генератор
+документации и тесты контракта строят из них те же ответы.
 """
 
 from datetime import date, datetime, timedelta
@@ -20,15 +13,12 @@ from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import Depends, Request
 
-from app.api.examples import EXAMPLE_NOW, example_from
+from app.api.examples import EXAMPLE_NOW
 from app.applications.catalog import CatalogProduct, match_products
-from app.auth.deps import require_role
 from app.core.config import Settings
-from app.core.errors import errors
 from app.core.idempotency import IdempotencyKeyHeader
-from app.schemas.auth import Role
 from app.schemas.client import (
     AmountSuggestion,
     ApplicationCreate,
@@ -41,7 +31,6 @@ from app.schemas.client import (
     CreditProduct,
     FieldSource,
     InfoResponseRequest,
-    InterpretRequest,
     InterpretResponse,
     InterpretStatus,
     InterpretSuggestions,
@@ -55,7 +44,6 @@ from app.schemas.client import (
     TermSuggestion,
     TimelineEvent,
 )
-from app.schemas.common import ErrorCode as E
 from app.schemas.enums import (
     AiReportStatus,
     ApplicationStatus,
@@ -69,7 +57,6 @@ from app.schemas.enums import (
     TermsSource,
 )
 from app.schemas.manager import (
-    AiFeedbackRequest,
     AiReportView,
     CalculatedOfferPreview,
     DecisionRequest,
@@ -95,11 +82,6 @@ _ID = UUID("7f3e2a10-0000-4000-8000-000000000001")
 # Фиксированное время демо-данных (= APP_AS_OF_DATE): прошлые события C2 и OpenAPI-примеры.
 # Для того, что должно быть «в будущем» относительно запроса (expires_at), — текущее время.
 _NOW = EXAMPLE_NOW
-
-client_router = APIRouter(tags=["client"], dependencies=[Depends(require_role(Role.CLIENT))])
-manager_router = APIRouter(
-    prefix="/manager", tags=["manager"], dependencies=[Depends(require_role(Role.MANAGER))]
-)
 
 
 def app_settings(request: Request) -> Settings:
@@ -253,21 +235,6 @@ def _build_interpret() -> InterpretResponse:
         ),
         clarification_question=None,
     )
-
-
-@client_router.post(
-    "/applications/{application_id}/interpret",
-    response_model=InterpretResponse,
-    responses=errors(E.COMPANY_NOT_BOUND, E.INVALID_STATUS_TRANSITION),
-    description="Распознаёт потребность без записи в заявку и без revision. "
-    "RULES/LLM — источник каждого предложения. NEEDS_CLARIFICATION содержит вопрос; "
-    "UNAVAILABLE оставляет доступным ручной ввод. Сбой LLM — 200 с правилами либо UNAVAILABLE. "
-    "Сохранение — отдельный PATCH после явного подтверждения. UI #9 ограничивает ввод "
-    "1000 символами; API использует тот же предел.",
-)
-@example_from(_build_interpret)
-async def interpret(application_id: UUID, body: InterpretRequest) -> InterpretResponse:
-    return _build_interpret()
 
 
 def _build_submit(body: SubmitRequest) -> ClientApplicationView:
@@ -539,7 +506,7 @@ def _ai_report() -> AiReportView:
         status=AiReportStatus.PENDING,
         llm_mode="replay",
         model_id=None,
-        prompt_version="explain-v1",
+        prompt_version="explain_risk/v1",
         report=None,
         fallback_reason=None,
         updated_at=_NOW,
@@ -550,50 +517,8 @@ def _build_get_ai_report() -> AiReportView:
     return _ai_report()
 
 
-@manager_router.get(
-    "/applications/{application_id}/ai-report", response_model=AiReportView, responses=errors()
-)
-@example_from(_build_get_ai_report)
-async def get_ai_report(application_id: UUID) -> AiReportView:
-    return _build_get_ai_report()
-
-
 def _build_regenerate_ai_report() -> AiReportView:
     return _ai_report()
-
-
-@manager_router.post(
-    "/applications/{application_id}/ai-report",
-    response_model=AiReportView,
-    status_code=202,
-    responses={
-        200: {
-            "model": AiReportView,
-            "description": "Существующий READY/FALLBACK или свежий PENDING",
-        },
-        **errors(),
-    },
-    description="Не меняет revision заявки. Сериализация по записи ai_reports; "
-    "свежий PENDING возвращается без повторного запуска (200), в том числе при regenerate. "
-    "READY/FALLBACK без regenerate — 200; иначе, включая зависший PENDING, — 202. "
-    "При 202 опрашивать GET каждые 3 секунды. Новая генерация использует "
-    "generation_id и updated_at (design §3.6). Реализация — #8.",
-)
-@example_from(_build_regenerate_ai_report)
-async def regenerate_ai_report(application_id: UUID, regenerate: bool = False) -> AiReportView:
-    return _build_regenerate_ai_report()
-
-
-@manager_router.post(
-    "/applications/{application_id}/ai-feedback",
-    status_code=204,
-    responses=errors(),
-    description="Не требует и не меняет revision заявки. UPSERT по "
-    "(ai_report_id, manager_user_id): повтор заменяет оценку. Не меняет статус, расчёт "
-    "и allowed_actions. Реализация — #8.",
-)
-async def ai_feedback(application_id: UUID, body: AiFeedbackRequest) -> None:
-    return None
 
 
 def _build_stats() -> ManagerStats:
@@ -605,6 +530,3 @@ def _build_stats() -> ManagerStats:
         ai_feedback_up_share={},
         ai_feedback_groups=[],
     )
-
-
-STUB_ROUTERS = (client_router, manager_router)

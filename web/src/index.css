@@ -5,8 +5,11 @@
 /*
  * Токены темы. Сырые цвета живут только здесь, компоненты берут их через утилиты
  * (bg-primary, text-muted-foreground…).
- * Бренд-красный #EF3124 даёт с белым ≈ 4.1:1 — для обычного текста мало, поэтому
- * красный текст и белый текст на красном только жирные или крупные.
+ * Бренд-красный #EF3124 даёт с белым ≈ 4.1:1, а WCAG ослабляет порог 4.5:1 только для
+ * крупного текста (от 18.66 px жирным) — кнопки и бейджи 14 px его не проходят. Поэтому
+ * поверхности с текстом (--primary) — на тон темнее, #D6281C: ≈ 5.0:1 с белым. Бренд-красный
+ * остаётся у фокуса (--ring). Красный текст — --primary-text: на светлом фоне тот же
+ * #D6281C, на тёмном — светлее, ≈ 6:1 с фоном.
  * Ошибки — отдельный --destructive, чтобы не путались с брендом.
  */
 :root {
@@ -16,8 +19,9 @@
   --card-foreground: #1f1f22;
   --popover: #ffffff;
   --popover-foreground: #1f1f22;
-  --primary: #ef3124;
+  --primary: #d6281c;
   --primary-foreground: #ffffff;
+  --primary-text: #d6281c;
   --secondary: #f3f4f5;
   --secondary-foreground: #1f1f22;
   --muted: #f3f4f5;
@@ -33,6 +37,11 @@
   --input: #d5d7da;
   --ring: #ef3124;
   --radius: 0.75rem;
+  /* Серии графиков (выписка в карточке менеджера): палитра проверена на CVD и контраст
+     с поверхностью карточки; третья серия ниже 3:1 — рядом всегда легенда и таблица. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
 }
 
 .dark {
@@ -42,8 +51,9 @@
   --card-foreground: #f2f2f3;
   --popover: #26262a;
   --popover-foreground: #f2f2f3;
-  --primary: #ef3124;
+  --primary: #d6281c;
   --primary-foreground: #ffffff;
+  --primary-text: #ff7a6e;
   --secondary: #2f2f34;
   --secondary-foreground: #f2f2f3;
   --muted: #2f2f34;
@@ -57,6 +67,9 @@
   --border: #3a3a40;
   --input: #4a4a50;
   --ring: #ef3124;
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
 }
 
 @theme inline {
@@ -69,6 +82,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-text: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -82,6 +96,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

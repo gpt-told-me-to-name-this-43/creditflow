@@ -1,0 +1,17 @@
+# E2E (#10): тестовое окружение поверх основного стека. Подключается только явно:
+#   TEST_RESET_TOKEN=… docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build -d --wait
+# (make e2e-up). Значения ниже перекрывают .env: LLM только из записей replay,
+# reset включён и защищён токеном из окружения запуска (в CI — секрет job-а).
+
+services:
+  api:
+    environment:
+      APP_ENV: test
+      LLM_MODE: replay
+      DEMO_AUTH_ENABLED: "true"
+      TEST_RESET_ENABLED: "true"
+      TEST_RESET_TOKEN: ${TEST_RESET_TOKEN:?задайте TEST_RESET_TOKEN для e2e}
+      # Каждая спека входит заново после reset (id учёток меняются): ~40 входов за прогон
+      # с одного IP. Флаг снимает только лимит 10 входов/мин с IP; блокировка после
+      # неверных паролей остаётся. Сам лимит проверяют тесты api (#5).
+      LOAD_TEST_ENABLED: "true"

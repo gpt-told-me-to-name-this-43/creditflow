@@ -4,6 +4,8 @@
 
 COMPOSE := docker compose
 COMPOSE_DEV := docker compose -f docker-compose.yml -f docker-compose.dev.yml
+# E2E (#10): стек с LLM_MODE=replay, APP_ENV=test и reset по TEST_RESET_TOKEN.
+COMPOSE_E2E := docker compose -f docker-compose.yml -f docker-compose.e2e.yml
 
 # Тестам api нужен живой PostgreSQL: по умолчанию — db из `make dev` на localhost:5432.
 -include .env
@@ -17,7 +19,7 @@ API_URL ?= http://localhost:8080/api/v1
 .PHONY: help up down dev up-llm \
 	test test-api test-ext-sim test-web lint lint-api lint-ext-sim lint-web \
 	fmt fmt-api fmt-ext-sim fmt-web migrate seed openapi api-matrix er state-machine demo-accounts bru-export demo-data \
-	dev-token demo-reset clean-reset bru llm-check llm-record eval-intent eval-injection e2e load
+	dev-token demo-reset clean-reset bru llm-check llm-record eval-intent eval-injection e2e-up e2e load
 
 help: ## Список целей
 	@grep -hE '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -123,22 +125,33 @@ bru: ## bru run всей Bruno-коллекции docs/api-collection (снач�
 	@API_URL='$(API_URL)' TEST_RESET_TOKEN='$(TEST_RESET_TOKEN)' DATABASE_URL='$(TEST_DATABASE_URL)' \
 		APP_SECRET_KEY='$(APP_SECRET_KEY)' scripts/bru_run.sh
 
-## --- Ещё не реализовано: цели падают, чтобы не создавать видимость работы ---
+# CLI сам читает .env; переменные окружения и make LLM_MODE=… имеют приоритет.
+# Значения не интерполируются в shell: ключи и JSON не печатаются и не исполняются.
+export $(filter LLM_%,$(.VARIABLES))
+LLM_ARGS ?=
 
 llm-check: ## Проверка LLM-провайдера (#8)
-	@echo "make llm-check: не реализовано, см. #8" >&2; exit 1
+	@cd api && uv run python -m app.llm.cli check $(LLM_ARGS)
 
-llm-record: ## Запись ответов LLM для replay (#8)
-	@echo "make llm-record: не реализовано, см. #8" >&2; exit 1
+llm-record: ## Дополнить replay: LLM_RECORD=1 LLM_MODE=openai и отдельная TEST_DATABASE_URL
+	@cd api && uv run python -m app.llm.cli record
 
 eval-intent: ## Eval распознавания потребности (#8)
-	@echo "make eval-intent: не реализовано, см. #8" >&2; exit 1
+	@cd api && uv run python -m app.llm.cli eval-intent $(LLM_ARGS)
 
-eval-injection: ## Prompt-injection кейсы (#8)
-	@echo "make eval-injection: не реализовано, см. #8" >&2; exit 1
+eval-injection: ## Injection в replay/disabled/openai; явно задайте отдельную TEST_DATABASE_URL
+	@cd api && uv run python -m app.llm.cli eval-injection
 
-e2e: ## Playwright E2E (#10)
-	@echo "make e2e: не реализовано, см. #10" >&2; exit 1
+e2e-up: ## Стек для E2E: replay, APP_ENV=test, reset по токену (TEST_RESET_TOKEN в .env или make … TEST_RESET_TOKEN=…)
+	@test $$(printf '%s' '$(TEST_RESET_TOKEN)' | wc -c) -ge 32 || { echo 'TEST_RESET_TOKEN ≥ 32 байт (openssl rand -hex 32): в .env или make e2e-up TEST_RESET_TOKEN=…' >&2; exit 1; }
+	TEST_RESET_TOKEN='$(TEST_RESET_TOKEN)' $(COMPOSE_E2E) up --build -d --wait
+
+# E2E_COMPOSE: s9 останавливает ext-sim; спеки запускаются из web/, поэтому пути абсолютные.
+e2e: ## Playwright E2E (#10) против стека из make e2e-up; один worker, без ретраев
+	cd web && TEST_RESET_TOKEN='$(TEST_RESET_TOKEN)' \
+		E2E_COMPOSE='docker compose -f $(CURDIR)/docker-compose.yml -f $(CURDIR)/docker-compose.e2e.yml' pnpm e2e
+
+## --- Следующие задачи ---
 
 load: ## Нагрузочный тест locust (#5)
 	@echo "make load: не реализовано, см. #5" >&2; exit 1

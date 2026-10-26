@@ -178,19 +178,3 @@ export function toContract(application: ApplicationRow): Schemas['ContractView']
     ].join('\n'),
   }
 }
-
-export function toQueueItem(application: ApplicationRow): Schemas['QueueItem'] {
-  const company = db.findCompany(application.company_id)
-  return {
-    id: application.id,
-    status: application.status,
-    company_inn: company?.inn ?? '',
-    company_name: company?.name ?? '',
-    product_id: application.product_id,
-    requested_amount_rub: application.requested_amount_rub,
-    term_months: application.term_months,
-    submitted_at: application.submitted_at,
-    blocking_codes: [],
-    suggested_action: null,
-  }
-}
