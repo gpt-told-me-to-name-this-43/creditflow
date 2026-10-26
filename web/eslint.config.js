@@ -5,7 +5,17 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'msw', 'src/routeTree.gen.ts', 'src/api/schema.d.ts'] },
+  {
+    ignores: [
+      'dist',
+      'node_modules',
+      'msw',
+      'src/routeTree.gen.ts',
+      'src/api/schema.d.ts',
+      'playwright-report',
+      'test-results',
+    ],
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.strict],
