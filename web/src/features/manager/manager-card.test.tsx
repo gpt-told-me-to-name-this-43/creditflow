@@ -171,6 +171,14 @@ describe('кабинет менеджера', () => {
     expect(within(dialog).getByRole('button', { name: 'Обновить' })).toBeInTheDocument()
   })
 
+  it('чужая или несуществующая заявка — экран 404 внутри каркаса', async () => {
+    await managerWithQueue()
+    renderApp('/manager/applications/00000000-0000-4000-8000-000000000000')
+    expect(await screen.findByText('Страница не найдена')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'На главную' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'CreditFlow' })).toBeInTheDocument()
+  })
+
   it('стоп-фактор: только отказ, причина подсказана, без комментария не уходит', async () => {
     await managerWithQueue()
     const { user, application } = await openCard('director.vector', 'ООО «Вектор»')

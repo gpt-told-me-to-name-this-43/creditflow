@@ -1,12 +1,11 @@
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Link, Outlet, useRouter } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button.tsx'
-import { EmptyState } from '@/components/ui/empty-state.tsx'
+import { PageNotFound } from '@/components/route-states.tsx'
 import { ErrorState } from '@/components/ui/error-state.tsx'
 import { Toaster } from '@/components/ui/sonner.tsx'
 import { ThemeToggle } from '@/components/ui/theme-toggle.tsx'
 import { TooltipProvider } from '@/components/ui/tooltip.tsx'
-import { pageErrors } from '@/content/errors.ts'
 import { type Auth, signOut, useSignedIn } from '@/lib/auth.ts'
 import type { ReactNode } from 'react'
 
@@ -83,15 +82,5 @@ function RootError({ reset }: { reset: () => void }) {
 }
 
 function NotFound() {
-  return (
-    <EmptyState
-      title={pageErrors.notFound.title}
-      description={pageErrors.notFound.description}
-      action={
-        <Button asChild variant="outline">
-          <Link to="/">{pageErrors.notFound.action}</Link>
-        </Button>
-      }
-    />
-  )
+  return <PageNotFound />
 }
