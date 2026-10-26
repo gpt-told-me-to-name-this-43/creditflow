@@ -19,7 +19,7 @@ export function SuggestionBadge({ action }: { action: SuggestedAction }) {
         <button
           type="button"
           onClick={(event) => event.stopPropagation()}
-          className="rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className="justify-self-start rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
           <Badge variant={VARIANTS[action]}>{text.label}</Badge>
         </button>

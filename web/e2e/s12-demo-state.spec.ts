@@ -16,6 +16,17 @@ test('s12: демо-состояние — очередь C3, C6, C7, сводк
   for (const name of ['ООО «Склад-М»', 'ИП Орлов Д. С.']) {
     await expect(queue.row(name)).toBeVisible()
   }
+  // Рекомендация и кнопки по allowed_actions: C6 — стоп-фактор, только отказ;
+  // C7 — ручное рассмотрение без встречного предложения (лимита нет).
+  const c6 = await queue.open('ООО «Склад-М»')
+  await expect(c6.panel).toContainText('Стоп-фактор')
+  await expect(c6.actionButtons()).toHaveText(['Отказать'])
+  await queue.goto()
+  const c7 = await queue.open('ИП Орлов Д. С.')
+  await expect(c7.panel).toContainText('Ручное рассмотрение')
+  await expect(c7.actionButtons()).toHaveText(['Одобрить', 'Запросить информацию', 'Отказать'])
+  await queue.goto()
+
   // C3 ждёт ответа клиента на вопрос менеджера.
   await queue.page.getByRole('link', { name: /^Ждут ответа/ }).click()
   await expect(queue.row(companies.C3.name)).toBeVisible()
