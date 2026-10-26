@@ -123,19 +123,24 @@ bru: ## bru run всей Bruno-коллекции docs/api-collection (снач�
 	@API_URL='$(API_URL)' TEST_RESET_TOKEN='$(TEST_RESET_TOKEN)' DATABASE_URL='$(TEST_DATABASE_URL)' \
 		APP_SECRET_KEY='$(APP_SECRET_KEY)' scripts/bru_run.sh
 
-## --- Ещё не реализовано: цели падают, чтобы не создавать видимость работы ---
+# CLI сам читает .env; переменные окружения и make LLM_MODE=… имеют приоритет.
+# Значения не интерполируются в shell: ключи и JSON не печатаются и не исполняются.
+export $(filter LLM_%,$(.VARIABLES))
+LLM_ARGS ?=
 
 llm-check: ## Проверка LLM-провайдера (#8)
-	@echo "make llm-check: не реализовано, см. #8" >&2; exit 1
+	@cd api && uv run python -m app.llm.cli check $(LLM_ARGS)
 
-llm-record: ## Запись ответов LLM для replay (#8)
-	@echo "make llm-record: не реализовано, см. #8" >&2; exit 1
+llm-record: ## Дополнить replay: LLM_RECORD=1 LLM_MODE=openai и отдельная TEST_DATABASE_URL
+	@cd api && uv run python -m app.llm.cli record
 
 eval-intent: ## Eval распознавания потребности (#8)
-	@echo "make eval-intent: не реализовано, см. #8" >&2; exit 1
+	@cd api && uv run python -m app.llm.cli eval-intent $(LLM_ARGS)
 
-eval-injection: ## Prompt-injection кейсы (#8)
-	@echo "make eval-injection: не реализовано, см. #8" >&2; exit 1
+eval-injection: ## Injection в replay/disabled/openai; явно задайте отдельную TEST_DATABASE_URL
+	@cd api && uv run python -m app.llm.cli eval-injection
+
+## --- Следующие задачи ---
 
 e2e: ## Playwright E2E (#10)
 	@echo "make e2e: не реализовано, см. #10" >&2; exit 1
